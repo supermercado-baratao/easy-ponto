@@ -17,7 +17,7 @@ const typographyVariants = cva('text-primary', {
       h4: 'scroll-m-20 text-2xl font-semibold tracking-tight',
       h5: 'text-xl font-bold',
       h6: 'text-lg font-bold',
-      base: 'text-base leading-7',
+      base: 'text-base leading-5',
       'body-small': 'text-sm leading-none font-medium',
       subtitle: 'text-sm leading-none font-medium',
       caption: 'text-xs leading-none font-medium text-muted-foreground'
