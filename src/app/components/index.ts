@@ -1,3 +1,4 @@
+export * from './ui/custom/alert'
 export * from './ui/custom/loader'
 export * from './ui/custom/paper'
 export * from './ui/custom/typography'
