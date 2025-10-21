@@ -8,6 +8,7 @@ dotenv.config()
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    environment: 'jsdom'
+    environment: 'jsdom',
+    exclude: ['node_modules', 'src/tests/e2e/**']
   }
 })
