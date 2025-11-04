@@ -1,8 +1,13 @@
 import { HTTP_METHODS } from 'next/dist/server/web/http'
-import { describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import { TErrorResponse } from '@/infra/errors'
 import { API_BASE_URL } from '@/shared/constants/base-url'
+import orchestrator from '@/tests/orchestrator'
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices()
+})
 
 describe('Not allowed methods to /api/v1/status', () => {
   test('should return 405 and the response error', async () => {

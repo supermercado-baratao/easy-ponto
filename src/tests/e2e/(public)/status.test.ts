@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test'
 
+import orchestrator from '@/tests/orchestrator'
+
+test.beforeAll(async () => {
+  await orchestrator.waitForAllServices()
+})
+
 test.describe('Status Page', () => {
   test('Retrieving current system status', async ({ page }) => {
     await page.goto('/status')

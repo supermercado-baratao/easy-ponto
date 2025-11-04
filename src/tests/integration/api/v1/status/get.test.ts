@@ -1,7 +1,12 @@
-import { describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import { API_BASE_URL } from '@/shared/constants/base-url'
 import { TStatus } from '@/shared/types/status'
+import orchestrator from '@/tests/orchestrator'
+
+beforeAll(async () => {
+  await orchestrator.waitForAllServices()
+})
 
 describe('GET to /api/v1/status', () => {
   describe('Anonymous user', () => {
