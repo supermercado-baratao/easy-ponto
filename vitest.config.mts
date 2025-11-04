@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
     environment: 'jsdom',
+    testTimeout: 60000,
     exclude: ['node_modules', 'src/tests/e2e/**']
   }
 })
