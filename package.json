@@ -28,6 +28,7 @@
     "test:integration:watch": "vitest --no-file-parallelism",
     "test:e2e": "exec playwright test",
     "test:e2e:ui": "exec playwright test --ui",
+    "test:external": "RUN_EXTERNAL_TESTS=true vitest --no-file-parallelism --run",
     "eslint:check": "eslint .",
     "eslint:fix": "eslint --fix .",
     "prettier:check": "prettier --check .",
@@ -39,6 +40,7 @@
   "dependencies": {
     "@radix-ui/react-progress": "1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "axios": "1.13.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "dayjs": "1.11.18",

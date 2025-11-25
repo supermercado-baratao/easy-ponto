@@ -10,6 +10,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     testTimeout: 60000,
+    include: process.env.RUN_EXTERNAL_TESTS
+      ? ['src/tests/external/**/*.test.ts']
+      : ['src/tests/**/*.test.ts', '!src/tests/external/**'],
     exclude: ['node_modules', 'src/tests/e2e/**']
   }
 })

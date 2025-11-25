@@ -28,6 +28,7 @@ export default [
       'import/no-anonymous-default-export': 'off',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      'import/named': 'off',
       'import/first': 'error',
       'import/newline-after-import': 'error',
       'import/no-duplicates': 'error'
