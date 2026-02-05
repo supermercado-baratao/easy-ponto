@@ -1,21 +1,13 @@
 import retry from 'async-retry'
 
-import { API_BASE_URL } from '@/shared/constants/base-url'
+import { StatusModel } from '@/models'
 
 const waitForAllServices = async () => {
-  await retry(
-    async () => {
-      const response = await fetch(`${API_BASE_URL}/status`)
-      if (!response.ok) {
-        throw new Error('Service not ready')
-      }
-    },
-    {
-      retries: 60,
-      maxTimeout: 1000,
-      minTimeout: 100
-    }
-  )
+  await retry(async () => await new StatusModel().check(), {
+    retries: 60,
+    maxTimeout: 1000,
+    minTimeout: 100
+  })
 }
 
 const orchestrator = {

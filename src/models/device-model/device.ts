@@ -1,31 +1,53 @@
-import { AxiosError, AxiosInstance } from 'axios'
+import { AxiosInstance } from 'axios'
 
-import { DeviceCommunicationError, InternalServerError } from '@/infra/errors'
 import {
-  TDeviceAboutREP,
+  TDeviceAboutRep,
   TDeviceCompany,
-  TDeviceCredentials,
   TDeviceIdCloudStatus,
   TDevicePublicKey,
   TDeviceSystemConfiguration,
   TDeviceSystemDatetime,
   TDeviceSystemInformation,
   TDeviceUser,
+  TGetAfdParams,
+  TLoginCredentials,
   TSystemDaylightSavingTime,
   TSystemNetworkInformation,
   TUsersInfo
-} from '@/shared/types/device'
+} from './types'
 
-class Device {
+interface IDeviceModel {
+  login(credentials: TLoginCredentials): Promise<string>
+  sessionIsValid(session: string): Promise<boolean>
+  countUsers(session: string): Promise<number>
+  loadUsers(session: string): Promise<TDeviceUser[]>
+  exportUsers(session: string): Promise<string>
+  loadCompany(session: string): Promise<TDeviceCompany>
+  getSystemInformation(session: string): Promise<TDeviceSystemInformation>
+  getAboutRep(session: string): Promise<TDeviceAboutRep>
+  getIdCloudStatus(session: string): Promise<TDeviceIdCloudStatus>
+  getSystemDatetime(session: string): Promise<TDeviceSystemDatetime>
+  getAfd({ session, initialDate, initialNsr }: TGetAfdParams): Promise<string>
+  getPublicKey(session: string): Promise<TDevicePublicKey>
+  getSystemNetworkInformation(
+    session: string
+  ): Promise<TSystemNetworkInformation>
+  getCoilPaper(session: string): Promise<number>
+  getSystemDaylightSavingTime(
+    session: string
+  ): Promise<TSystemDaylightSavingTime>
+  getUsersInfo(session: string): Promise<TUsersInfo>
+  getSystemConfiguration(session: string): Promise<TDeviceSystemConfiguration>
+}
+
+export class DeviceModel implements IDeviceModel {
   private api: AxiosInstance
 
   constructor(api: AxiosInstance) {
     this.api = api
-
-    return this.proxy()
   }
 
-  async login(credentials: TDeviceCredentials) {
+  async login(credentials: TLoginCredentials): Promise<string> {
     const {
       data: { session }
     }: { data: { session: string } } = await this.api.post(
@@ -35,7 +57,7 @@ class Device {
     return session
   }
 
-  async sessionIsValid(session: string) {
+  async sessionIsValid(session: string): Promise<boolean> {
     const {
       data: { session_is_valid: sessionIsValid }
     }: { data: { session_is_valid: boolean } } = await this.api.post(
@@ -44,7 +66,7 @@ class Device {
     return sessionIsValid
   }
 
-  async countUsers(session: string) {
+  async countUsers(session: string): Promise<number> {
     const {
       data: { count }
     }: { data: { count: number } } = await this.api.post(
@@ -53,7 +75,7 @@ class Device {
     return count
   }
 
-  async loadUsers(session: string) {
+  async loadUsers(session: string): Promise<TDeviceUser[]> {
     const {
       data: { users }
     }: { data: { users: TDeviceUser[] } } = await this.api.post(
@@ -66,14 +88,14 @@ class Device {
     return users
   }
 
-  async exportUsers(session: string) {
+  async exportUsers(session: string): Promise<string> {
     const { data }: { data: string } = await this.api.post(
       this.normalizeUrl({ path: '/export_users_csv', session })
     )
     return data
   }
 
-  async loadCompany(session: string) {
+  async loadCompany(session: string): Promise<TDeviceCompany> {
     const {
       data: { company }
     }: { data: { company: TDeviceCompany } } = await this.api.post(
@@ -82,47 +104,41 @@ class Device {
     return company
   }
 
-  async getSystemInformation(session: string) {
+  async getSystemInformation(
+    session: string
+  ): Promise<TDeviceSystemInformation> {
     const { data }: { data: TDeviceSystemInformation } = await this.api.post(
       this.normalizeUrl({ path: '/get_system_information', session })
     )
     return data
   }
 
-  async getAboutREP(session: string) {
-    const { data }: { data: TDeviceAboutREP } = await this.api.post(
+  async getAboutRep(session: string): Promise<TDeviceAboutRep> {
+    const { data }: { data: TDeviceAboutRep } = await this.api.post(
       this.normalizeUrl({ path: '/get_about', session })
     )
     return data
   }
 
-  async getIdCloudStatus(session: string) {
+  async getIdCloudStatus(session: string): Promise<TDeviceIdCloudStatus> {
     const { data }: { data: TDeviceIdCloudStatus } = await this.api.post(
       this.normalizeUrl({ path: '/get_idcloud', session })
     )
     return data
   }
 
-  async getSystemDatetime(session: string) {
+  async getSystemDatetime(session: string): Promise<TDeviceSystemDatetime> {
     const { data }: { data: TDeviceSystemDatetime } = await this.api.post(
       this.normalizeUrl({ path: '/get_system_date_time', session })
     )
     return data
   }
 
-  async getAFD({
+  async getAfd({
     session,
     initialDate,
     initialNsr
-  }: {
-    session: string
-    initialDate?: {
-      day: number
-      month: number
-      year: number
-    }
-    initialNsr?: number
-  }) {
+  }: TGetAfdParams): Promise<string> {
     let body = undefined
     if (initialDate) body = initialDate
     if (initialNsr) body = initialNsr
@@ -133,21 +149,23 @@ class Device {
     return data
   }
 
-  async getPublicKey(session: string) {
+  async getPublicKey(session: string): Promise<TDevicePublicKey> {
     const { data }: { data: TDevicePublicKey } = await this.api.post(
       this.normalizeUrl({ path: '/get_public_key', session })
     )
     return data
   }
 
-  async getSystemNetworkInformation(session: string) {
+  async getSystemNetworkInformation(
+    session: string
+  ): Promise<TSystemNetworkInformation> {
     const { data }: { data: TSystemNetworkInformation } = await this.api.post(
       this.normalizeUrl({ path: '/get_system_network', session })
     )
     return data
   }
 
-  async getCoilPaper(session: string) {
+  async getCoilPaper(session: string): Promise<number> {
     const {
       data: { coil_paper: coilPaper }
     }: { data: { coil_paper: number } } = await this.api.post(
@@ -156,21 +174,25 @@ class Device {
     return coilPaper
   }
 
-  async getSystemDaylightSavingTime(session: string) {
+  async getSystemDaylightSavingTime(
+    session: string
+  ): Promise<TSystemDaylightSavingTime> {
     const { data }: { data: TSystemDaylightSavingTime } = await this.api.post(
       this.normalizeUrl({ path: '/get_system_daylight_saving_time', session })
     )
     return data
   }
 
-  async getUsersInfo(session: string) {
+  async getUsersInfo(session: string): Promise<TUsersInfo> {
     const { data }: { data: TUsersInfo } = await this.api.post(
       this.normalizeUrl({ path: '/get_info', session })
     )
     return data
   }
 
-  async getSystemConfiguration(session: string) {
+  async getSystemConfiguration(
+    session: string
+  ): Promise<TDeviceSystemConfiguration> {
     const { data }: { data: TDeviceSystemConfiguration } = await this.api.post(
       this.normalizeUrl({ path: '/get_system_configuration', session })
     )
@@ -180,32 +202,4 @@ class Device {
   private normalizeUrl({ path, session }: { path: string; session: string }) {
     return `${path}.fcgi?session=${session}&mode=671`
   }
-
-  private proxy() {
-    return new Proxy(this, {
-      get: (target, prop) => {
-        const value = target[prop as keyof typeof target]
-
-        if (typeof value !== 'function') return value
-
-        const handler = async (...args: unknown[]) => {
-          try {
-            return await value.apply(target, args)
-          } catch (error: unknown) {
-            if (error instanceof AxiosError) {
-              throw new DeviceCommunicationError({
-                cause: error,
-                statusCode: error.response?.status
-              })
-            }
-            throw new InternalServerError({ cause: error })
-          }
-        }
-
-        return handler
-      }
-    })
-  }
 }
-
-export default Device
