@@ -3,13 +3,12 @@
 import dayjs from 'dayjs'
 import { describe, expect, test } from 'vitest'
 
-import { createDeviceApiInstance } from '@/infra/device-api'
-import Device from '@/server/models/device'
+import { createDeviceApiInstance, DeviceModel } from '@/models'
 
-const api = createDeviceApiInstance(process.env.DEVICE_BASE_URL as string)
-const device = new Device(api)
+const api = createDeviceApiInstance(process.env.DEVICE_BASE_URL!)
+const device = new DeviceModel(api)
 
-let session: string = ''
+let session: string = process.env.DEVICE_SESSION_TOKEN!
 
 describe('Model Device', () => {
   test('Login to the device', async () => {
@@ -81,7 +80,7 @@ describe('Model Device', () => {
   })
 
   test('Getting about REP', async () => {
-    const data = await device.getAboutREP(session)
+    const data = await device.getAboutRep(session)
     expect(data.mac).toBeTypeOf('string')
     expect(data.nSerie).toBeTypeOf('string')
     expect(data.versionFW).toBeTypeOf('number')
@@ -108,7 +107,7 @@ describe('Model Device', () => {
   })
 
   test('Getting AFD', async () => {
-    const data = await device.getAFD({ session })
+    const data = await device.getAfd({ session })
     expect(data).toBeTypeOf('string')
   })
 

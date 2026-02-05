@@ -1,5 +1,5 @@
 import { Progress, Typography } from '@/app/components'
-import { TDatabaseStatus } from '@/shared/types/status'
+import { TStatusDatabase } from '@/models'
 
 import { Section } from './section'
 
@@ -8,7 +8,7 @@ type TListItem = {
   value: string | number
 }
 
-export const DatabaseSection = ({ status }: { status: TDatabaseStatus }) => {
+export const DatabaseSection = ({ status }: { status: TStatusDatabase }) => {
   const items: TListItem[] = [
     {
       label: 'Versão',
@@ -16,11 +16,11 @@ export const DatabaseSection = ({ status }: { status: TDatabaseStatus }) => {
     },
     {
       label: 'Conexões Máximas',
-      value: status.max_connections
+      value: status.maxConnections
     },
     {
       label: 'Conexões Abertas',
-      value: status.opened_connections
+      value: status.openedConnections
     }
   ]
 
@@ -39,7 +39,7 @@ export const DatabaseSection = ({ status }: { status: TDatabaseStatus }) => {
           </li>
         ))}
       </ul>
-      <Progress value={status.opened_connections} className="mt-2" />
+      <Progress value={status.openedConnections} className="mt-2" />
     </Section>
   )
 }

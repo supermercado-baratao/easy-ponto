@@ -1,13 +1,15 @@
 import './style.css'
 
 import { DottedMap, Paper, Typography } from '@/app/components'
-import status from '@/server/models/status'
-import { formatDatetime } from '@/shared/utils/datetime'
+import { dayjs } from '@/lib'
+import { StatusModel } from '@/models'
 
 import { DatabaseSection, Wrapper } from './_components'
 
+const statusModel = new StatusModel()
+
 const Status = async () => {
-  const data = await status.check()
+  const data = await statusModel.check()
 
   return (
     <Wrapper>
@@ -18,7 +20,10 @@ const Status = async () => {
               Status do Sistema
             </Typography>
             <Typography component="p" variant="body-small" className="mt-4">
-              Atualizado em {formatDatetime(data.updated_at)}
+              Atualizado em{' '}
+              {dayjs(data.updatedAt).format(
+                'DD [de] MMMM [de] YYYY [às] HH:mm:ss'
+              )}
             </Typography>
           </header>
           <main className="lg:relative flex-1 w-full">

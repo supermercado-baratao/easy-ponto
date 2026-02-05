@@ -5,7 +5,7 @@ import {
   type LucideProps
 } from 'lucide-react'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib'
 
 type SpinnerVariantProps = Omit<SpinnerProps, 'variant'>
 

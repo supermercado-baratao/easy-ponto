@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { createMap } from 'svg-dotted-map'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib'
 
 interface Marker {
   lat: number
