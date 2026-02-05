@@ -1,6 +1,6 @@
 import { AlertCircle, X } from 'lucide-react'
 
-import { cn } from '@/app/lib/utils'
+import { cn } from '@/lib'
 
 import {
   Alert as AlertWrapper,
