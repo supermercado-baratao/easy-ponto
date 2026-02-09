@@ -3,7 +3,8 @@ import '@/app/styles/globals.css'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
-import { UIProvider } from '../contexts/ui-context'
+import { ThemeProvider } from '../components'
+import { UIProvider } from '../contexts'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,9 +30,16 @@ const RootLayout = ({
   return (
     <html lang="pt-BR">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UIProvider>{children}</UIProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <UIProvider>{children}</UIProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
