@@ -16,14 +16,9 @@ function prepare {
   pnpm services:up && pnpm services:wait:database && pnpm db:migrate
 }
 
-function check_build {
-  if [ ! -d ".next" ]; then
-    pnpm next:build
-  fi
-}
-
 function test_concurrently {
   local args=("$@")
+  pnpm next:build
   concurrently -n next,tests --hide next -k -s command-tests \
     "pnpm start" \
     "concurrently -n integration,e2e -s all \"pnpm test:integration ${args[*]}\" \"pnpm test:e2e ${args[*]}\""
@@ -35,7 +30,6 @@ prepare
 
 if [ "$1" = "test" ]; then
   shift
-  check_build
   test_concurrently "$@"
   cleanup $?
 elif [ "$1" = "build" ]; then
