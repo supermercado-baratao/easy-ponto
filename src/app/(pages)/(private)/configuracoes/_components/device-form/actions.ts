@@ -2,7 +2,7 @@
 
 import { DeviceCredentials } from '@prisma/client'
 
-import { handleFormAction, TState } from '@/infra'
+import { handleFormAction, TState } from '@/infra/form-action'
 import { deviceCredentialsModel, TDeviceCredentialsFormData } from '@/models'
 
 export const saveDeviceSettings = async (

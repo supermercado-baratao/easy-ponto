@@ -13,7 +13,7 @@ import {
   FormField,
   Loader
 } from '@/app/components'
-import { TState } from '@/infra'
+import { TState } from '@/infra/form-action'
 import { TDeviceCredentialsFormData } from '@/models'
 
 import { saveDeviceSettings } from './actions'

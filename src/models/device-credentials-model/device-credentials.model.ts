@@ -1,6 +1,6 @@
 import { DeviceCredentials } from '@prisma/client'
 
-import { prisma } from '@/infra'
+import { prisma } from '@/infra/prisma'
 import { TInputData } from '@/types'
 
 import { schema } from './schema'
