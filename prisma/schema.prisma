@@ -12,3 +12,25 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  devicesCredentials DeviceCredentials[]
+}
+
+model DeviceCredentials {
+  id       String @id @default(uuid())
+  ip       String
+  login    String
+  password String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+}
