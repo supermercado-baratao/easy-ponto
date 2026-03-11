@@ -1,9 +1,9 @@
 import retry from 'async-retry'
 
-import { StatusModel } from '@/models'
+import { statusModel } from '@/models'
 
 const waitForAllServices = async () => {
-  await retry(async () => await new StatusModel().check(), {
+  await retry(async () => await statusModel.check(), {
     retries: 60,
     maxTimeout: 1000,
     minTimeout: 100

@@ -1,3 +1,2 @@
-export * from './device'
-export * from './device-api'
+export * from './device.model'
 export * from './types'

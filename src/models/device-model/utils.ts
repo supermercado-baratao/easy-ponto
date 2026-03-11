@@ -11,3 +11,11 @@ export const createDeviceApiInstance = (baseURL: string) => {
     insecureHTTPParser: true
   })
 }
+
+export const normalizeUrl = ({
+  path,
+  session
+}: {
+  path: string
+  session: string
+}) => `${path}.fcgi?session=${session}&mode=671`
