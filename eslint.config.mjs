@@ -31,8 +31,17 @@ export default [
       'import/named': 'off',
       'import/first': 'error',
       'import/newline-after-import': 'error',
-      'import/no-duplicates': 'error'
+      'import/no-duplicates': 'error',
+      'react-hooks/exhaustive-deps': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off'
     },
     ignorePatterns: ['next-env.d.ts']
-  })
+  }),
+  {
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'error'
+    },
+    files: ['src/**/*.ts'],
+    ignores: ['src/tests/**/*.ts', 'src/app/hooks/*.ts', '**/route.ts']
+  }
 ]
