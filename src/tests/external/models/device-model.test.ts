@@ -3,16 +3,15 @@
 import dayjs from 'dayjs'
 import { describe, expect, test } from 'vitest'
 
-import { createDeviceApiInstance, DeviceModel } from '@/models'
-
-const api = createDeviceApiInstance(process.env.DEVICE_BASE_URL!)
-const device = new DeviceModel(api)
+import { createDeviceApiInstance, deviceModel, TDeviceUser } from '@/models'
 
 let session: string = process.env.DEVICE_SESSION_TOKEN!
 
+const api = createDeviceApiInstance(process.env.DEVICE_IP!)
+
 describe('Model Device', () => {
   test('Login to the device', async () => {
-    const sessionToken = await device.login({
+    const sessionToken = await deviceModel.login(api, {
       login: process.env.DEVICE_LOGIN as string,
       password: process.env.DEVICE_PASSWORD as string
     })
@@ -21,18 +20,18 @@ describe('Model Device', () => {
   })
 
   test('Verifying if the session is valid', async () => {
-    const sessionIsValid = await device.sessionIsValid(session)
+    const sessionIsValid = await deviceModel.sessionIsValid(api, session)
     expect(sessionIsValid).toBe(true)
   })
 
   test('Counting users', async () => {
-    const count = await device.countUsers(session)
+    const count = await deviceModel.countUsers(api, session)
     expect(count).toBeTypeOf('number')
   })
 
   test('Loading users', async () => {
-    const users = await device.loadUsers(session)
-    users.forEach((user) => {
+    const users = await deviceModel.loadUsers(api, session)
+    users.forEach((user: TDeviceUser) => {
       expect(user.name).toBeTypeOf('string')
       expect(user.pis).toBeTypeOf('number')
       expect(user.code).toBeTypeOf('number')
@@ -47,12 +46,12 @@ describe('Model Device', () => {
   })
 
   test('Exporting users', async () => {
-    const data = await device.exportUsers(session)
+    const data = await deviceModel.exportUsers(api, session)
     expect(data).toBeTypeOf('string')
   })
 
   test('Loading company', async () => {
-    const data = await device.loadCompany(session)
+    const data = await deviceModel.loadCompany(api, session)
     expect(data.name).toBeTypeOf('string')
     expect(data.address).toBeTypeOf('string')
     expect(data.cpf).toBeTypeOf('number')
@@ -63,7 +62,7 @@ describe('Model Device', () => {
   })
 
   test('Getting system information', async () => {
-    const data = await device.getSystemInformation(session)
+    const data = await deviceModel.getSystemInformation(api, session)
     expect(data.user_count).toBeTypeOf('number')
     expect(data.template_count).toBeTypeOf('number')
     expect(data.uptime).toBeTypeOf('number')
@@ -80,7 +79,7 @@ describe('Model Device', () => {
   })
 
   test('Getting about REP', async () => {
-    const data = await device.getAboutRep(session)
+    const data = await deviceModel.getAboutRep(api, session)
     expect(data.mac).toBeTypeOf('string')
     expect(data.nSerie).toBeTypeOf('string')
     expect(data.versionFW).toBeTypeOf('number')
@@ -89,14 +88,14 @@ describe('Model Device', () => {
   })
 
   test('Getting ID cloud status', async () => {
-    const data = await device.getIdCloudStatus(session)
+    const data = await deviceModel.getIdCloudStatus(api, session)
     expect(data.enable).toBeTypeOf('boolean')
     expect(data.interval).toBeTypeOf('number')
     expect(Object.keys(data)).toHaveLength(2)
   })
 
   test('Getting system datetime', async () => {
-    const data = await device.getSystemDatetime(session)
+    const data = await deviceModel.getSystemDatetime(api, session)
     expect(data.day).toBe(dayjs().date())
     expect(data.month).toBe(dayjs().month() + 1)
     expect(data.year).toBe(dayjs().year())
@@ -107,19 +106,19 @@ describe('Model Device', () => {
   })
 
   test('Getting AFD', async () => {
-    const data = await device.getAfd({ session })
+    const data = await deviceModel.getAfd(api, { session })
     expect(data).toBeTypeOf('string')
   })
 
   test('Getting public key', async () => {
-    const data = await device.getPublicKey(session)
+    const data = await deviceModel.getPublicKey(api, session)
     expect(data.base32).toBeTypeOf('string')
     expect(data.base64).toBeTypeOf('string')
     expect(Object.keys(data)).toHaveLength(2)
   })
 
   test('Getting system network information', async () => {
-    const data = await device.getSystemNetworkInformation(session)
+    const data = await deviceModel.getSystemNetworkInformation(api, session)
     expect(data.ip).toBeTypeOf('string')
     expect(data.netmask).toBeTypeOf('string')
     expect(data.gateway).toBeTypeOf('string')
@@ -128,12 +127,12 @@ describe('Model Device', () => {
   })
 
   test('Getting coil paper', async () => {
-    const data = await device.getCoilPaper(session)
+    const data = await deviceModel.getCoilPaper(api, session)
     expect(data).toBeTypeOf('number')
   })
 
   test('Getting system daylight saving time', async () => {
-    const data = await device.getSystemDaylightSavingTime(session)
+    const data = await deviceModel.getSystemDaylightSavingTime(api, session)
     expect(data.start_date_time.year).toBeTypeOf('number')
     expect(data.start_date_time.month).toBeTypeOf('number')
     expect(data.start_date_time.day).toBeTypeOf('number')
@@ -144,7 +143,7 @@ describe('Model Device', () => {
   })
 
   test('Getting users info', async () => {
-    const data = await device.getUsersInfo(session)
+    const data = await deviceModel.getUsersInfo(api, session)
     expect(data.num_serie).toBeTypeOf('string')
     expect(data.user_count).toBeTypeOf('number')
     expect(data.administrator_count).toBeTypeOf('number')
@@ -160,7 +159,7 @@ describe('Model Device', () => {
   })
 
   test('Getting system configuration', async () => {
-    const data = await device.getSystemConfiguration(session)
+    const data = await deviceModel.getSystemConfiguration(api, session)
     expect(data.beep_enabled).toBeTypeOf('boolean')
     expect(data.animation_enabled).toBeTypeOf('boolean')
     expect(data.economic_receipt_enabled).toBeTypeOf('boolean')

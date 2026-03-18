@@ -1,7 +1,7 @@
 'use client'
 
 import { DeviceCredentials } from '@prisma/client'
-import * as React from 'react'
+import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
@@ -16,30 +16,33 @@ import {
 import { TState } from '@/infra/form-action'
 import { TDeviceCredentialsFormData } from '@/models'
 
-import { saveDeviceSettings } from './actions'
+import { save } from './actions'
 
 export const DeviceForm = ({
-  userId,
-  deviceCredentials
+  adminUserId,
+  deviceCredentials,
+  setDeviceCredentials
 }: {
-  userId: string
+  adminUserId: string
   deviceCredentials: DeviceCredentials | null
+  setDeviceCredentials: (deviceCredentials: DeviceCredentials) => void
 }) => {
   const initialState: TState<TDeviceCredentialsFormData, DeviceCredentials> = {
     data: deviceCredentials
   }
   const [state, formAction, pending] = useFormState(
-    saveDeviceSettings.bind(null, userId),
+    save.bind(null, adminUserId),
     initialState
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
+      setDeviceCredentials(state.data as DeviceCredentials)
       return
     }
 
-    if (state.fatalError || state.errors?.userId) {
+    if (state.fatalError || state.errors?.adminUserId) {
       toast.error('Um erro inesperado aconteceu!', {
         description: 'Atualize a página e tente novamente.'
       })
@@ -51,7 +54,7 @@ export const DeviceForm = ({
     <FormCard
       title="Dispositivo de Ponto"
       description="Adicione as credenciais do dispositivo."
-      className="max-w-md mx-auto"
+      className="h-fit"
     >
       <CardContent>
         <form id="device-form" action={formAction} noValidate>

@@ -1,2 +1,2 @@
 export * from './device-credentials.model'
-export * from './schema'
+export * from './types'

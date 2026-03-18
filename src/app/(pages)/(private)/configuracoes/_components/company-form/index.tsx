@@ -1,0 +1,117 @@
+'use client'
+
+import { Company, DeviceCredentials } from '@prisma/client'
+import { useEffect, useState } from 'react'
+import { useFormState } from 'react-dom'
+import { toast } from 'sonner'
+
+import {
+  CardContent,
+  CardFooter,
+  Field,
+  FormCard,
+  FormField,
+  Select
+} from '@/app/components'
+import { TState } from '@/infra/form-action'
+import { TCompanyFormData } from '@/models'
+
+import { save } from './actions'
+import { ImportButton } from './import-button'
+import { SubmitButton } from './submit-button'
+
+export const CompanyForm = ({
+  adminUserId,
+  company,
+  deviceCredentials
+}: {
+  adminUserId: string
+  company: Company | null
+  deviceCredentials: DeviceCredentials | null
+}) => {
+  const initialState: TState<TCompanyFormData, Company> = {
+    data: company
+  }
+  const [state, formAction, pending] = useFormState(save, initialState)
+  const [formState, setFormState] = useState(initialState.data)
+
+  useEffect(() => {
+    if (state.success) {
+      toast.success('Dados salvos com sucesso!')
+      setFormState(state.data)
+      return
+    }
+
+    if (state.fatalError) {
+      toast.error('Um erro inesperado aconteceu!', {
+        description: 'Atualize a página e tente novamente.'
+      })
+      return
+    }
+  }, [pending])
+
+  return (
+    <FormCard
+      title="Empresa"
+      description="Adicione as informações da empresa."
+      className="h-fit"
+    >
+      <CardContent>
+        <form id="company-form" action={formAction} noValidate>
+          <FormField
+            name="name"
+            label="Nome"
+            defaultValue={formState?.name}
+            error={state.errors?.name}
+          />
+          <FormField
+            name="address"
+            label="Endereço"
+            defaultValue={formState?.address}
+            error={state.errors?.address}
+          />
+          <FormField
+            name="cpf"
+            label="CPF do Responsável"
+            defaultValue={formState?.cpf}
+            error={state.errors?.cpf}
+          />
+          <Select
+            name="tipoDoc"
+            label="Tipo de Documento"
+            placeholder="Tipo utilizado no campo CPF/CNPJ"
+            defaultValue={formState?.tipoDoc.toString()}
+            options={[
+              { value: '0', label: '0 - CPF' },
+              { value: '1', label: '1 - CNPJ' }
+            ]}
+            error={state.errors?.tipoDoc}
+          />
+          <FormField
+            name="cpfCnpj"
+            label="CPF/CNPJ"
+            defaultValue={formState?.cpfCnpj}
+            error={state.errors?.cpfCnpj}
+          />
+          <FormField
+            name="cei"
+            label="CEI"
+            defaultValue={formState?.cei}
+            error={state.errors?.cei}
+          />
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Field orientation="horizontal">
+          <ImportButton
+            adminUserId={adminUserId}
+            deviceCredentials={deviceCredentials}
+            pending={pending}
+            setFormState={setFormState}
+          />
+          <SubmitButton pending={pending} />
+        </Field>
+      </CardFooter>
+    </FormCard>
+  )
+}

@@ -1,0 +1,34 @@
+'use client'
+
+import { DeviceCredentials } from '@prisma/client'
+import { useState } from 'react'
+
+import { MainContent as _MainContent } from '@/app/components'
+import { TAdminUserWithRelations } from '@/models'
+
+import { CompanyForm } from './company-form'
+import { DeviceForm } from './device-form'
+
+export const MainContent = ({
+  adminUser
+}: {
+  adminUser: TAdminUserWithRelations
+}) => {
+  const [deviceCredentials, setDeviceCredentials] =
+    useState<DeviceCredentials | null>(adminUser.deviceCredentials)
+
+  return (
+    <_MainContent className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <DeviceForm
+        adminUserId={adminUser.id}
+        deviceCredentials={deviceCredentials}
+        setDeviceCredentials={setDeviceCredentials}
+      />
+      <CompanyForm
+        adminUserId={adminUser.id}
+        company={adminUser.company}
+        deviceCredentials={deviceCredentials}
+      />
+    </_MainContent>
+  )
+}

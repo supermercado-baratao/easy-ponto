@@ -1,30 +1,39 @@
+import { AxiosInstance } from 'axios'
+
 import {
   TDeviceAboutRep,
   TDeviceCompany,
   TDeviceIdCloudStatus,
+  TDeviceLoginCredentials,
   TDevicePublicKey,
   TDeviceSystemConfiguration,
   TDeviceSystemDatetime,
   TDeviceSystemInformation,
   TDeviceUser,
   TGetAfdParams,
-  TLoginCredentials,
   TSystemDaylightSavingTime,
   TSystemNetworkInformation,
   TUsersInfo
 } from './types'
-import { createDeviceApiInstance, normalizeUrl } from './utils'
+import { normalizeUrl } from './utils'
 
-const api = createDeviceApiInstance(process.env.DEVICE_BASE_URL as string)
-
-const login = async (credentials: TLoginCredentials): Promise<string> => {
+const login = async (
+  api: AxiosInstance,
+  credentials: TDeviceLoginCredentials
+): Promise<string> => {
   const {
     data: { session }
-  }: { data: { session: string } } = await api.post('/login.fcgi', credentials)
+  }: { data: { session: string } } = await api.post('/login.fcgi', {
+    login: credentials.login,
+    password: credentials.password
+  })
   return session
 }
 
-const sessionIsValid = async (session: string): Promise<boolean> => {
+const sessionIsValid = async (
+  api: AxiosInstance,
+  session: string
+): Promise<boolean> => {
   const {
     data: { session_is_valid: sessionIsValid }
   }: { data: { session_is_valid: boolean } } = await api.post(
@@ -33,7 +42,10 @@ const sessionIsValid = async (session: string): Promise<boolean> => {
   return sessionIsValid
 }
 
-const countUsers = async (session: string): Promise<number> => {
+const countUsers = async (
+  api: AxiosInstance,
+  session: string
+): Promise<number> => {
   const {
     data: { count }
   }: { data: { count: number } } = await api.post(
@@ -42,7 +54,10 @@ const countUsers = async (session: string): Promise<number> => {
   return count
 }
 
-const loadUsers = async (session: string): Promise<TDeviceUser[]> => {
+const loadUsers = async (
+  api: AxiosInstance,
+  session: string
+): Promise<TDeviceUser[]> => {
   const {
     data: { users }
   }: { data: { users: TDeviceUser[] } } = await api.post(
@@ -55,14 +70,20 @@ const loadUsers = async (session: string): Promise<TDeviceUser[]> => {
   return users
 }
 
-const exportUsers = async (session: string): Promise<string> => {
+const exportUsers = async (
+  api: AxiosInstance,
+  session: string
+): Promise<string> => {
   const { data }: { data: string } = await api.post(
     normalizeUrl({ path: '/export_users_csv', session })
   )
   return data
 }
 
-const loadCompany = async (session: string): Promise<TDeviceCompany> => {
+const loadCompany = async (
+  api: AxiosInstance,
+  session: string
+): Promise<TDeviceCompany> => {
   const {
     data: { company }
   }: { data: { company: TDeviceCompany } } = await api.post(
@@ -72,6 +93,7 @@ const loadCompany = async (session: string): Promise<TDeviceCompany> => {
 }
 
 const getSystemInformation = async (
+  api: AxiosInstance,
   session: string
 ): Promise<TDeviceSystemInformation> => {
   const { data }: { data: TDeviceSystemInformation } = await api.post(
@@ -80,7 +102,10 @@ const getSystemInformation = async (
   return data
 }
 
-const getAboutRep = async (session: string): Promise<TDeviceAboutRep> => {
+const getAboutRep = async (
+  api: AxiosInstance,
+  session: string
+): Promise<TDeviceAboutRep> => {
   const { data }: { data: TDeviceAboutRep } = await api.post(
     normalizeUrl({ path: '/get_about', session })
   )
@@ -88,6 +113,7 @@ const getAboutRep = async (session: string): Promise<TDeviceAboutRep> => {
 }
 
 const getIdCloudStatus = async (
+  api: AxiosInstance,
   session: string
 ): Promise<TDeviceIdCloudStatus> => {
   const { data }: { data: TDeviceIdCloudStatus } = await api.post(
@@ -97,6 +123,7 @@ const getIdCloudStatus = async (
 }
 
 const getSystemDatetime = async (
+  api: AxiosInstance,
   session: string
 ): Promise<TDeviceSystemDatetime> => {
   const { data }: { data: TDeviceSystemDatetime } = await api.post(
@@ -105,11 +132,10 @@ const getSystemDatetime = async (
   return data
 }
 
-const getAfd = async ({
-  session,
-  initialDate,
-  initialNsr
-}: TGetAfdParams): Promise<string> => {
+const getAfd = async (
+  api: AxiosInstance,
+  { session, initialDate, initialNsr }: TGetAfdParams
+): Promise<string> => {
   let body = undefined
   if (initialDate) body = initialDate
   if (initialNsr) body = initialNsr
@@ -120,7 +146,10 @@ const getAfd = async ({
   return data
 }
 
-const getPublicKey = async (session: string): Promise<TDevicePublicKey> => {
+const getPublicKey = async (
+  api: AxiosInstance,
+  session: string
+): Promise<TDevicePublicKey> => {
   const { data }: { data: TDevicePublicKey } = await api.post(
     normalizeUrl({ path: '/get_public_key', session })
   )
@@ -128,6 +157,7 @@ const getPublicKey = async (session: string): Promise<TDevicePublicKey> => {
 }
 
 const getSystemNetworkInformation = async (
+  api: AxiosInstance,
   session: string
 ): Promise<TSystemNetworkInformation> => {
   const { data }: { data: TSystemNetworkInformation } = await api.post(
@@ -136,7 +166,10 @@ const getSystemNetworkInformation = async (
   return data
 }
 
-const getCoilPaper = async (session: string): Promise<number> => {
+const getCoilPaper = async (
+  api: AxiosInstance,
+  session: string
+): Promise<number> => {
   const {
     data: { coil_paper: coilPaper }
   }: { data: { coil_paper: number } } = await api.post(
@@ -146,6 +179,7 @@ const getCoilPaper = async (session: string): Promise<number> => {
 }
 
 const getSystemDaylightSavingTime = async (
+  api: AxiosInstance,
   session: string
 ): Promise<TSystemDaylightSavingTime> => {
   const { data }: { data: TSystemDaylightSavingTime } = await api.post(
@@ -154,7 +188,10 @@ const getSystemDaylightSavingTime = async (
   return data
 }
 
-const getUsersInfo = async (session: string): Promise<TUsersInfo> => {
+const getUsersInfo = async (
+  api: AxiosInstance,
+  session: string
+): Promise<TUsersInfo> => {
   const { data }: { data: TUsersInfo } = await api.post(
     normalizeUrl({ path: '/get_info', session })
   )
@@ -162,6 +199,7 @@ const getUsersInfo = async (session: string): Promise<TUsersInfo> => {
 }
 
 const getSystemConfiguration = async (
+  api: AxiosInstance,
   session: string
 ): Promise<TDeviceSystemConfiguration> => {
   const { data }: { data: TDeviceSystemConfiguration } = await api.post(

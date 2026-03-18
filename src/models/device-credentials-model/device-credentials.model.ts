@@ -5,27 +5,30 @@ import { TInputData } from '@/types'
 
 import { schema } from './schema'
 
-const save = async (
-  data: TInputData<DeviceCredentials>
+const upsert = async (
+  data: TInputData<DeviceCredentials> & { adminUserId: string }
 ): Promise<DeviceCredentials> => {
   const parsedData = schema.parse(data)
+  const { adminUserId, id, ...deviceData } = parsedData
+
+  const def = {
+    ...deviceData,
+    adminUsers: {
+      connect: {
+        id: adminUserId
+      }
+    }
+  }
   const result = await prisma.deviceCredentials.upsert({
-    create: parsedData,
-    update: parsedData,
+    create: def,
+    update: def,
     where: {
-      userId: parsedData.userId
+      id: id ?? ''
     }
   })
   return result
 }
 
-const findUniqueByUserId = async (userId: string) => {
-  return await prisma.deviceCredentials.findUnique({
-    where: { userId }
-  })
-}
-
 export const deviceCredentialsModel = {
-  save,
-  findUniqueByUserId
+  upsert
 }

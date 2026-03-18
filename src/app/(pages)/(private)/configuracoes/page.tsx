@@ -1,22 +1,19 @@
-import { Header, MainContent } from '@/app/components'
-import { deviceCredentialsModel, userModel } from '@/models'
+import { Header } from '@/app/components'
+import { adminUserModel } from '@/models'
 
-import { DeviceForm } from './_components'
+import { MainContent } from './_components/main-content'
 
 // Remove this line when authentication is implemented and the USER_ID environment variable is removed.
 export const dynamic = 'force-dynamic'
 
 const Settings = async () => {
-  const user = await userModel.findUniqueById(process.env.USER_ID!)
-  const deviceCredentials = await deviceCredentialsModel.findUniqueByUserId(
-    user.id
+  const adminUser = await adminUserModel.findUniqueById(
+    process.env.ADMIN_USER_ID!
   )
   return (
     <>
       <Header title="Configurações" />
-      <MainContent className="p-4">
-        <DeviceForm userId={user.id} deviceCredentials={deviceCredentials} />
-      </MainContent>
+      <MainContent adminUser={adminUser} />
     </>
   )
 }
