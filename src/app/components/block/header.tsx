@@ -1,4 +1,4 @@
-import { Button, Separator, SidebarTrigger } from '@/app/components'
+import { Separator, SidebarTrigger } from '@/app/components'
 
 export const Header = ({ title }: { title: string }) => {
   return (
@@ -10,11 +10,6 @@ export const Header = ({ title }: { title: string }) => {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
         <h1 className="text-base font-medium">{title}</h1>
-        <div className="ml-auto">
-          <Button variant="outline" size="sm">
-            Sincronizar
-          </Button>
-        </div>
       </div>
     </header>
   )
