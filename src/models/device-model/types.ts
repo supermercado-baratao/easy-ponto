@@ -2,7 +2,7 @@
  * Documentation: https://www.controlid.com.br/suporte/api_idclass_latest.html#index
  */
 
-export type TLoginCredentials = {
+export type TDeviceLoginCredentials = {
   login: string
   password: string
 }

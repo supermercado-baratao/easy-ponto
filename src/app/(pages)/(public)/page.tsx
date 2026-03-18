@@ -1,4 +1,4 @@
-import { prisma } from '@/infra'
+import { prisma } from '@/infra/prisma'
 
 const getOpenedConnections = async (): Promise<number> => {
   const databaseName = process.env.POSTGRES_DB as string

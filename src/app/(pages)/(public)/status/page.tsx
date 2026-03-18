@@ -2,11 +2,9 @@ import './style.css'
 
 import { DottedMap, Paper, Typography } from '@/app/components'
 import { dayjs } from '@/lib'
-import { StatusModel } from '@/models'
+import { statusModel } from '@/models'
 
 import { DatabaseSection, Wrapper } from './_components'
-
-const statusModel = new StatusModel()
 
 const Status = async () => {
   const data = await statusModel.check()

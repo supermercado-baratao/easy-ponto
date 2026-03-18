@@ -12,3 +12,90 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model AdminUser {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  deviceCredentialsId String?
+  deviceCredentials   DeviceCredentials? @relation(fields: [deviceCredentialsId], references: [id])
+
+  user User?
+
+  @@map("admin_users")
+}
+
+model DeviceCredentials {
+  id       String @id @default(uuid())
+  ip       String
+  login    String
+  password String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  adminUsers    AdminUser[]
+  deviceSession DeviceSession?
+
+  @@map("devices_credentials")
+}
+
+model DeviceSession {
+  id    String @id @default(uuid())
+  token String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  deviceCredentialsId String            @unique
+  deviceCredentials   DeviceCredentials @relation(fields: [deviceCredentialsId], references: [id])
+
+  @@map("devices_sessions")
+}
+
+model Company {
+  id      String @id @default(uuid())
+  name    String
+  address String
+  cpf     String
+  tipoDoc Int    @map("tipo_doc")
+  cpfCnpj String @unique @map("cpf_cnpj")
+  cei     String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  adminUsers AdminUser[]
+  users      User[]
+
+  @@map("companies")
+}
+
+model User {
+  id             String  @id @default(uuid())
+  name           String
+  pis            String  @unique
+  cpf            String?
+  code           Int
+  templatesCount Int     @map("templates_count")
+  password       String
+  rfid           Int
+  bars           String
+  registration   Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  adminUserId String?    @unique @map("admin_user_id")
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
+
+  @@map("users")
+}

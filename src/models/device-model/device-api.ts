@@ -1,8 +1,9 @@
 import https from 'node:https'
 
-import axios from 'axios'
+import axios, { type AxiosInstance } from 'axios'
 
-export const createDeviceApiInstance = (baseURL: string) => {
+export const createDeviceApiInstance = (ip: string): AxiosInstance => {
+  const baseURL = `https://${ip}`
   return axios.create({
     baseURL,
     httpsAgent: new https.Agent({

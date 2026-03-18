@@ -1,9 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { StatusModel, TStatusCheckData } from '@/models'
+import { statusModel, TStatusCheckData } from '@/models'
 import orchestrator from '@/tests/orchestrator'
-
-const statusModel = new StatusModel()
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
