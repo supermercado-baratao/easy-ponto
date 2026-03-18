@@ -21,7 +21,7 @@ export type TState<TInputData, TOutputData> = {
 const parseFormData = <T>(formData: FormData): T =>
   Object.fromEntries(formData.entries()) as T
 
-const parseErrors = <T>(error: z.ZodError) => {
+const parseErrors = <T>(error: z.ZodError): TError<T> => {
   const { properties } = z.treeifyError(error) as unknown as {
     properties: Record<string, { errors: string[] }>
   }
@@ -35,12 +35,12 @@ export const handleFormAction = async <TInputData, TOutputData>(
   action: TAction<TInputData, TOutputData>,
   initialState: TState<TInputData, TOutputData>,
   formData: FormData,
-  path?: string
+  revalidationPath?: string
 ): Promise<TState<TInputData, TOutputData>> => {
   try {
     const formObject = parseFormData<TInputData>(formData)
     const data = await action(formObject)
-    if (path) revalidatePath(path)
+    if (revalidationPath) revalidatePath(revalidationPath)
     return {
       ...initialState,
       data,
@@ -49,6 +49,7 @@ export const handleFormAction = async <TInputData, TOutputData>(
       fatalError: false
     }
   } catch (error) {
+    console.error(error)
     if (error instanceof z.ZodError) {
       const errors = parseErrors<TInputData>(error)
       return {
