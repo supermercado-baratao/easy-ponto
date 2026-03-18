@@ -10,6 +10,15 @@ import {
   Input,
   Label
 } from '@/app/components'
+import {
+  Select as _Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/app/components/ui/shadcn-ui/select'
 import { cn } from '@/lib'
 
 type TFormCardProps = {
@@ -66,6 +75,52 @@ export const FormField = (props: TFormFieldProps) => {
             : 'inherit'
         }
       />
+      <p className="text-destructive relative bottom-3">{error}</p>
+    </div>
+  )
+}
+
+export const Select = ({
+  options,
+  placeholder,
+  label,
+  error,
+  name,
+  defaultValue,
+  className,
+  ...props
+}: {
+  name: string
+  defaultValue?: string
+  placeholder: string
+  label?: string
+  options: { value: string; label: string }[]
+  error?: string
+} & ComponentProps<'div'>) => {
+  return (
+    <div
+      className={cn('grid gap-3', className)}
+      {...props}
+      aria-invalid={!!error}
+    >
+      <Label htmlFor={name} className={error ? 'text-destructive' : 'inherit'}>
+        {label}
+      </Label>
+      <_Select key={defaultValue} name={name} defaultValue={defaultValue}>
+        <SelectTrigger className="w-full" aria-invalid={!!error}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>{placeholder}</SelectLabel>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </_Select>
       <p className="text-destructive relative bottom-3">{error}</p>
     </div>
   )
