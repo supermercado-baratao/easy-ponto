@@ -94,8 +94,25 @@ model User {
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
-  adminUserId String?    @unique @map("admin_user_id")
-  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
+  adminUserId  String?       @unique @map("admin_user_id")
+  adminUser    AdminUser?    @relation(fields: [adminUserId], references: [id])
+  punchRecords PunchRecord[]
 
   @@map("users")
+}
+
+model PunchRecord {
+  id       String   @id @default(uuid())
+  pis      String
+  datetime DateTime
+
+  afdDatetime           DateTime? @map("afd_datetime")
+  nsr                   Int?      @unique
+  registrationType      String?   @map("registration_type")
+  hexadecimalCheckDigit String?   @map("hexadecimal_check_digit")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [pis], references: [pis])
 }
