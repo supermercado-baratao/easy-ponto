@@ -5,18 +5,22 @@ import {
   companyModel,
   createDeviceApiInstance,
   deviceModel,
+  punchRecordModel,
   userModel
 } from '@/models'
 import { TInputData } from '@/types'
 
 import {
+  TAfdSynchronizationParams,
   TCompanySynchronizationParams,
   TUserSynchronizationParams
 } from './types'
 import {
   getSession,
   mapDeviceCompanyToCompany,
-  mapDeviceUserToUser
+  mapDeviceUserToUser,
+  mapParsedAfdToPunchRecordCreateMany,
+  parseAfd
 } from './utils'
 
 const company = async ({
@@ -59,9 +63,25 @@ const users = async ({
   usersToUpdate.length && (await userModel.updateMany(usersToUpdate))
 }
 
+const afd = async ({
+  params,
+  credentials
+}: TAfdSynchronizationParams): Promise<void> => {
+  const api = createDeviceApiInstance(credentials.ip)
+  const session = await getSession(api, credentials)
+  const afd = await deviceModel.getAfd(api, {
+    session,
+    ...params
+  })
+  const parsedAfd = parseAfd(afd)
+  const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd)
+  await punchRecordModel.createMany(punchRecords)
+}
+
 export const synchronizationModel = {
   receive: {
     company,
-    users
+    users,
+    afd
   }
 }
