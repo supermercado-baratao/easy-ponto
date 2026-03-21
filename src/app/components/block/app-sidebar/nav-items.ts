@@ -36,7 +36,7 @@ export const navItems: TNavItem[] = [
           },
           {
             title: 'Registros de Ponto',
-            path: '/registros-deponto',
+            path: '/registros-de-ponto',
             icon: Clock
           },
           {
