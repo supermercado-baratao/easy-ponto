@@ -18,7 +18,7 @@ export const MainContent = ({
     useState<DeviceCredentials | null>(adminUser.deviceCredentials)
 
   return (
-    <_MainContent className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <_MainContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <DeviceForm
         adminUserId={adminUser.id}
         deviceCredentials={deviceCredentials}
