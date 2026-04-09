@@ -7,12 +7,6 @@ export const buildFindManyWhere = (
 ): Prisma.PunchRecordWhereInput => {
   const where: Prisma.PunchRecordWhereInput = {}
 
-  if (params?.companyId) {
-    where.user = {
-      companyId: params.companyId
-    }
-  }
-
   if (params?.initialDate) {
     const date = new Date(params.initialDate)
     date.setUTCHours(0, 0, 0, 0)

@@ -1,15 +1,19 @@
 import { z } from 'zod'
 
 import {
-  createManySchema,
-  createSchema,
+  createManyExistentsInAfdSchema,
+  createNonExistentInAfdSchema,
   findManyParamsSchema,
   updateSchema
 } from './schema'
 
-export type TPunchRecordCreateData = z.infer<typeof createSchema>
+export type TPunchRecordCreateNonExistentInAfdData = z.infer<
+  typeof createNonExistentInAfdSchema
+>
 
-export type TPunchRecordCreateManyData = z.infer<typeof createManySchema>
+export type TPunchRecordCreateManyExistentsInAfdData = z.infer<
+  typeof createManyExistentsInAfdSchema
+>
 
 export type TPunchRecordFindManyParams = z.infer<typeof findManyParamsSchema>
 

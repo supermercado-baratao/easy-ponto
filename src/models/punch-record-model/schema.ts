@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { PIS_LENGTH } from '@/constants'
 import { isValidDate } from '@/utils'
 
-export const createSchema = z.object({
+export const createNonExistentInAfdSchema = z.object({
   pis: z
     .string()
     .refine((value) => isPIS(value) || value.length === PIS_LENGTH, {
@@ -13,9 +13,13 @@ export const createSchema = z.object({
   datetime: z.coerce.date()
 })
 
-export const createManySchema = z
+export const createManyNonExistentsInAfdSchema = z
+  .array(createNonExistentInAfdSchema)
+  .nonempty()
+
+export const createManyExistentsInAfdSchema = z
   .array(
-    createSchema.and(
+    createNonExistentInAfdSchema.and(
       z.object({
         afdDatetime: z.coerce.date(),
         nsr: z.number().int().positive(),
@@ -27,40 +31,31 @@ export const createManySchema = z
   .nonempty()
 
 export const updateSchema = z.object({
+  id: z.uuidv4(),
   datetime: z.coerce.date()
 })
 
-export const findManyParamsSchema = z
-  .object({
-    companyId: z.uuidv4().nullish(),
-    pis: z
-      .string()
-      .refine((value) => isPIS(value) || value.length === PIS_LENGTH, {
-        message: `PIS inválido`
-      })
-      .nullish(),
-    initialNsr: z.coerce.number().int().positive().nullish(),
-    finalNsr: z.coerce.number().int().positive().nullish(),
-    initialDate: z
-      .string()
-      .refine((value) => isValidDate(value), {
-        message: 'Data deve estar no formato yyyy-mm-dd'
-      })
-      .nullish(),
-    finalDate: z
-      .string()
-      .refine((value) => isValidDate(value), {
-        message: 'Data deve estar no formato yyyy-mm-dd'
-      })
-      .nullish()
-  })
-  .superRefine((data, ctx) => {
-    if (!data.companyId && !data.pis) {
-      ctx.addIssue({
-        code: 'invalid_value',
-        values: [data.companyId, data.pis],
-        path: ['companyId', 'pis'],
-        message: 'Deve fornecer companyId ou pis'
-      })
-    }
-  })
+export const updateManySchema = z.array(updateSchema).nonempty()
+
+export const findManyParamsSchema = z.object({
+  pis: z
+    .string()
+    .refine((value) => isPIS(value) || value.length === PIS_LENGTH, {
+      message: `PIS inválido`
+    })
+    .nullish(),
+  initialNsr: z.coerce.number().int().positive().nullish(),
+  finalNsr: z.coerce.number().int().positive().nullish(),
+  initialDate: z
+    .string()
+    .refine((value) => isValidDate(value), {
+      message: 'Data deve estar no formato yyyy-mm-dd'
+    })
+    .nullish(),
+  finalDate: z
+    .string()
+    .refine((value) => isValidDate(value), {
+      message: 'Data deve estar no formato yyyy-mm-dd'
+    })
+    .nullish()
+})
