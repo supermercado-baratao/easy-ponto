@@ -1,51 +1,49 @@
-import { DeviceCredentials, PunchRecord, User } from '@prisma/client'
+import { DeviceCredentials, User } from '@prisma/client'
 import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
-import { TState } from '@/infra/form-action'
 import {
+  TAfdSynchronizationParams,
   TSynchronizationCredentials,
-  TUserSynchronizationParams
+  TUserWithPunchRecords
 } from '@/models'
 
-import { importFromDevice } from './actions'
-import { TData } from './types'
+import { synchronize } from './actions'
+import { TSynchronizationState } from './types'
 
-export const ImportFromDeviceButton = ({
+export const SynchronizationButton = ({
   userPis,
   companyId,
   deviceCredentials,
   pending: _pending,
   setUsers,
-  setPunchRecords
+  setUser
 }: {
   userPis: string | null
-  companyId: string | null
-  deviceCredentials: DeviceCredentials | null
+  companyId: string
+  deviceCredentials: DeviceCredentials
   pending: boolean
   setUsers: (value: User[]) => void
-  setPunchRecords: (value: PunchRecord[]) => void
+  setUser: (value: TUserWithPunchRecords | null) => void
 }) => {
-  const initialState: TState<TUserSynchronizationParams, TData> = {}
+  const initialState: TSynchronizationState = {}
+
   const credentials = {
     ...deviceCredentials,
-    deviceCredentialsId: deviceCredentials?.id
+    deviceCredentialsId: deviceCredentials.id
   } as TSynchronizationCredentials
 
+  const bindArguments: TAfdSynchronizationParams = {
+    companyId,
+    credentials,
+    params: {},
+    userPis
+  }
+
   const [state, formAction, pending] = useFormState(
-    importFromDevice.bind(null, {
-      userPis: userPis!,
-      userParams: {
-        companyId: companyId!,
-        credentials
-      },
-      afdParams: {
-        params: {},
-        credentials
-      }
-    }),
+    synchronize.bind(null, bindArguments),
     initialState
   )
 
@@ -53,7 +51,7 @@ export const ImportFromDeviceButton = ({
     if (state.success) {
       toast.success('Dados importados com sucesso!')
       setUsers(state.data?.users || [])
-      setPunchRecords(state.data?.punchRecords || [])
+      setUser(state.data?.user || null)
       return
     }
 
@@ -65,15 +63,13 @@ export const ImportFromDeviceButton = ({
     }
   }, [pending])
 
-  if (!deviceCredentials || !companyId) return null
-
   const isPending = pending || _pending
 
   return (
     <>
       <form action={formAction} className="w-1/5 min-w-20">
-        <Button type="submit" disabled={isPending} variant="outline" size="sm">
-          Importar
+        <Button type="submit" disabled={isPending} variant="outline">
+          Sincronizar
         </Button>
       </form>
       <Loader open={isPending} />

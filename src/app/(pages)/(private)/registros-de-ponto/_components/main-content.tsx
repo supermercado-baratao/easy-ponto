@@ -1,6 +1,6 @@
 'use client'
 
-import { PunchRecord, User } from '@prisma/client'
+import { User } from '@prisma/client'
 import { useState } from 'react'
 
 import {
@@ -8,42 +8,44 @@ import {
   MainContent as _MainContent,
   Typography
 } from '@/app/components'
-import { TAdminUserWithRelations } from '@/models'
+import { TAdminUserWithRelations, TUserWithPunchRecords } from '@/models'
 
-import { ImportFromDeviceButton } from './import-from-device-button'
+import { SynchronizationButton } from './synchronization-button'
 
 export const MainContent = ({
   adminUser,
   users: _users,
-  punchRecords: _punchRecords
+  user: _user
 }: {
   adminUser: TAdminUserWithRelations
   users: User[]
-  punchRecords: PunchRecord[]
+  user: TUserWithPunchRecords | null
 }) => {
   const [users, setUsers] = useState<User[]>(_users)
-  const [punchRecords, setPunchRecords] = useState<PunchRecord[]>(_punchRecords)
+  const [user, setUser] = useState<TUserWithPunchRecords | null>(_user)
 
   return (
     <>
       <Header title="Registros de Ponto">
-        <ImportFromDeviceButton
-          userPis={users[0].pis}
-          companyId={adminUser.companyId}
-          deviceCredentials={adminUser.deviceCredentials}
-          pending={false}
-          setUsers={setUsers}
-          setPunchRecords={setPunchRecords}
-        />
+        {adminUser.companyId && adminUser.deviceCredentials && (
+          <SynchronizationButton
+            userPis={user?.pis || null}
+            companyId={adminUser.companyId}
+            deviceCredentials={adminUser.deviceCredentials}
+            pending={false}
+            setUsers={setUsers}
+            setUser={setUser}
+          />
+        )}
       </Header>
       <_MainContent>
-        {users.length ? (
+        {users.length && user ? (
           <>
             <Typography component="h1" variant="h6">
-              {users[0].name}
+              {user.name}
             </Typography>
             <code>
-              <pre>{JSON.stringify(punchRecords, null, 2)}</pre>
+              <pre>{JSON.stringify(user!.punchRecords, null, 2)}</pre>
             </code>
           </>
         ) : (
@@ -52,7 +54,7 @@ export const MainContent = ({
               Nenhum usuário encontrado
             </Typography>
             <Typography component="p" variant="base">
-              Importe usuários do dispositivo para começar
+              Cadastre ou importe usuários do dispositivo para começar
             </Typography>
           </>
         )}

@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 
 import { Loader } from '@/app/components'
-import { adminUserModel, punchRecordModel, userModel } from '@/models'
+import { adminUserModel, userModel } from '@/models'
 
 import { MainContent } from './_components/main-content'
 
@@ -13,16 +13,12 @@ const PunchRecords = async () => {
     process.env.ADMIN_USER_ID!
   )
   const users = await userModel.findManyByCompanyId(adminUser?.companyId ?? '')
-  const punchRecords = await punchRecordModel.findMany({
-    pis: users[0].pis
-  })
+  const user = users[1]
+    ? await userModel.findUniqueByPisWithPunchRecords(users[1].pis)
+    : null
   return (
     <Suspense fallback={<Loader />}>
-      <MainContent
-        adminUser={adminUser}
-        users={users}
-        punchRecords={punchRecords}
-      />
+      <MainContent adminUser={adminUser} users={users} user={user} />
     </Suspense>
   )
 }
