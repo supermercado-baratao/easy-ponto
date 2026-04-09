@@ -1,4 +1,3 @@
-import { Header } from '@/app/components'
 import { adminUserModel } from '@/models'
 
 import { MainContent } from './_components/main-content'
@@ -10,12 +9,7 @@ const Settings = async () => {
   const adminUser = await adminUserModel.findUniqueById(
     process.env.ADMIN_USER_ID!
   )
-  return (
-    <>
-      <Header title="Configurações" />
-      <MainContent adminUser={adminUser} />
-    </>
-  )
+  return <MainContent adminUser={adminUser} />
 }
 
 export default Settings

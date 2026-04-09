@@ -13,10 +13,9 @@ import {
   FormField,
   Loader
 } from '@/app/components'
-import { TState } from '@/infra/form-action'
-import { TDeviceCredentialsFormData } from '@/models'
 
 import { save } from './actions'
+import { TDeviceFormState } from './types'
 
 export const DeviceForm = ({
   adminUserId,
@@ -27,7 +26,7 @@ export const DeviceForm = ({
   deviceCredentials: DeviceCredentials | null
   setDeviceCredentials: (deviceCredentials: DeviceCredentials) => void
 }) => {
-  const initialState: TState<TDeviceCredentialsFormData, DeviceCredentials> = {
+  const initialState: TDeviceFormState = {
     data: deviceCredentials
   }
   const [state, formAction, pending] = useFormState(

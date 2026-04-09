@@ -1,13 +1,14 @@
 'use client'
 
-import { DeviceCredentials } from '@prisma/client'
+import { Company, DeviceCredentials } from '@prisma/client'
 import { useState } from 'react'
 
-import { MainContent as _MainContent } from '@/app/components'
+import { Header, MainContent as _MainContent } from '@/app/components'
 import { TAdminUserWithRelations } from '@/models'
 
 import { CompanyForm } from './company-form'
 import { DeviceForm } from './device-form'
+import { ImportFileButton } from './import-file-button'
 
 export const MainContent = ({
   adminUser
@@ -16,19 +17,33 @@ export const MainContent = ({
 }) => {
   const [deviceCredentials, setDeviceCredentials] =
     useState<DeviceCredentials | null>(adminUser.deviceCredentials)
+  const [company, setCompany] = useState<Company | null>(adminUser.company)
 
   return (
-    <_MainContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <DeviceForm
-        adminUserId={adminUser.id}
-        deviceCredentials={deviceCredentials}
-        setDeviceCredentials={setDeviceCredentials}
-      />
-      <CompanyForm
-        adminUserId={adminUser.id}
-        company={adminUser.company}
-        deviceCredentials={deviceCredentials}
-      />
-    </_MainContent>
+    <>
+      <Header title="Configurações">
+        {company && deviceCredentials && (
+          <ImportFileButton
+            company={company}
+            credentials={deviceCredentials}
+            setCompany={setCompany}
+          />
+        )}
+      </Header>
+
+      <_MainContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <DeviceForm
+          adminUserId={adminUser.id}
+          deviceCredentials={deviceCredentials}
+          setDeviceCredentials={setDeviceCredentials}
+        />
+        <CompanyForm
+          adminUserId={adminUser.id}
+          company={adminUser.company}
+          deviceCredentials={deviceCredentials}
+          setCompany={setCompany}
+        />
+      </_MainContent>
+    </>
   )
 }
