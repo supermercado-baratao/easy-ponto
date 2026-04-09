@@ -15,8 +15,10 @@ export const Header = ({
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">{title}</h1>
-        <div className="ml-auto">{children}</div>
+        <div className="flex w-full items-center justify-between gap-2">
+          <h1 className="text-base font-medium">{title}</h1>
+          {children}
+        </div>
       </div>
     </header>
   )
