@@ -18,10 +18,21 @@ const findManyByCompanyId = async (companyId: string): Promise<User[]> => {
   return result
 }
 
+const findManyByNames = async (names: string[]): Promise<User[]> => {
+  const result = await prisma.user.findMany({
+    where: {
+      name: {
+        in: names
+      }
+    }
+  })
+  return result
+}
+
 const findUniqueByPisWithPunchRecords = async (
   pis: string
-): Promise<TUserWithPunchRecords | null> => {
-  const result = await prisma.user.findUnique({
+): Promise<TUserWithPunchRecords> => {
+  const result = await prisma.user.findUniqueOrThrow({
     where: { pis },
     include: {
       punchRecords: true
@@ -46,6 +57,7 @@ const updateMany = async (
 export const userModel = {
   createMany,
   findManyByCompanyId,
+  findManyByNames,
   findUniqueByPisWithPunchRecords,
   updateMany
 }
