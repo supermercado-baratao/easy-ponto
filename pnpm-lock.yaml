@@ -8,7 +8,7 @@ importers:
   .:
     dependencies:
       '@tabler/icons-react':
-        specifier: ^3.36.1
+        specifier: 3.36.1
         version: 3.36.1(react@19.2.0)
       axios:
         specifier: 1.13.2
@@ -29,7 +29,7 @@ importers:
         specifier: 15.5.4
         version: 15.5.4(@babel/core@7.28.4)(@playwright/test@1.56.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       next-themes:
-        specifier: ^0.4.6
+        specifier: 0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       radix-ui:
         specifier: 1.4.3
@@ -50,10 +50,10 @@ importers:
         specifier: 3.3.1
         version: 3.3.1
       validation-br:
-        specifier: ^1.6.4
+        specifier: 1.6.4
         version: 1.6.4
       xlsx:
-        specifier: ^0.18.5
+        specifier: 0.18.5
         version: 0.18.5
       zod:
         specifier: 4.3.6
@@ -75,7 +75,7 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       '@playwright/test':
-        specifier: ^1.56.1
+        specifier: 1.56.1
         version: 1.56.1
       '@prisma/client':
         specifier: 6.17.0
@@ -2403,10 +2403,10 @@ packages:
     peerDependencies:
       react: '>= 16'
 
-  '@tabler/icons@3.36.1':
+  '@tabler/icons@3.41.1':
     resolution:
       {
-        integrity: sha512-f4Jg3Fof/Vru5ioix/UO4GX+sdDsF9wQo47FbtvG+utIYYVQ/QVAC0QYgcBbAjQGfbdOh2CCf0BgiFOF9Ixtjw==
+        integrity: sha512-OaRnVbRmH2nHtFeg+RmMJ/7m2oBIF9XCJAUD5gQnMrpK9f05ydj8MZrAf3NZQqOXyxGN1UBL0D5IKLLEUfr74Q==
       }
 
   '@tailwindcss/node@4.1.14':
@@ -8359,10 +8359,10 @@ snapshots:
 
   '@tabler/icons-react@3.36.1(react@19.2.0)':
     dependencies:
-      '@tabler/icons': 3.36.1
+      '@tabler/icons': 3.41.1
       react: 19.2.0
 
-  '@tabler/icons@3.36.1': {}
+  '@tabler/icons@3.41.1': {}
 
   '@tailwindcss/node@4.1.14':
     dependencies:
