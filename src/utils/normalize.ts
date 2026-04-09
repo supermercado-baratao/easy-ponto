@@ -1,3 +1,5 @@
+import { CNPJ_LENGTH, CPF_LENGTH } from '@/constants'
+
 export const normalizeLeftZeros = (
   number: number | string,
   length: number
@@ -13,4 +15,14 @@ export const normalizePis = (pis: string): string => {
     return pis.slice(1, -1)
   }
   return pis
+}
+
+export const normalizeCnpj = (cnpj: string): string => {
+  const str = cnpj.replace(/\D/g, '')
+  return normalizeLeftZeros(str, CNPJ_LENGTH)
+}
+
+export const normalizeCpf = (cpf: string): string => {
+  const str = cpf.replace(/\D/g, '')
+  return normalizeLeftZeros(str, CPF_LENGTH)
 }
