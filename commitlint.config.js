@@ -1,1 +1,6 @@
-export default { extends: ['emoji-convention'] }
+export default {
+  extends: ['emoji-convention'],
+  rules: {
+    'body-max-line-length': [0]
+  }
+}
