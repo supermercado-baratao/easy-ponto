@@ -67,6 +67,8 @@ model Company {
   cpfCnpj String @unique @map("cpf_cnpj")
   cei     String
 
+  registration String?
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -81,12 +83,17 @@ model User {
   name           String
   pis            String  @unique
   cpf            String?
-  code           Int
+  code           String
   templatesCount Int     @map("templates_count")
   password       String
-  rfid           Int
+  rfid           String
   bars           String
-  registration   Int
+  registration   String
+
+  payrollNumber String?   @map("payroll_number")
+  admissionDate DateTime? @map("admission_date")
+  position      String?
+  department    String?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -97,5 +104,25 @@ model User {
   adminUserId String?    @unique @map("admin_user_id")
   adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
 
+  punchRecords PunchRecord[]
+
   @@map("users")
+}
+
+model PunchRecord {
+  id       String   @id @default(uuid())
+  pis      String
+  datetime DateTime
+
+  afdDatetime           DateTime? @map("afd_datetime")
+  nsr                   Int?      @unique
+  registrationType      String?   @map("registration_type")
+  hexadecimalCheckDigit String?   @map("hexadecimal_check_digit")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [pis], references: [pis])
+
+  @@map("punch_records")
 }

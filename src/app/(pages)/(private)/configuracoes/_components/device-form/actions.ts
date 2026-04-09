@@ -1,15 +1,15 @@
 'use server'
 
-import { DeviceCredentials } from '@prisma/client'
+import { handleFormAction } from '@/infra/form-action'
+import { deviceCredentialsModel } from '@/models'
 
-import { handleFormAction, TState } from '@/infra/form-action'
-import { deviceCredentialsModel, TDeviceCredentialsFormData } from '@/models'
+import { TDeviceFormState } from './types'
 
 export const save = async (
   adminUserId: string,
-  state: TState<TDeviceCredentialsFormData, DeviceCredentials>,
+  state: TDeviceFormState,
   formData: FormData
-): Promise<TState<TDeviceCredentialsFormData, DeviceCredentials>> => {
+): Promise<TDeviceFormState> => {
   formData.set('adminUserId', adminUserId)
   return handleFormAction(deviceCredentialsModel.upsert, state, formData)
 }

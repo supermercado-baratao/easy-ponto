@@ -136,9 +136,14 @@ const getAfd = async (
   api: AxiosInstance,
   { session, initialDate, initialNsr }: TGetAfdParams
 ): Promise<string> => {
-  let body = undefined
-  if (initialDate) body = initialDate
-  if (initialNsr) body = initialNsr
+  let body:
+    | {
+        initial_date?: { day: number; month: number; year: number }
+        initial_nsr?: number
+      }
+    | undefined = undefined
+  if (initialDate) body = { initial_date: initialDate }
+  if (initialNsr) body = { ...body, initial_nsr: initialNsr }
   const { data }: { data: string } = await api.post(
     normalizeUrl({ path: '/get_afd', session }),
     body

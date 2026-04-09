@@ -1,18 +1,23 @@
 // @vitest-environment node
 
-import { Company, User } from '@prisma/client'
+import { Company, PunchRecord, User } from '@prisma/client'
+import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import {
   adminUserModel,
   deviceCredentialsModel,
+  punchRecordModel,
   synchronizationModel,
   TAdminUserWithRelations,
+  TSynchronizationCredentials,
   userModel
 } from '@/models'
 import orchestrator from '@/tests/orchestrator'
+import { normalizePis } from '@/utils'
 
 let adminUser: TAdminUserWithRelations
+let credentials: TSynchronizationCredentials
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
@@ -29,16 +34,17 @@ beforeAll(async () => {
     deviceCredentialsId
   })
   adminUser = await adminUserModel.findUniqueById(adminUserId)
+  credentials = {
+    ...adminUser.deviceCredentials!,
+    deviceCredentialsId: adminUser.deviceCredentialsId!
+  }
 })
 
 describe('Synchronization Model', () => {
-  test('Syncronize company', async () => {
+  test('Synchronize company', async () => {
     const data = await synchronizationModel.receive.company({
       adminUserId: adminUser.id,
-      credentials: {
-        ...adminUser.deviceCredentials!,
-        deviceCredentialsId: adminUser.deviceCredentialsId!
-      }
+      credentials
     })
     const expectedData: Company = {
       id: expect.any(String),
@@ -59,20 +65,18 @@ describe('Synchronization Model', () => {
     adminUser = adminUserAfterSync
   })
 
-  test('Syncronize users', async () => {
+  test('Synchronize users', async () => {
     const users = await userModel.findManyByCompanyId(adminUser.companyId!)
     expect(users).toEqual([])
     await synchronizationModel.receive.users({
       companyId: adminUser.companyId!,
-      credentials: {
-        ...adminUser.deviceCredentials!,
-        deviceCredentialsId: adminUser.deviceCredentialsId!
-      }
+      credentials
     })
 
     const usersAfterSync = await userModel.findManyByCompanyId(
       adminUser.companyId!
     )
+    expect(usersAfterSync.length).toBeGreaterThan(0)
     expect(usersAfterSync.length).toBeGreaterThan(0)
 
     const expectedData: User = {
@@ -96,5 +100,53 @@ describe('Synchronization Model', () => {
       typeof usersAfterSync[0].cpf === 'string' ||
         usersAfterSync[0].cpf === null
     ).toBe(true)
+  })
+
+  test('Synchronize AFD', async () => {
+    const date = new Date()
+    const punchRecords = await punchRecordModel.findMany()
+    expect(punchRecords).toEqual([])
+
+    const day = date.getDate()
+    const month = date.getMonth() + 1
+    const year = date.getFullYear()
+
+    await synchronizationModel.receive.afd({
+      credentials,
+      params: {
+        initialDate: {
+          day,
+          month,
+          year
+        }
+      }
+    })
+
+    const punchRecordsAfterSync = await punchRecordModel.findMany()
+    expect(punchRecordsAfterSync.length).toBeGreaterThan(0)
+
+    const data = punchRecordsAfterSync[0]
+    const expectedData: PunchRecord = {
+      id: expect.any(String),
+      pis: expect.any(String),
+      datetime: expect.any(Date),
+      afdDatetime: expect.any(Date),
+      nsr: expect.any(Number),
+      registrationType: expect.any(String),
+      hexadecimalCheckDigit: expect.any(String),
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date)
+    }
+    expect(data).toEqual(expectedData)
+
+    const pis = normalizePis(data.pis)
+
+    if (pis.length === 11) {
+      expect(isPIS(data.pis)).toBeTruthy()
+    }
+    expect(data.datetime).toEqual(data.afdDatetime)
+    expect(data.datetime.getDate()).toBeGreaterThanOrEqual(day - 1) // A API dispositivo de ponto retorna dados do dia anterior
+    expect(data.datetime.getMonth() + 1).toBe(month)
+    expect(data.datetime.getFullYear()).toBe(year)
   })
 })

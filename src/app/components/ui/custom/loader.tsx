@@ -7,10 +7,19 @@ import { Spinner } from '../shadcn-io/spinner'
 type TLoaderProps = {
   mode?: 'absolute' | 'inline'
   variant?: 'ellipsis' | 'circle'
+  open?: boolean
 } & LucideProps
 
 export const Loader = (props: TLoaderProps) => {
-  const { mode = 'absolute', variant = 'circle', className, ...rest } = props
+  const {
+    mode = 'absolute',
+    variant = 'circle',
+    className,
+    open = true,
+    ...rest
+  } = props
+
+  if (!open) return null
 
   if (mode === 'inline') {
     return <Spinner className={className} variant={variant} {...rest} />

@@ -33,7 +33,8 @@ export default [
       'import/newline-after-import': 'error',
       'import/no-duplicates': 'error',
       'react-hooks/exhaustive-deps': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off'
+      '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-explicit-any': 'off'
     },
     ignorePatterns: ['next-env.d.ts']
   }),
