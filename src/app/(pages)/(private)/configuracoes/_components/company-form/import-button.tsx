@@ -4,10 +4,10 @@ import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
-import { TState } from '@/infra/form-action'
 import { TCompanySynchronizationParams } from '@/models'
 
 import { importFromDevice } from './actions'
+import { TCompanyState } from './types'
 
 export const ImportButton = ({
   adminUserId,
@@ -16,19 +16,22 @@ export const ImportButton = ({
   setFormState
 }: {
   adminUserId: string
-  deviceCredentials: DeviceCredentials | null
+  deviceCredentials: DeviceCredentials
   pending: boolean
   setFormState: (value: Company) => void
 }) => {
-  const initialState: TState<TCompanySynchronizationParams, Company> = {}
+  const initialState: TCompanyState = {}
+
+  const bindArguments = {
+    adminUserId,
+    credentials: {
+      ...deviceCredentials,
+      deviceCredentialsId: deviceCredentials!.id
+    }
+  } as TCompanySynchronizationParams
+
   const [state, formAction, pending] = useFormState(
-    importFromDevice.bind(null, {
-      adminUserId,
-      credentials: {
-        ...deviceCredentials,
-        deviceCredentialsId: deviceCredentials?.id
-      }
-    } as TCompanySynchronizationParams),
+    importFromDevice.bind(null, bindArguments),
     initialState
   )
 
@@ -46,8 +49,6 @@ export const ImportButton = ({
       return
     }
   }, [pending])
-
-  if (!deviceCredentials) return null
 
   const isPending = pending || _pending
 

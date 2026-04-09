@@ -13,23 +13,26 @@ import {
   FormField,
   Select
 } from '@/app/components'
-import { TState } from '@/infra/form-action'
-import { TCompanyFormData } from '@/models'
 
 import { save } from './actions'
 import { ImportButton } from './import-button'
 import { SubmitButton } from './submit-button'
+import { TCompanyState } from './types'
+
+type TCompanyFormProps = {
+  adminUserId: string
+  company: Company | null
+  deviceCredentials: DeviceCredentials | null
+  setCompany: (company: Company) => void
+}
 
 export const CompanyForm = ({
   adminUserId,
   company,
-  deviceCredentials
-}: {
-  adminUserId: string
-  company: Company | null
-  deviceCredentials: DeviceCredentials | null
-}) => {
-  const initialState: TState<TCompanyFormData, Company> = {
+  deviceCredentials,
+  setCompany
+}: TCompanyFormProps) => {
+  const initialState: TCompanyState = {
     data: company
   }
   const [state, formAction, pending] = useFormState(save, initialState)
@@ -39,6 +42,7 @@ export const CompanyForm = ({
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
       setFormState(state.data)
+      setCompany(state.data as Company)
       return
     }
 
@@ -60,25 +64,25 @@ export const CompanyForm = ({
         <form id="company-form" action={formAction} noValidate>
           <FormField
             name="name"
-            label="Nome"
+            label="Nome*"
             defaultValue={formState?.name}
             error={state.errors?.name}
           />
           <FormField
             name="address"
-            label="Endereço"
+            label="Endereço*"
             defaultValue={formState?.address}
             error={state.errors?.address}
           />
           <FormField
             name="cpf"
-            label="CPF do Responsável"
+            label="CPF do Responsável*"
             defaultValue={formState?.cpf}
             error={state.errors?.cpf}
           />
           <Select
             name="tipoDoc"
-            label="Tipo de Documento"
+            label="Tipo de Documento*"
             placeholder="Tipo utilizado no campo CPF/CNPJ"
             defaultValue={formState?.tipoDoc.toString()}
             options={[
@@ -89,26 +93,34 @@ export const CompanyForm = ({
           />
           <FormField
             name="cpfCnpj"
-            label="CPF/CNPJ"
+            label="CPF/CNPJ*"
             defaultValue={formState?.cpfCnpj}
             error={state.errors?.cpfCnpj}
           />
           <FormField
             name="cei"
-            label="CEI"
+            label="CEI*"
             defaultValue={formState?.cei}
             error={state.errors?.cei}
+          />
+          <FormField
+            name="registration"
+            label="Inscrição"
+            defaultValue={formState?.registration ?? ''}
+            error={state.errors?.registration}
           />
         </form>
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
-          <ImportButton
-            adminUserId={adminUserId}
-            deviceCredentials={deviceCredentials}
-            pending={pending}
-            setFormState={setFormState}
-          />
+          {deviceCredentials && (
+            <ImportButton
+              adminUserId={adminUserId}
+              deviceCredentials={deviceCredentials}
+              pending={pending}
+              setFormState={setFormState}
+            />
+          )}
           <SubmitButton pending={pending} />
         </Field>
       </CardFooter>

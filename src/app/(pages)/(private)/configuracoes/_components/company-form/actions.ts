@@ -1,27 +1,26 @@
 'use server'
 
-import { Company } from '@prisma/client'
-
-import { handleFormAction, TState } from '@/infra/form-action'
+import { handleFormAction } from '@/infra/form-action'
 import {
   companyModel,
   synchronizationModel,
-  TCompanyFormData,
   TCompanySynchronizationParams
 } from '@/models'
 
+import { TCompanyState } from './types'
+
 export const save = async (
-  state: TState<TCompanyFormData, Company>,
+  state: TCompanyState,
   formData: FormData
-): Promise<TState<TCompanyFormData, Company>> =>
+): Promise<TCompanyState> =>
   await handleFormAction(companyModel.upsert, state, formData)
 
 export const importFromDevice = async (
   params: TCompanySynchronizationParams,
-  state: TState<TCompanySynchronizationParams, Company>
-): Promise<TState<TCompanySynchronizationParams, Company>> => {
+  state: TCompanyState
+): Promise<TCompanyState> => {
   try {
-    const data = await synchronizationModel.receive.company(params)
+    const data = await synchronizationModel.synchronizeCompany(params)
     return {
       ...state,
       data,
