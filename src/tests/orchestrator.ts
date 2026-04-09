@@ -1,16 +1,24 @@
-import { exec } from 'node:child_process'
-import { promisify } from 'node:util'
-
+import { faker } from '@faker-js/faker'
 import retry from 'async-retry'
+import * as cnpj from 'validation-br/dist/cnpj.js'
+import * as cpf from 'validation-br/dist/cpf.js'
 
 import {
   adminUserModel,
+  companyModel,
   deviceCredentialsModel,
+  punchRecordModel,
   statusModel,
-  synchronizationModel
+  synchronizationModel,
+  userModel
 } from '@/models'
+import {
+  mapDeviceUserToUser,
+  mapParsedAfdToPunchRecordCreateMany
+} from '@/models/synchronization-model/_utils'
 
-const execAsync = promisify(exec)
+import { deviceUsers, parsedAfd } from './_mocks'
+import { execAsync } from './_utils'
 
 const waitForAllServices = async () => {
   await retry(async () => await statusModel.check(), {
@@ -22,7 +30,7 @@ const waitForAllServices = async () => {
 
 const clearDatabase = async () => await execAsync('pnpm db:reset --force')
 
-const populateDatabase = async () => {
+const populateDatabaseWithRealData = async () => {
   const { id: adminUserId } = await adminUserModel.create()
   const credentials = await deviceCredentialsModel.upsert({
     adminUserId,
@@ -30,21 +38,54 @@ const populateDatabase = async () => {
     login: process.env.DEVICE_LOGIN!,
     password: process.env.DEVICE_PASSWORD!
   })
-  await synchronizationModel.receive.company({
+  await synchronizationModel.synchronizeCompany({
     adminUserId,
     credentials: {
       ...credentials,
-      deviceCredentialsId: credentials.id
+      id: credentials.id
     }
   })
 }
 
-// await populateDatabase()
+const populateDatabaseWithMockedData = async () => {
+  let adminUser = await adminUserModel.create()
+  const deviceCredentials = await deviceCredentialsModel.upsert({
+    adminUserId: adminUser.id,
+    ip: faker.internet.ipv4(),
+    login: faker.internet.username(),
+    password: faker.internet.password()
+  })
+  const company = await companyModel.upsert({
+    name: faker.company.name(),
+    address: faker.location.streetAddress(),
+    cpf: cpf.fake(),
+    tipoDoc: 1,
+    cpfCnpj: cnpj.fake(),
+    cei: faker.string.numeric(12),
+    registration: faker.string.numeric(12)
+  })
+  adminUser = await adminUserModel.update({
+    id: adminUser.id,
+    companyId: company.id,
+    deviceCredentialsId: deviceCredentials.id
+  })
+  await userModel.createMany(mapDeviceUserToUser(deviceUsers, company.id))
+  await punchRecordModel.createManyExistentsInAfd(
+    mapParsedAfdToPunchRecordCreateMany(parsedAfd)
+  )
+
+  return {
+    adminUser,
+    deviceCredentials,
+    company
+  }
+}
 
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
-  populateDatabase
+  populateDatabaseWithRealData,
+  populateDatabaseWithMockedData
 }
 
 export default orchestrator
