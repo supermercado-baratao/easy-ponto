@@ -1,4 +1,6 @@
-import { DeviceCredentials, User } from '@prisma/client'
+'use client'
+
+import { DeviceCredentials } from '@prisma/client'
 import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
@@ -6,27 +8,18 @@ import { toast } from 'sonner'
 import { Button, Loader } from '@/app/components'
 import {
   TAfdSynchronizationParams,
-  TSynchronizationCredentials,
-  TUserWithPunchRecords
+  TSynchronizationCredentials
 } from '@/models'
 
 import { synchronize } from './actions'
 import { TSynchronizationState } from './types'
 
 export const SynchronizationButton = ({
-  userPis,
   companyId,
-  deviceCredentials,
-  pending: _pending,
-  setUsers,
-  setUser
+  deviceCredentials
 }: {
-  userPis: string | null
   companyId: string
   deviceCredentials: DeviceCredentials
-  pending: boolean
-  setUsers: (value: User[]) => void
-  setUser: (value: TUserWithPunchRecords | null) => void
 }) => {
   const initialState: TSynchronizationState = {}
 
@@ -39,7 +32,7 @@ export const SynchronizationButton = ({
     companyId,
     credentials,
     params: {},
-    userPis
+    userPis: null
   }
 
   const [state, formAction, pending] = useFormState(
@@ -50,8 +43,6 @@ export const SynchronizationButton = ({
   useEffect(() => {
     if (state.success) {
       toast.success('Dados importados com sucesso!')
-      setUsers(state.data?.users || [])
-      setUser(state.data?.user || null)
       return
     }
 
@@ -63,16 +54,14 @@ export const SynchronizationButton = ({
     }
   }, [pending])
 
-  const isPending = pending || _pending
-
   return (
     <>
       <form action={formAction} className="w-1/5 min-w-20">
-        <Button type="submit" disabled={isPending} variant="outline">
+        <Button type="submit" disabled={pending} variant="outline">
           Sincronizar
         </Button>
       </form>
-      <Loader open={isPending} />
+      <Loader open={pending} />
     </>
   )
 }

@@ -1,5 +1,7 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+
 import { synchronizationModel, TAfdSynchronizationParams } from '@/models'
 
 import { TSynchronizationState } from './types'
@@ -9,21 +11,11 @@ export const synchronize = async (
   state: TSynchronizationState
 ): Promise<TSynchronizationState> => {
   try {
-    const data = await synchronizationModel.synchronizeAfd(params)
-    return {
-      ...state,
-      success: true,
-      data: {
-        user: data.user,
-        users: data.users
-      }
-    }
+    await synchronizationModel.synchronizeAfd(params)
+    revalidatePath('/registros-de-ponto', 'layout')
+    return { ...state, success: true }
   } catch (error) {
     console.error(error)
-    return {
-      ...state,
-      success: false,
-      fatalError: true
-    }
+    return { ...state, success: false, fatalError: true }
   }
 }
