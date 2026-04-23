@@ -13,7 +13,10 @@ const createMany = async (data: TInputData<User>[]): Promise<void> => {
 
 const findManyByCompanyId = async (companyId: string): Promise<User[]> => {
   const result = await prisma.user.findMany({
-    where: { companyId }
+    where: { companyId },
+    orderBy: {
+      name: 'asc'
+    }
   })
   return result
 }
@@ -24,6 +27,9 @@ const findManyByNames = async (names: string[]): Promise<User[]> => {
       name: {
         in: names
       }
+    },
+    orderBy: {
+      name: 'asc'
     }
   })
   return result
@@ -31,8 +37,8 @@ const findManyByNames = async (names: string[]): Promise<User[]> => {
 
 const findUniqueByPisWithPunchRecords = async (
   pis: string
-): Promise<TUserWithPunchRecords> => {
-  const result = await prisma.user.findUniqueOrThrow({
+): Promise<TUserWithPunchRecords | null> => {
+  const result = await prisma.user.findUnique({
     where: { pis },
     include: {
       punchRecords: true
