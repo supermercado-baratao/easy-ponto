@@ -20,7 +20,6 @@ export type TUserSynchronizationParams = {
 export type TAfdSynchronizationParams = {
   params: Omit<TGetAfdParams, 'session'>
   credentials: TSynchronizationCredentials
-  userPis: string | null
   companyId: string
 }
 

@@ -30,8 +30,7 @@ export const SynchronizationButton = ({
   const bindArguments: TAfdSynchronizationParams = {
     companyId,
     credentials,
-    params: {},
-    userPis: null
+    params: {}
   }
 
   const [state, formAction, pending] = useActionState(

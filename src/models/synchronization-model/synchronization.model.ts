@@ -79,12 +79,8 @@ const synchronizeUsers = async ({
 const synchronizeAfd = async ({
   params,
   credentials,
-  userPis,
   companyId
-}: TAfdSynchronizationParams): Promise<{
-  users: User[]
-  user: TUserWithPunchRecords | null
-}> => {
+}: TAfdSynchronizationParams): Promise<void> => {
   const api = createDeviceApiInstance(credentials.ip)
   const session = await getSession(api, credentials)
   const [users, afd] = await Promise.all([
@@ -100,14 +96,6 @@ const synchronizeAfd = async ({
   )
   const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd)
   await punchRecordModel.createManyExistentsInAfd(punchRecords)
-
-  const pis = userPis || users[0].pis || null
-  const user = pis ? await userModel.findUniqueByPisWithPunchRecords(pis) : null
-
-  return {
-    users,
-    user
-  }
 }
 
 const importFile = async ({
