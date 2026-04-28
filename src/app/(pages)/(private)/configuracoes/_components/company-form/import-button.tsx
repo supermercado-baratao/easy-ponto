@@ -1,6 +1,5 @@
 import { Company, DeviceCredentials } from '@prisma/client'
-import { useEffect } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
@@ -13,12 +12,12 @@ export const ImportButton = ({
   adminUserId,
   deviceCredentials,
   pending: _pending,
-  setFormState
+  setCompany
 }: {
   adminUserId: string
   deviceCredentials: DeviceCredentials
   pending: boolean
-  setFormState: (value: Company) => void
+  setCompany: (value: Company) => void
 }) => {
   const initialState: TCompanyState = {}
 
@@ -30,7 +29,7 @@ export const ImportButton = ({
     }
   } as TCompanySynchronizationParams
 
-  const [state, formAction, pending] = useFormState(
+  const [state, formAction, pending] = useActionState(
     importFromDevice.bind(null, bindArguments),
     initialState
   )
@@ -38,7 +37,7 @@ export const ImportButton = ({
   useEffect(() => {
     if (state.success) {
       toast.success('Dados importados com sucesso!')
-      setFormState(state.data as Company)
+      setCompany(state.data as Company)
       return
     }
 

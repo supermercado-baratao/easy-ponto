@@ -1,8 +1,7 @@
 'use client'
 
 import { Company, DeviceCredentials } from '@prisma/client'
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -35,13 +34,11 @@ export const CompanyForm = ({
   const initialState: TCompanyState = {
     data: company
   }
-  const [state, formAction, pending] = useFormState(save, initialState)
-  const [formState, setFormState] = useState(initialState.data)
+  const [state, formAction, pending] = useActionState(save, initialState)
 
   useEffect(() => {
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
-      setFormState(state.data)
       setCompany(state.data as Company)
       return
     }
@@ -65,26 +62,26 @@ export const CompanyForm = ({
           <FormField
             name="name"
             label="Nome*"
-            defaultValue={formState?.name}
+            defaultValue={company?.name}
             error={state.errors?.name}
           />
           <FormField
             name="address"
             label="Endereço*"
-            defaultValue={formState?.address}
+            defaultValue={company?.address}
             error={state.errors?.address}
           />
           <FormField
             name="cpf"
             label="CPF do Responsável*"
-            defaultValue={formState?.cpf}
+            defaultValue={company?.cpf}
             error={state.errors?.cpf}
           />
           <Select
             name="tipoDoc"
             label="Tipo de Documento*"
             placeholder="Tipo utilizado no campo CPF/CNPJ"
-            defaultValue={formState?.tipoDoc.toString()}
+            defaultValue={company?.tipoDoc.toString()}
             options={[
               { value: '0', label: '0 - CPF' },
               { value: '1', label: '1 - CNPJ' }
@@ -94,19 +91,19 @@ export const CompanyForm = ({
           <FormField
             name="cpfCnpj"
             label="CPF/CNPJ*"
-            defaultValue={formState?.cpfCnpj}
+            defaultValue={company?.cpfCnpj}
             error={state.errors?.cpfCnpj}
           />
           <FormField
             name="cei"
             label="CEI*"
-            defaultValue={formState?.cei}
+            defaultValue={company?.cei}
             error={state.errors?.cei}
           />
           <FormField
             name="registration"
             label="Inscrição"
-            defaultValue={formState?.registration ?? ''}
+            defaultValue={company?.registration ?? ''}
             error={state.errors?.registration}
           />
         </form>
@@ -118,7 +115,7 @@ export const CompanyForm = ({
               adminUserId={adminUserId}
               deviceCredentials={deviceCredentials}
               pending={pending}
-              setFormState={setFormState}
+              setCompany={setCompany}
             />
           )}
           <SubmitButton pending={pending} />

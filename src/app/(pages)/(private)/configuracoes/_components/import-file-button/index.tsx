@@ -1,8 +1,7 @@
 'use client'
 
 import { Company, DeviceCredentials } from '@prisma/client'
-import { useEffect, useRef } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { Button, Input, Label, Loader } from '@/app/components'
@@ -28,7 +27,7 @@ export const ImportFileButton = ({
     credentials
   }
 
-  const [state, formAction, pending] = useFormState(
+  const [state, formAction, pending] = useActionState(
     importFile.bind(null, params),
     initialState
   )

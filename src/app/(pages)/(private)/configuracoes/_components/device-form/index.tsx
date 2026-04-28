@@ -1,8 +1,7 @@
 'use client'
 
 import { DeviceCredentials } from '@prisma/client'
-import { useEffect } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -29,7 +28,7 @@ export const DeviceForm = ({
   const initialState: TDeviceFormState = {
     data: deviceCredentials
   }
-  const [state, formAction, pending] = useFormState(
+  const [state, formAction, pending] = useActionState(
     save.bind(null, adminUserId),
     initialState
   )

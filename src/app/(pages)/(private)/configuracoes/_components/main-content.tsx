@@ -39,7 +39,7 @@ export const MainContent = ({
         />
         <CompanyForm
           adminUserId={adminUser.id}
-          company={adminUser.company}
+          company={company}
           deviceCredentials={deviceCredentials}
           setCompany={setCompany}
         />

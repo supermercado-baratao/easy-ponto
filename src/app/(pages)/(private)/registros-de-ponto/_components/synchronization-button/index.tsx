@@ -1,8 +1,7 @@
 'use client'
 
 import { DeviceCredentials } from '@prisma/client'
-import { useEffect } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
@@ -35,7 +34,7 @@ export const SynchronizationButton = ({
     userPis: null
   }
 
-  const [state, formAction, pending] = useFormState(
+  const [state, formAction, pending] = useActionState(
     synchronize.bind(null, bindArguments),
     initialState
   )
