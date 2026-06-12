@@ -1,7 +1,7 @@
 'use client'
 
 import { Company, DeviceCredentials } from '@prisma/client'
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import {
