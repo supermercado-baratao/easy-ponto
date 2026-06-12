@@ -2,6 +2,12 @@ node_modules
 .next
 .env
 
+# Claude Code
+.claude/
+
+# TypeScript
+tsconfig.tsbuildinfo
+
 # Playwright
 /test-results/
 /playwright-report/
