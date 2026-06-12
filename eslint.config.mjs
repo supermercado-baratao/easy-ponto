@@ -34,7 +34,8 @@ export default [
       'import/no-duplicates': 'error',
       'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-explicit-any': 'off'
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'off'
     },
     ignorePatterns: ['next-env.d.ts']
   }),
