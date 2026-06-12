@@ -6,7 +6,6 @@ import {
   createDeviceApiInstance,
   deviceModel,
   punchRecordModel,
-  TUserWithPunchRecords,
   userModel
 } from '@/models'
 import { TInputData } from '@/types'
