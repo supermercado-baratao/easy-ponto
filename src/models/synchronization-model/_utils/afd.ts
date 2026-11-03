@@ -1,4 +1,4 @@
-import type { User } from '@/infra/database/generated/client'
+import type { User } from '@/infra/database/types'
 import { dayjs } from '@/lib'
 import { TPunchRecordCreateManyExistentsInAfdData } from '@/models'
 

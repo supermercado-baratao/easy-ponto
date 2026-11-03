@@ -1,7 +1,7 @@
 import { isCNPJ, isCPF } from 'validation-br'
 import * as xlsx from 'xlsx'
 
-import type { User } from '@/infra/database/generated/client'
+import type { User } from '@/infra/database/types'
 import { dayjs } from '@/lib'
 import { TPunchRecordCreateNonExistentInAfdData } from '@/models'
 import { ddMMYYYYToDate, normalizeCnpj, normalizeCpf } from '@/utils'

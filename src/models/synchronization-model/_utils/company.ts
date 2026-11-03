@@ -1,5 +1,5 @@
 import { CNPJ_LENGTH, CPF_LENGTH } from '@/constants'
-import type { Company } from '@/infra/database/generated/client'
+import type { Company } from '@/infra/database/types'
 import { TDeviceCompany } from '@/models'
 import { TInputData } from '@/types'
 import { normalizeLeftZeros } from '@/utils'

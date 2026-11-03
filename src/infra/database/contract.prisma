@@ -1,23 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "./generated"
-}
-
-datasource db {
-  provider = "postgresql"
-}
+// use prisma-8
 
 model AdminUser {
-  id String @id @default(uuid())
+  id String @id @onCreate(uuid())
 
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
@@ -31,13 +18,13 @@ model AdminUser {
 }
 
 model DeviceCredentials {
-  id       String @id @default(uuid())
+  id       String @id @onCreate(uuid())
   ip       String
   login    String
   password String
 
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
   adminUsers    AdminUser[]
   deviceSession DeviceSession?
@@ -46,11 +33,11 @@ model DeviceCredentials {
 }
 
 model DeviceSession {
-  id    String @id @default(uuid())
+  id    String @id @onCreate(uuid())
   token String
 
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
   deviceCredentialsId String            @unique
   deviceCredentials   DeviceCredentials @relation(fields: [deviceCredentialsId], references: [id])
@@ -59,7 +46,7 @@ model DeviceSession {
 }
 
 model Company {
-  id      String @id @default(uuid())
+  id      String @id @onCreate(uuid())
   name    String
   address String
   cpf     String
@@ -70,7 +57,7 @@ model Company {
   registration String?
 
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
   adminUsers AdminUser[]
   users      User[]
@@ -79,7 +66,7 @@ model Company {
 }
 
 model User {
-  id             String  @id @default(uuid())
+  id             String  @id @onCreate(uuid())
   name           String
   pis            String  @unique
   cpf            String?
@@ -96,7 +83,7 @@ model User {
   department    String?
 
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -110,7 +97,7 @@ model User {
 }
 
 model PunchRecord {
-  id       String   @id @default(uuid())
+  id       String   @id @onCreate(uuid())
   pis      String
   datetime DateTime
 
@@ -120,7 +107,7 @@ model PunchRecord {
   hexadecimalCheckDigit String?   @map("hexadecimal_check_digit")
 
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
   user User @relation(fields: [pis], references: [pis])
 

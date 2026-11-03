@@ -1,4 +1,4 @@
-import type { DeviceCredentials } from '@/infra/database/generated/client'
+import type { DeviceCredentials } from '@/infra/database/types'
 import { TState } from '@/infra/form-action'
 import { TDeviceCredentialsFormData } from '@/models'
 

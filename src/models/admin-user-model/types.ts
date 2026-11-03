@@ -1,9 +1,12 @@
-import type { Prisma } from '@/infra/database/generated/client'
+import type {
+  AdminUser,
+  Company,
+  DeviceCredentials,
+  User
+} from '@/infra/database/types'
 
-export type TAdminUserWithRelations = Prisma.AdminUserGetPayload<{
-  include: {
-    company: true
-    deviceCredentials: true
-    user: true
-  }
-}>
+export type TAdminUserWithRelations = AdminUser & {
+  company: Company | null
+  deviceCredentials: DeviceCredentials | null
+  user: User | null
+}

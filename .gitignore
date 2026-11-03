@@ -7,4 +7,5 @@ playwright-report
 .claude/settings.local.json
 .playwright-mcp
 .env*.local
-src/infra/database/generated
+src/infra/database/contract.json
+src/infra/database/contract.d.ts

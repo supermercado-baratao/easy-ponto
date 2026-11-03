@@ -1,23 +1,23 @@
-import { PrismaPg } from '@prisma/adapter-pg'
+import postgres from '@prisma/orm-postgres/runtime'
+import { contractFromJson } from '@prisma/orm-postgres/static'
 
-import { PrismaClient } from './generated/client'
+import type { Contract } from './contract.d'
+import contractJson from './contract.json' with { type: 'json' }
 
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient
-}
-
-const createClient = (): PrismaClient =>
-  new PrismaClient({
-    adapter: new PrismaPg({
-      connectionString: process.env.DATABASE_URL,
-      // `pg` waits forever by default, while Prisma 6 gave up after 5s:
-      // https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7
-      connectionTimeoutMillis: 5000
-    })
+const createClient = () =>
+  postgres({
+    contract: contractFromJson<Contract>(contractJson),
+    url: process.env.DATABASE_URL!,
+    // `pg` waits forever by default when the database is unreachable
+    poolOptions: { connectionTimeoutMillis: 5000 }
   })
 
-const prisma = globalForPrisma.prisma || createClient()
+const globalForDatabase = globalThis as unknown as {
+  db?: ReturnType<typeof createClient>
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+const db = globalForDatabase.db ?? createClient()
 
-export { prisma }
+if (process.env.NODE_ENV !== 'production') globalForDatabase.db = db
+
+export { db }

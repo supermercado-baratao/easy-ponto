@@ -1,5 +1,5 @@
-import { prisma } from '@/infra/database/client'
-import type { PunchRecord } from '@/infra/database/generated/client'
+import { db } from '@/infra/database/client'
+import type { PunchRecord } from '@/infra/database/types'
 
 import {
   createManyExistentsInAfdSchema,
@@ -14,13 +14,14 @@ import {
   TPunchRecordFindManyParams,
   TPunchRecordUpdateData
 } from './types'
-import { buildFindManyWhere } from './utils'
+
+const punchRecords = db.orm.public.PunchRecord
 
 const createNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData
 ): Promise<PunchRecord> => {
   const validData = await createNonExistentInAfdSchema.parseAsync(data)
-  const result = await prisma.punchRecord.create({ data: validData })
+  const result = await punchRecords.create(validData)
   return result
 }
 
@@ -28,55 +29,64 @@ const createManyNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData[]
 ): Promise<void> => {
   const validData = await createManyNonExistentsInAfdSchema.parseAsync(data)
-  await prisma.punchRecord.createMany({
-    data: validData
-  })
+  await punchRecords.createAndCount(validData)
 }
 
 const createManyExistentsInAfd = async (
   data: TPunchRecordCreateManyExistentsInAfdData
 ): Promise<void> => {
   const validData = await createManyExistentsInAfdSchema.parseAsync(data)
-  await prisma.punchRecord.createMany({
-    data: validData
-  })
+  await punchRecords.createAndCount(validData)
 }
 
 const findMany = async (
   params?: TPunchRecordFindManyParams
 ): Promise<PunchRecord[]> => {
   const validParams = await findManyParamsSchema.parseAsync(params)
-  const where = buildFindManyWhere(validParams)
-  const punchRecords = await prisma.punchRecord.findMany({
-    where
-  })
-  return punchRecords
+  let query = punchRecords.where({})
+
+  if (validParams?.initialDate) {
+    const date = new Date(validParams.initialDate)
+    date.setUTCHours(0, 0, 0, 0)
+    query = query.where((record) => record.datetime.gte(date))
+  }
+
+  if (validParams?.finalDate) {
+    const date = new Date(validParams.finalDate)
+    date.setUTCHours(23, 59, 59, 999)
+    query = query.where((record) => record.datetime.lte(date))
+  }
+
+  const { initialNsr, finalNsr, pis } = validParams ?? {}
+
+  if (initialNsr) query = query.where((record) => record.nsr.gte(initialNsr))
+  if (finalNsr) query = query.where((record) => record.nsr.lte(finalNsr))
+  if (pis) query = query.where({ pis })
+
+  return await query.all()
 }
 
 const update = async (data: TPunchRecordUpdateData): Promise<PunchRecord> => {
-  const validData = await updateSchema.parseAsync(data)
-  const punchRecord = await prisma.punchRecord.update({
-    where: { id: validData.id },
-    data: validData
-  })
+  const { id, ...validData } = await updateSchema.parseAsync(data)
+  const punchRecord = await punchRecords.where({ id }).update(validData)
+  if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
   return punchRecord
 }
 
 const updateMany = async (data: TPunchRecordUpdateData[]): Promise<void> => {
-  await prisma.$transaction(
-    data.map(({ id, datetime }) =>
-      prisma.punchRecord.update({
-        where: { id },
-        data: { datetime }
+  await db.transaction(async (tx) => {
+    for (const { id, datetime } of data) {
+      const updated = await tx.orm.public.PunchRecord.where({ id }).update({
+        datetime
       })
-    )
-  )
+      if (!updated) throw new Error(`PunchRecord ${id} not found`)
+    }
+  })
 }
 
 const deleteRecord = async (id: string): Promise<PunchRecord> => {
-  const punchRecord = await prisma.punchRecord.delete({
-    where: { id }
-  })
+  const punchRecord = await punchRecords.where({ id }).delete()
+  if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
   return punchRecord
 }
 

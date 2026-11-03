@@ -1,5 +1,5 @@
 import { CPF_LENGTH, PIS_LENGTH } from '@/constants'
-import type { User } from '@/infra/database/generated/client'
+import type { User } from '@/infra/database/types'
 import { TDeviceUser } from '@/models'
 import { TInputData } from '@/types'
 import { normalizeLeftZeros } from '@/utils'

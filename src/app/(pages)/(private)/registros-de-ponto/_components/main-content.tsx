@@ -7,7 +7,7 @@ import {
   MainContent as _MainContent,
   Typography
 } from '@/app/components'
-import type { User } from '@/infra/database/generated/client'
+import type { User } from '@/infra/database/types'
 import { TAdminUserWithRelations, TUserWithPunchRecords } from '@/models'
 
 import { SynchronizationButton } from './synchronization-button'

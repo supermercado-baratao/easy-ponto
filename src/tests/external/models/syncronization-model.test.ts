@@ -3,11 +3,7 @@
 import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import type {
-  Company,
-  PunchRecord,
-  User
-} from '@/infra/database/generated/client'
+import type { Company, PunchRecord, User } from '@/infra/database/types'
 import {
   adminUserModel,
   deviceCredentialsModel,
