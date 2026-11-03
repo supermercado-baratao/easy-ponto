@@ -4,6 +4,7 @@
     "EditorConfig.EditorConfig",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
-    "prisma.prisma"
+    "ms-playwright.playwright",
+    "github.vscode-github-actions"
   ]
 }

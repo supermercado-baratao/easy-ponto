@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@/infra/database/generated/client'
 
 import { TPunchRecordFindManyParams } from './types'
 

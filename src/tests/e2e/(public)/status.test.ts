@@ -29,7 +29,7 @@ test.describe('Status Page', () => {
     const [versionItem, maxConnectionsItem, openedConnectionsItem] =
       await databaseSection.locator('li').all()
 
-    expect(await versionItem.first().textContent()).toBe('Versão16.0')
+    expect(await versionItem.first().textContent()).toMatch(/^Versão18\.\d+$/)
 
     expect(await maxConnectionsItem.first().textContent()).toBe(
       'Conexões Máximas100'

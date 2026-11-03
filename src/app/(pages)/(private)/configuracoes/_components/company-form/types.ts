@@ -1,5 +1,4 @@
-import { Company } from '@prisma/client'
-
+import type { Company } from '@/infra/database/generated/client'
 import { TState } from '@/infra/form-action'
 import { TCompanyUpsertData } from '@/models'
 

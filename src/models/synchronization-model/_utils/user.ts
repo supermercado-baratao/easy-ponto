@@ -1,6 +1,5 @@
-import { User } from '@prisma/client'
-
 import { CPF_LENGTH, PIS_LENGTH } from '@/constants'
+import type { User } from '@/infra/database/generated/client'
 import { TDeviceUser } from '@/models'
 import { TInputData } from '@/types'
 import { normalizeLeftZeros } from '@/utils'

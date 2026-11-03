@@ -1,6 +1,5 @@
-import { PunchRecord } from '@prisma/client'
-
-import { prisma } from '@/infra/prisma'
+import { prisma } from '@/infra/database/client'
+import type { PunchRecord } from '@/infra/database/generated/client'
 
 import {
   createManyExistentsInAfdSchema,

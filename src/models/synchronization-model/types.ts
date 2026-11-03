@@ -1,4 +1,8 @@
-import { Company, PunchRecord, User } from '@prisma/client'
+import type {
+  Company,
+  PunchRecord,
+  User
+} from '@/infra/database/generated/client'
 
 import { TDeviceLoginCredentials, TGetAfdParams } from '../device-model'
 

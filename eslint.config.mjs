@@ -1,48 +1,64 @@
-import { includeIgnoreFile } from '@eslint/compat'
-import { FlatCompat } from '@eslint/eslintrc'
-import js from '@eslint/js'
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
+import json from '@eslint/json'
+import markdown from '@eslint/markdown'
+import { defineConfig, globalIgnores } from 'eslint/config'
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import nextTs from 'eslint-config-next/typescript'
+import prettier from 'eslint-config-prettier/flat'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const gitignorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended
-})
-
-export default [
-  includeIgnoreFile(gitignorePath, 'Imported .gitignore patterns'),
-  ...compat.config({
-    extends: [
-      'eslint:recommended',
-      'next/core-web-vitals',
-      'next/typescript',
-      'plugin:import/recommended',
-      'prettier'
-    ],
-    plugins: ['simple-import-sort', 'import'],
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  prettier,
+  {
+    plugins: { 'simple-import-sort': simpleImportSort },
     rules: {
-      'import/no-anonymous-default-export': 'off',
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
-      'import/named': 'off',
-      'import/first': 'error',
-      'import/newline-after-import': 'error',
-      'import/no-duplicates': 'error',
+      'import/no-anonymous-default-export': 'off',
       'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-explicit-any': 'off'
-    },
-    ignorePatterns: ['next-env.d.ts']
-  }),
+    }
+  },
   {
+    files: ['src/**/*.ts'],
+    ignores: ['src/tests/**/*.ts', 'src/app/hooks/*.ts', '**/route.ts'],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'error'
-    },
-    files: ['src/**/*.ts'],
-    ignores: ['src/tests/**/*.ts', 'src/app/hooks/*.ts', '**/route.ts']
-  }
-]
+    }
+  },
+  {
+    files: ['**/*.json'],
+    plugins: { json },
+    language: 'json/json',
+    extends: ['json/recommended']
+  },
+  {
+    files: ['**/*.md'],
+    plugins: { markdown },
+    language: 'markdown/gfm',
+    languageOptions: { frontmatter: 'yaml' },
+    extends: ['markdown/recommended'],
+    // These rules crash ESLint on GFM text nodes without a position (e.g. `[text][https://...]`)
+    // instead of reporting: https://github.com/eslint/markdown/issues/619
+    rules: {
+      'markdown/no-invalid-label-refs': 'off',
+      'markdown/no-missing-label-refs': 'off',
+      'markdown/no-reference-like-urls': 'off',
+      'markdown/no-space-in-emphasis': 'off'
+    }
+  },
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    '.claude/**',
+    'test-results/**',
+    'playwright-report/**',
+    'src/infra/database/generated/**'
+  ])
+])
+
+export default eslintConfig

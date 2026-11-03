@@ -1,9 +1,13 @@
 // @vitest-environment node
 
-import { Company, PunchRecord, User } from '@prisma/client'
 import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
+import type {
+  Company,
+  PunchRecord,
+  User
+} from '@/infra/database/generated/client'
 import {
   adminUserModel,
   deviceCredentialsModel,
@@ -34,15 +38,12 @@ beforeAll(async () => {
     deviceCredentialsId
   })
   adminUser = await adminUserModel.findUniqueById(adminUserId)
-  credentials = {
-    ...adminUser.deviceCredentials!,
-    deviceCredentialsId: adminUser.deviceCredentialsId!
-  }
+  credentials = adminUser.deviceCredentials!
 })
 
 describe('Synchronization Model', () => {
   test('Synchronize company', async () => {
-    const data = await synchronizationModel.receive.company({
+    const data = await synchronizationModel.synchronizeCompany({
       adminUserId: adminUser.id,
       credentials
     })
@@ -54,6 +55,7 @@ describe('Synchronization Model', () => {
       cpfCnpj: expect.any(String),
       cei: expect.any(String),
       tipoDoc: expect.any(Number),
+      registration: null,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date)
     }
@@ -68,7 +70,7 @@ describe('Synchronization Model', () => {
   test('Synchronize users', async () => {
     const users = await userModel.findManyByCompanyId(adminUser.companyId!)
     expect(users).toEqual([])
-    await synchronizationModel.receive.users({
+    await synchronizationModel.synchronizeUsers({
       companyId: adminUser.companyId!,
       credentials
     })
@@ -92,6 +94,10 @@ describe('Synchronization Model', () => {
       rfid: expect.any(Number),
       registration: expect.any(Number),
       templatesCount: expect.any(Number),
+      admissionDate: null,
+      department: null,
+      payrollNumber: null,
+      position: null,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date)
     }
@@ -111,8 +117,10 @@ describe('Synchronization Model', () => {
     const month = date.getMonth() + 1
     const year = date.getFullYear()
 
-    await synchronizationModel.receive.afd({
+    await synchronizationModel.synchronizeAfd({
       credentials,
+      userPis: null,
+      companyId: adminUser.companyId!,
       params: {
         initialDate: {
           day,

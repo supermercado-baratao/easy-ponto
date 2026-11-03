@@ -1,9 +1,9 @@
-import { DeviceCredentials, User } from '@prisma/client'
 import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
+import type { DeviceCredentials, User } from '@/infra/database/generated/client'
 import {
   TAfdSynchronizationParams,
   TSynchronizationCredentials,

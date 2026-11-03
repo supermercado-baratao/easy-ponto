@@ -2,7 +2,6 @@ import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { faker } from '@faker-js/faker'
-import dotenv from 'dotenv'
 import ora from 'ora'
 
 import { PIS_LENGTH } from '@/constants'
@@ -11,7 +10,7 @@ import { parseAfd } from '@/models/synchronization-model/_utils'
 import { execAsync } from '@/tests/_utils'
 import { normalizeLeftZeros } from '@/utils'
 
-dotenv.config()
+process.loadEnvFile('.env.local')
 
 const api = createDeviceApiInstance(process.env.DEVICE_IP as string)
 

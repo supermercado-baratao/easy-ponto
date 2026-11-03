@@ -14,7 +14,7 @@ describe('Status Model', () => {
       const expectedData: TStatusCheckData = {
         dependencies: {
           database: {
-            version: '16.0',
+            version: expect.stringMatching(/^18\.\d+$/),
             maxConnections: '100',
             /**
              * When the test is running, the number of opened connections is not predictable, so we use the data from the response

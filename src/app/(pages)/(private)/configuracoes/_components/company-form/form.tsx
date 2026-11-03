@@ -1,6 +1,5 @@
 'use client'
 
-import { Company, DeviceCredentials } from '@prisma/client'
 import { useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
@@ -13,6 +12,10 @@ import {
   FormField,
   Select
 } from '@/app/components'
+import type {
+  Company,
+  DeviceCredentials
+} from '@/infra/database/generated/client'
 
 import { save } from './actions'
 import { ImportButton } from './import-button'
@@ -41,6 +44,7 @@ export const CompanyForm = ({
   useEffect(() => {
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- #11 reworks this state
       setFormState(state.data)
       setCompany(state.data as Company)
       return

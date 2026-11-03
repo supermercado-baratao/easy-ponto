@@ -1,6 +1,5 @@
 'use client'
 
-import { User } from '@prisma/client'
 import { useState } from 'react'
 
 import {
@@ -8,6 +7,7 @@ import {
   MainContent as _MainContent,
   Typography
 } from '@/app/components'
+import type { User } from '@/infra/database/generated/client'
 import { TAdminUserWithRelations, TUserWithPunchRecords } from '@/models'
 
 import { SynchronizationButton } from './synchronization-button'

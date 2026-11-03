@@ -1,9 +1,12 @@
 'use client'
 
-import { Company, DeviceCredentials } from '@prisma/client'
 import { useState } from 'react'
 
 import { Header, MainContent as _MainContent } from '@/app/components'
+import type {
+  Company,
+  DeviceCredentials
+} from '@/infra/database/generated/client'
 import { TAdminUserWithRelations } from '@/models'
 
 import { CompanyForm } from './company-form'

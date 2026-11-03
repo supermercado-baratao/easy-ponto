@@ -1,5 +1,4 @@
-import { Company, User } from '@prisma/client'
-
+import type { Company, User } from '@/infra/database/generated/client'
 import {
   adminUserModel,
   companyModel,

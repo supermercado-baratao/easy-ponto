@@ -1,16 +1,19 @@
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-const executeCommand = (stagedFiles, command) => {
-  const files = stagedFiles
-    .map((f) => path.relative(path.dirname(fileURLToPath(import.meta.url)), f))
-    .join(' ')
-  return [`${command} ${files}`]
-}
+const relativeFiles = (filenames) =>
+  filenames.map((file) => path.relative(process.cwd(), file)).join(' ')
+
+const prettier = (filenames) =>
+  `pnpm exec prettier --write ${relativeFiles(filenames)}`
+
+const eslint = (filenames) =>
+  `pnpm exec eslint --fix ${relativeFiles(filenames)}`
+
+const test = (filenames) =>
+  `pnpm exec vitest related --project unit --passWithNoTests ${relativeFiles(filenames)}`
 
 export default {
-  '*.{js,mjs,ts,tsx}': (stagedFiles) =>
-    executeCommand(stagedFiles, 'pnpm eslint:fix'),
-  '*.{js,mjs,ts,json,yaml,md}': (stagedFiles) =>
-    executeCommand(stagedFiles, 'pnpm prettier:fix')
+  '*.{js,jsx,ts,tsx,mjs,cjs}': [eslint, prettier, test],
+  '*.{json,md}': [eslint, prettier],
+  '*.{yml,yaml}': [prettier]
 }

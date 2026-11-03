@@ -1,6 +1,5 @@
-import { User } from '@prisma/client'
-
-import { prisma } from '@/infra/prisma'
+import { prisma } from '@/infra/database/client'
+import type { User } from '@/infra/database/generated/client'
 import { TInputData } from '@/types'
 
 import { TUserWithPunchRecords } from './types'
