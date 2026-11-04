@@ -1,0 +1,1057 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.admin_users",
+    "label": "Create table \"admin_users\"",
+    "summary": "Creates table \"admin_users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "admin_users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"admin_users\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"admin_users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"admin_users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"admin_users\"",
+        "sql": "CREATE TABLE \"public\".\"admin_users\" (\n  \"companyId\" text,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"deviceCredentialsId\" text,\n  \"id\" text NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"admin_users\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"admin_users\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"admin_users\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.companies",
+    "label": "Create table \"companies\"",
+    "summary": "Creates table \"companies\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "companies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"companies\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"companies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"companies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"companies\"",
+        "sql": "CREATE TABLE \"public\".\"companies\" (\n  \"address\" text NOT NULL,\n  \"cei\" text NOT NULL,\n  \"cpf\" text NOT NULL,\n  \"cpf_cnpj\" text NOT NULL,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"registration\" text,\n  \"tipo_doc\" int4 NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"companies\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"companies\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"companies\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.devices_credentials",
+    "label": "Create table \"devices_credentials\"",
+    "summary": "Creates table \"devices_credentials\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "devices_credentials"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"devices_credentials\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"devices_credentials\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"devices_credentials\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"devices_credentials\"",
+        "sql": "CREATE TABLE \"public\".\"devices_credentials\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"ip\" text NOT NULL,\n  \"login\" text NOT NULL,\n  \"password\" text NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"devices_credentials\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"devices_credentials\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"devices_credentials\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.devices_sessions",
+    "label": "Create table \"devices_sessions\"",
+    "summary": "Creates table \"devices_sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "devices_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"devices_sessions\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"devices_sessions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"devices_sessions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"devices_sessions\"",
+        "sql": "CREATE TABLE \"public\".\"devices_sessions\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"deviceCredentialsId\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"token\" text NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"devices_sessions\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"devices_sessions\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"devices_sessions\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.punch_records",
+    "label": "Create table \"punch_records\"",
+    "summary": "Creates table \"punch_records\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "punch_records"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"punch_records\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"punch_records\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"punch_records\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"punch_records\"",
+        "sql": "CREATE TABLE \"public\".\"punch_records\" (\n  \"afd_datetime\" timestamptz(3),\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"datetime\" timestamptz(3) NOT NULL,\n  \"hexadecimal_check_digit\" text,\n  \"id\" text NOT NULL,\n  \"nsr\" int4,\n  \"pis\" text NOT NULL,\n  \"registration_type\" text,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"punch_records\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"punch_records\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"punch_records\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.users",
+    "label": "Create table \"users\"",
+    "summary": "Creates table \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"users\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"users\"",
+        "sql": "CREATE TABLE \"public\".\"users\" (\n  \"admin_user_id\" text,\n  \"admission_date\" timestamptz(3),\n  \"bars\" text NOT NULL,\n  \"code\" text NOT NULL,\n  \"companyId\" text NOT NULL,\n  \"cpf\" text,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"department\" text,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"password\" text NOT NULL,\n  \"payroll_number\" text,\n  \"pis\" text NOT NULL,\n  \"position\" text,\n  \"registration\" text NOT NULL,\n  \"rfid\" text NOT NULL,\n  \"templates_count\" int4 NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"users\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"users\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"users\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.companies.companies_cpf_cnpj_key",
+    "label": "Add unique constraint on \"companies\" (cpf_cnpj)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "companies_cpf_cnpj_key",
+        "table": "companies"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"companies_cpf_cnpj_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "companies_cpf_cnpj_key",
+          "public",
+          "\"public\".\"companies\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"companies_cpf_cnpj_key\" on \"companies\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"companies_cpf_cnpj_key\"",
+        "sql": "ALTER TABLE \"public\".\"companies\" ADD CONSTRAINT \"companies_cpf_cnpj_key\" UNIQUE (\"cpf_cnpj\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"companies_cpf_cnpj_key\" exists on (cpf_cnpj)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "companies_cpf_cnpj_key",
+          "public",
+          "\"public\".\"companies\"",
+          "u",
+          "[\"cpf_cnpj\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.devices_sessions.devices_sessions_deviceCredentialsId_key",
+    "label": "Add unique constraint on \"devices_sessions\" (deviceCredentialsId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "devices_sessions_deviceCredentialsId_key",
+        "table": "devices_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"devices_sessions_deviceCredentialsId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "devices_sessions_deviceCredentialsId_key",
+          "public",
+          "\"public\".\"devices_sessions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"devices_sessions_deviceCredentialsId_key\" on \"devices_sessions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"devices_sessions_deviceCredentialsId_key\"",
+        "sql": "ALTER TABLE \"public\".\"devices_sessions\" ADD CONSTRAINT \"devices_sessions_deviceCredentialsId_key\" UNIQUE (\"deviceCredentialsId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"devices_sessions_deviceCredentialsId_key\" exists on (deviceCredentialsId)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "devices_sessions_deviceCredentialsId_key",
+          "public",
+          "\"public\".\"devices_sessions\"",
+          "u",
+          "[\"deviceCredentialsId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.punch_records.punch_records_nsr_key",
+    "label": "Add unique constraint on \"punch_records\" (nsr)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "punch_records_nsr_key",
+        "table": "punch_records"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"punch_records_nsr_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "punch_records_nsr_key",
+          "public",
+          "\"public\".\"punch_records\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"punch_records_nsr_key\" on \"punch_records\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"punch_records_nsr_key\"",
+        "sql": "ALTER TABLE \"public\".\"punch_records\" ADD CONSTRAINT \"punch_records_nsr_key\" UNIQUE (\"nsr\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"punch_records_nsr_key\" exists on (nsr)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "punch_records_nsr_key",
+          "public",
+          "\"public\".\"punch_records\"",
+          "u",
+          "[\"nsr\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.users.users_pis_key",
+    "label": "Add unique constraint on \"users\" (pis)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_pis_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_pis_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_pis_key",
+          "public",
+          "\"public\".\"users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"users_pis_key\" on \"users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_pis_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_pis_key\" UNIQUE (\"pis\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"users_pis_key\" exists on (pis)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "users_pis_key",
+          "public",
+          "\"public\".\"users\"",
+          "u",
+          "[\"pis\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.users.users_admin_user_id_key",
+    "label": "Add unique constraint on \"users\" (admin_user_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_admin_user_id_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_admin_user_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_admin_user_id_key",
+          "public",
+          "\"public\".\"users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"users_admin_user_id_key\" on \"users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_admin_user_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_admin_user_id_key\" UNIQUE (\"admin_user_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"users_admin_user_id_key\" exists on (admin_user_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "users_admin_user_id_key",
+          "public",
+          "\"public\".\"users\"",
+          "u",
+          "[\"admin_user_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.admin_users.admin_users_companyId_idx_33acc5ed",
+    "label": "Create index \"admin_users_companyId_idx_33acc5ed\" on \"admin_users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "admin_users_companyId_idx_33acc5ed",
+        "table": "admin_users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"admin_users_companyId_idx_33acc5ed\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"admin_users_companyId_idx_33acc5ed\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"admin_users_companyId_idx_33acc5ed\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"admin_users_companyId_idx_33acc5ed\"",
+        "sql": "CREATE INDEX \"admin_users_companyId_idx_33acc5ed\" ON \"public\".\"admin_users\" (\"companyId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"admin_users_companyId_idx_33acc5ed\" exists on \"admin_users\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"admin_users_companyId_idx_33acc5ed\"",
+          "i",
+          "I",
+          "\"public\".\"admin_users\"",
+          "btree",
+          "[\"companyId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.admin_users.admin_users_deviceCredentialsId_idx_c948dafc",
+    "label": "Create index \"admin_users_deviceCredentialsId_idx_c948dafc\" on \"admin_users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "admin_users_deviceCredentialsId_idx_c948dafc",
+        "table": "admin_users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"admin_users_deviceCredentialsId_idx_c948dafc\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"admin_users_deviceCredentialsId_idx_c948dafc\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"admin_users_deviceCredentialsId_idx_c948dafc\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"admin_users_deviceCredentialsId_idx_c948dafc\"",
+        "sql": "CREATE INDEX \"admin_users_deviceCredentialsId_idx_c948dafc\" ON \"public\".\"admin_users\" (\"deviceCredentialsId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"admin_users_deviceCredentialsId_idx_c948dafc\" exists on \"admin_users\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"admin_users_deviceCredentialsId_idx_c948dafc\"",
+          "i",
+          "I",
+          "\"public\".\"admin_users\"",
+          "btree",
+          "[\"deviceCredentialsId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.punch_records.punch_records_pis_idx_b1390a89",
+    "label": "Create index \"punch_records_pis_idx_b1390a89\" on \"punch_records\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "punch_records_pis_idx_b1390a89",
+        "table": "punch_records"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"punch_records_pis_idx_b1390a89\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"punch_records_pis_idx_b1390a89\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"punch_records_pis_idx_b1390a89\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"punch_records_pis_idx_b1390a89\"",
+        "sql": "CREATE INDEX \"punch_records_pis_idx_b1390a89\" ON \"public\".\"punch_records\" (\"pis\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"punch_records_pis_idx_b1390a89\" exists on \"punch_records\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"punch_records_pis_idx_b1390a89\"",
+          "i",
+          "I",
+          "\"public\".\"punch_records\"",
+          "btree",
+          "[\"pis\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.users.users_companyId_idx_33acc5ed",
+    "label": "Create index \"users_companyId_idx_33acc5ed\" on \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "users_companyId_idx_33acc5ed",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"users_companyId_idx_33acc5ed\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users_companyId_idx_33acc5ed\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"users_companyId_idx_33acc5ed\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"users_companyId_idx_33acc5ed\"",
+        "sql": "CREATE INDEX \"users_companyId_idx_33acc5ed\" ON \"public\".\"users\" (\"companyId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"users_companyId_idx_33acc5ed\" exists on \"users\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"users_companyId_idx_33acc5ed\"",
+          "i",
+          "I",
+          "\"public\".\"users\"",
+          "btree",
+          "[\"companyId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.admin_users.admin_users_companyId_fkey",
+    "label": "Add foreign key \"admin_users_companyId_fkey\" on \"admin_users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "admin_users_companyId_fkey",
+        "table": "admin_users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"admin_users_companyId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "admin_users_companyId_fkey",
+          "public",
+          "\"public\".\"admin_users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"admin_users_companyId_fkey\" on \"admin_users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"admin_users_companyId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"admin_users\"\nADD CONSTRAINT \"admin_users_companyId_fkey\"\nFOREIGN KEY (\"companyId\")\nREFERENCES \"public\".\"companies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"admin_users_companyId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "admin_users_companyId_fkey",
+          "public",
+          "\"public\".\"admin_users\"",
+          "f",
+          "[\"companyId\"]",
+          "\"public\".\"companies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.admin_users.admin_users_deviceCredentialsId_fkey",
+    "label": "Add foreign key \"admin_users_deviceCredentialsId_fkey\" on \"admin_users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "admin_users_deviceCredentialsId_fkey",
+        "table": "admin_users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"admin_users_deviceCredentialsId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "admin_users_deviceCredentialsId_fkey",
+          "public",
+          "\"public\".\"admin_users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"admin_users_deviceCredentialsId_fkey\" on \"admin_users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"admin_users_deviceCredentialsId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"admin_users\"\nADD CONSTRAINT \"admin_users_deviceCredentialsId_fkey\"\nFOREIGN KEY (\"deviceCredentialsId\")\nREFERENCES \"public\".\"devices_credentials\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"admin_users_deviceCredentialsId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "admin_users_deviceCredentialsId_fkey",
+          "public",
+          "\"public\".\"admin_users\"",
+          "f",
+          "[\"deviceCredentialsId\"]",
+          "\"public\".\"devices_credentials\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.devices_sessions.devices_sessions_deviceCredentialsId_fkey",
+    "label": "Add foreign key \"devices_sessions_deviceCredentialsId_fkey\" on \"devices_sessions\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "devices_sessions_deviceCredentialsId_fkey",
+        "table": "devices_sessions"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"devices_sessions_deviceCredentialsId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "devices_sessions_deviceCredentialsId_fkey",
+          "public",
+          "\"public\".\"devices_sessions\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"devices_sessions_deviceCredentialsId_fkey\" on \"devices_sessions\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"devices_sessions_deviceCredentialsId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"devices_sessions\"\nADD CONSTRAINT \"devices_sessions_deviceCredentialsId_fkey\"\nFOREIGN KEY (\"deviceCredentialsId\")\nREFERENCES \"public\".\"devices_credentials\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"devices_sessions_deviceCredentialsId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "devices_sessions_deviceCredentialsId_fkey",
+          "public",
+          "\"public\".\"devices_sessions\"",
+          "f",
+          "[\"deviceCredentialsId\"]",
+          "\"public\".\"devices_credentials\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.punch_records.punch_records_pis_fkey",
+    "label": "Add foreign key \"punch_records_pis_fkey\" on \"punch_records\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "punch_records_pis_fkey",
+        "table": "punch_records"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"punch_records_pis_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "punch_records_pis_fkey",
+          "public",
+          "\"public\".\"punch_records\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"punch_records_pis_fkey\" on \"punch_records\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"punch_records_pis_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"punch_records\"\nADD CONSTRAINT \"punch_records_pis_fkey\"\nFOREIGN KEY (\"pis\")\nREFERENCES \"public\".\"users\" (\"pis\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"punch_records_pis_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "punch_records_pis_fkey",
+          "public",
+          "\"public\".\"punch_records\"",
+          "f",
+          "[\"pis\"]",
+          "\"public\".\"users\"",
+          "[\"pis\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.users.users_companyId_fkey",
+    "label": "Add foreign key \"users_companyId_fkey\" on \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "users_companyId_fkey",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"users_companyId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_companyId_fkey",
+          "public",
+          "\"public\".\"users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"users_companyId_fkey\" on \"users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"users_companyId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"users\"\nADD CONSTRAINT \"users_companyId_fkey\"\nFOREIGN KEY (\"companyId\")\nREFERENCES \"public\".\"companies\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"users_companyId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "users_companyId_fkey",
+          "public",
+          "\"public\".\"users\"",
+          "f",
+          "[\"companyId\"]",
+          "\"public\".\"companies\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.users.users_admin_user_id_fkey",
+    "label": "Add foreign key \"users_admin_user_id_fkey\" on \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "users_admin_user_id_fkey",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"users_admin_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_admin_user_id_fkey",
+          "public",
+          "\"public\".\"users\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"users_admin_user_id_fkey\" on \"users\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"users_admin_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"users\"\nADD CONSTRAINT \"users_admin_user_id_fkey\"\nFOREIGN KEY (\"admin_user_id\")\nREFERENCES \"public\".\"admin_users\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"users_admin_user_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "users_admin_user_id_fkey",
+          "public",
+          "\"public\".\"users\"",
+          "f",
+          "[\"admin_user_id\"]",
+          "\"public\".\"admin_users\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

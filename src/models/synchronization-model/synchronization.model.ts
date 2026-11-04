@@ -1,4 +1,4 @@
-import type { Company, User } from '@/infra/database/generated/client'
+import type { Company, User } from '@/infra/database/types'
 import {
   adminUserModel,
   companyModel,

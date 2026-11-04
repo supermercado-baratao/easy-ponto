@@ -1,56 +1,45 @@
-import { prisma } from '@/infra/database/client'
-import type { User } from '@/infra/database/generated/client'
+import { db } from '@/infra/database/client'
+import type { User } from '@/infra/database/types'
 import { TInputData } from '@/types'
 
 import { TUserWithPunchRecords } from './types'
 
+const users = db.orm.public.User
+
 const createMany = async (data: TInputData<User>[]): Promise<void> => {
-  await prisma.user.createMany({
-    data
-  })
+  await users.createAndCount(data)
 }
 
 const findManyByCompanyId = async (companyId: string): Promise<User[]> => {
-  const result = await prisma.user.findMany({
-    where: { companyId }
-  })
+  const result = await users.where({ companyId }).all()
   return result
 }
 
 const findManyByNames = async (names: string[]): Promise<User[]> => {
-  const result = await prisma.user.findMany({
-    where: {
-      name: {
-        in: names
-      }
-    }
-  })
+  if (names.length === 0) return []
+  const result = await users.where((user) => user.name.in(names)).all()
   return result
 }
 
 const findUniqueByPisWithPunchRecords = async (
   pis: string
 ): Promise<TUserWithPunchRecords> => {
-  const result = await prisma.user.findUniqueOrThrow({
-    where: { pis },
-    include: {
-      punchRecords: true
-    }
-  })
+  const result = await users
+    .whereUnique({ pis })
+    .include('punchRecords')
+    .firstOrThrow()
   return result
 }
 
 const updateMany = async (
   data: (TInputData<User> & { id: string })[]
 ): Promise<void> => {
-  await prisma.$transaction(
-    data.map((user) =>
-      prisma.user.update({
-        where: { id: user.id },
-        data: user
-      })
-    )
-  )
+  await db.transaction(async (tx) => {
+    for (const { id, ...user } of data) {
+      const updated = await tx.orm.public.User.where({ id }).update(user)
+      if (!updated) throw new Error(`User ${id} not found`)
+    }
+  })
 }
 
 export const userModel = {

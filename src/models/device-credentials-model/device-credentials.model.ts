@@ -1,5 +1,5 @@
-import { prisma } from '@/infra/database/client'
-import type { DeviceCredentials } from '@/infra/database/generated/client'
+import { db } from '@/infra/database/client'
+import type { DeviceCredentials } from '@/infra/database/types'
 import { TInputData } from '@/types'
 
 import { schema } from './schema'
@@ -10,22 +10,20 @@ const upsert = async (
   const parsedData = schema.parse(data)
   const { adminUserId, id, ...deviceData } = parsedData
 
-  const def = {
-    ...deviceData,
-    adminUsers: {
-      connect: {
-        id: adminUserId
-      }
-    }
-  }
-  const result = await prisma.deviceCredentials.upsert({
-    create: def,
-    update: def,
-    where: {
-      id: id ?? ''
-    }
+  return await db.transaction(async (tx) => {
+    const updated = id
+      ? await tx.orm.public.DeviceCredentials.where({ id }).update(deviceData)
+      : null
+    const credentials =
+      updated ?? (await tx.orm.public.DeviceCredentials.create(deviceData))
+
+    const adminUser = await tx.orm.public.AdminUser.where({
+      id: adminUserId
+    }).update({ deviceCredentialsId: credentials.id })
+    if (!adminUser) throw new Error(`AdminUser ${adminUserId} not found`)
+
+    return credentials
   })
-  return result
 }
 
 export const deviceCredentialsModel = {

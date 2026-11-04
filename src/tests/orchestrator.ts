@@ -3,6 +3,7 @@ import retry from 'async-retry'
 import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 
+import { db } from '@/infra/database/client'
 import {
   adminUserModel,
   companyModel,
@@ -18,7 +19,6 @@ import {
 } from '@/models/synchronization-model/_utils'
 
 import { deviceUsers, parsedAfd } from './_mocks'
-import { execAsync } from './_utils'
 
 const waitForAllServices = async () => {
   await retry(async () => await statusModel.check(), {
@@ -28,8 +28,14 @@ const waitForAllServices = async () => {
   })
 }
 
-const clearDatabase = async () =>
-  await execAsync('pnpm exec prisma migrate reset --force')
+const clearDatabase = async () => {
+  const plan = db.raw.sql`
+    TRUNCATE admin_users, companies, devices_credentials, devices_sessions, punch_records, users CASCADE
+  `
+    .affectedCount()
+    .build()
+  await db.execute(plan)
+}
 
 const populateDatabaseWithRealData = async () => {
   const { id: adminUserId } = await adminUserModel.create()

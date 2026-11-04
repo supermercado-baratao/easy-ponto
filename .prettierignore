@@ -1,2 +1,4 @@
 pnpm-lock.yaml
-src/infra/database/generated
+src/infra/database/contract.json
+src/infra/database/contract.d.ts
+src/infra/database/migrations

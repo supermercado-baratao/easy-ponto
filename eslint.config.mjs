@@ -23,7 +23,12 @@ const eslintConfig = defineConfig([
   },
   {
     files: ['src/**/*.ts'],
-    ignores: ['src/tests/**/*.ts', 'src/app/hooks/*.ts', '**/route.ts'],
+    ignores: [
+      'src/tests/**/*.ts',
+      'src/app/hooks/*.ts',
+      '**/route.ts',
+      'src/infra/database/client.ts'
+    ],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'error'
     }
@@ -57,7 +62,9 @@ const eslintConfig = defineConfig([
     '.claude/**',
     'test-results/**',
     'playwright-report/**',
-    'src/infra/database/generated/**'
+    'src/infra/database/contract.json',
+    'src/infra/database/contract.d.ts',
+    'src/infra/database/migrations/**'
   ])
 ])
 

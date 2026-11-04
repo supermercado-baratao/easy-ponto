@@ -12,7 +12,7 @@ import {
   FormField,
   Loader
 } from '@/app/components'
-import type { DeviceCredentials } from '@/infra/database/generated/client'
+import type { DeviceCredentials } from '@/infra/database/types'
 
 import { save } from './actions'
 import { TDeviceFormState } from './types'

@@ -1,21 +1,16 @@
-import { prisma } from '@/infra/database/client'
-import type { DeviceSession } from '@/infra/database/generated/client'
+import { db } from '@/infra/database/client'
+import type { DeviceSession } from '@/infra/database/types'
+
+const deviceSessions = db.orm.public.DeviceSession
 
 const upsert = async (
   token: string,
   deviceCredentialsId: string
 ): Promise<DeviceSession> => {
-  const result = await prisma.deviceSession.upsert({
-    where: {
-      deviceCredentialsId
-    },
-    update: {
-      token
-    },
-    create: {
-      token,
-      deviceCredentialsId
-    }
+  const result = await deviceSessions.upsert({
+    create: { token, deviceCredentialsId },
+    update: { token },
+    conflictOn: { deviceCredentialsId }
   })
   return result
 }
@@ -23,11 +18,9 @@ const upsert = async (
 const findUniqueByDeviceCredentialsId = async (
   deviceCredentialsId: string
 ): Promise<DeviceSession | null> => {
-  const result = await prisma.deviceSession.findUnique({
-    where: {
-      deviceCredentialsId
-    }
-  })
+  const result = await deviceSessions
+    .whereUnique({ deviceCredentialsId })
+    .first()
   return result
 }
 

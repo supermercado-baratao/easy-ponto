@@ -3,7 +3,7 @@ import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
-import type { DeviceCredentials, User } from '@/infra/database/generated/client'
+import type { DeviceCredentials, User } from '@/infra/database/types'
 import {
   TAfdSynchronizationParams,
   TSynchronizationCredentials,

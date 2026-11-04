@@ -12,10 +12,7 @@ import {
   FormField,
   Select
 } from '@/app/components'
-import type {
-  Company,
-  DeviceCredentials
-} from '@/infra/database/generated/client'
+import type { Company, DeviceCredentials } from '@/infra/database/types'
 
 import { save } from './actions'
 import { ImportButton } from './import-button'

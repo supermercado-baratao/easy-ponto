@@ -1,7 +1,5 @@
-import type { Prisma } from '@/infra/database/generated/client'
+import type { PunchRecord, User } from '@/infra/database/types'
 
-export type TUserWithPunchRecords = Prisma.UserGetPayload<{
-  include: {
-    punchRecords: true
-  }
-}>
+export type TUserWithPunchRecords = User & {
+  punchRecords: PunchRecord[]
+}

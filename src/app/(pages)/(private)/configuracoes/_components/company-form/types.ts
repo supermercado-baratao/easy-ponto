@@ -1,4 +1,4 @@
-import type { Company } from '@/infra/database/generated/client'
+import type { Company } from '@/infra/database/types'
 import { TState } from '@/infra/form-action'
 import { TCompanyUpsertData } from '@/models'
 

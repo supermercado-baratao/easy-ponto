@@ -3,10 +3,7 @@
 import { useState } from 'react'
 
 import { Header, MainContent as _MainContent } from '@/app/components'
-import type {
-  Company,
-  DeviceCredentials
-} from '@/infra/database/generated/client'
+import type { Company, DeviceCredentials } from '@/infra/database/types'
 import { TAdminUserWithRelations } from '@/models'
 
 import { CompanyForm } from './company-form'
