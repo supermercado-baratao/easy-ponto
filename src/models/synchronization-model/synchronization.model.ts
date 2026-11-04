@@ -5,6 +5,7 @@ import {
   createDeviceApiInstance,
   deviceModel,
   punchRecordModel,
+  TDeviceUser,
   TUserWithPunchRecords,
   userModel
 } from '@/models'
@@ -18,6 +19,7 @@ import {
   getUsersToUpdate,
   mapDeviceCompanyToCompany,
   mapDeviceUserToUser,
+  mapDeviceUserToUserFields,
   mapParsedAfdToPunchRecordCreateMany,
   parseAfd,
   parseXlsToJson
@@ -52,18 +54,28 @@ const synchronizeUsers = async ({
   const api = createDeviceApiInstance(credentials.ip)
   const session = await getSession(api, credentials)
   const deviceUsers = await deviceModel.loadUsers(api, session)
-  const users = mapDeviceUserToUser(deviceUsers, companyId)
   const foundUsers = await userModel.findManyByCompanyId(companyId)
 
-  const usersToCreate: TInputData<User>[] = []
-  const usersToUpdate: (TInputData<User> & { id: string })[] = []
+  const deviceUsersToCreate: TDeviceUser[] = []
+  const usersToUpdate: (Partial<TInputData<User>> & { id: string })[] = []
 
-  users.forEach((user) => {
-    const foundUser = foundUsers.find((foundUser) => foundUser.pis === user.pis)
-    foundUser
-      ? usersToUpdate.push({ ...user, id: foundUser.id })
-      : usersToCreate.push(user)
+  deviceUsers.forEach((deviceUser) => {
+    const fields = mapDeviceUserToUserFields(deviceUser, companyId)
+    const foundUser = foundUsers.find(
+      (foundUser) => foundUser.pis === fields.pis
+    )
+    if (!foundUser) {
+      deviceUsersToCreate.push(deviceUser)
+      return
+    }
+    usersToUpdate.push({
+      ...fields,
+      id: foundUser.id,
+      cpf: fields.cpf ?? foundUser.cpf
+    })
   })
+
+  const usersToCreate = mapDeviceUserToUser(deviceUsersToCreate, companyId)
 
   await Promise.all([
     usersToCreate.length && (await userModel.createMany(usersToCreate)),

@@ -32,7 +32,7 @@ const findUniqueByPisWithPunchRecords = async (
 }
 
 const updateMany = async (
-  data: (TInputData<User> & { id: string })[]
+  data: (Partial<TInputData<User>> & { id: string })[]
 ): Promise<void> => {
   await db.transaction(async (tx) => {
     for (const { id, ...user } of data) {
