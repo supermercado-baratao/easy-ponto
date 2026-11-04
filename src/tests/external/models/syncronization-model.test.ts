@@ -4,6 +4,7 @@ import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import type { Company, PunchRecord, User } from '@/infra/database/types'
+import { dayjs } from '@/lib'
 import {
   adminUserModel,
   deviceCredentialsModel,
@@ -75,7 +76,6 @@ describe('Synchronization Model', () => {
       adminUser.companyId!
     )
     expect(usersAfterSync.length).toBeGreaterThan(0)
-    expect(usersAfterSync.length).toBeGreaterThan(0)
 
     const expectedData: User = {
       id: expect.any(String),
@@ -83,12 +83,12 @@ describe('Synchronization Model', () => {
       cpf: usersAfterSync[0].cpf,
       password: expect.any(String),
       pis: expect.any(String),
-      code: expect.any(Number),
+      code: expect.any(String),
       companyId: adminUser.companyId!,
       adminUserId: null,
       bars: expect.any(String),
-      rfid: expect.any(Number),
-      registration: expect.any(Number),
+      rfid: expect.any(String),
+      registration: expect.any(String),
       templatesCount: expect.any(Number),
       admissionDate: null,
       department: null,
@@ -105,13 +105,10 @@ describe('Synchronization Model', () => {
   })
 
   test('Synchronize AFD', async () => {
-    const date = new Date()
+    // A full week guarantees punch records on any day the test runs
+    const initialDate = dayjs().subtract(7, 'day')
     const punchRecords = await punchRecordModel.findMany()
     expect(punchRecords).toEqual([])
-
-    const day = date.getDate()
-    const month = date.getMonth() + 1
-    const year = date.getFullYear()
 
     await synchronizationModel.synchronizeAfd({
       credentials,
@@ -119,9 +116,9 @@ describe('Synchronization Model', () => {
       companyId: adminUser.companyId!,
       params: {
         initialDate: {
-          day,
-          month,
-          year
+          day: initialDate.date(),
+          month: initialDate.month() + 1,
+          year: initialDate.year()
         }
       }
     })
@@ -149,8 +146,12 @@ describe('Synchronization Model', () => {
       expect(isPIS(data.pis)).toBeTruthy()
     }
     expect(data.datetime).toEqual(data.afdDatetime)
-    expect(data.datetime.getDate()).toBeGreaterThanOrEqual(day - 1) // A API dispositivo de ponto retorna dados do dia anterior
-    expect(data.datetime.getMonth() + 1).toBe(month)
-    expect(data.datetime.getFullYear()).toBe(year)
+    // The device API also returns records from the day before the initial date
+    const oldestAllowedDate = initialDate.subtract(1, 'day').startOf('day')
+    punchRecordsAfterSync.forEach(({ datetime }) => {
+      expect(datetime.getTime()).toBeGreaterThanOrEqual(
+        oldestAllowedDate.valueOf()
+      )
+    })
   })
 })
