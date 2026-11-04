@@ -1,1 +1,3 @@
-pnpm test
+pnpm type-check
+pnpm test:integration
+pnpm test:e2e

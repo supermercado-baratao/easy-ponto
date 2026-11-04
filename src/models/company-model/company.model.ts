@@ -1,6 +1,5 @@
-import { Company } from '@prisma/client'
-
-import { prisma } from '@/infra/prisma'
+import { prisma } from '@/infra/database/client'
+import type { Company } from '@/infra/database/generated/client'
 
 import { updateSchema, upsertSchema } from './schema'
 import { TCompanyUpdateData, TCompanyUpsertData } from './types'

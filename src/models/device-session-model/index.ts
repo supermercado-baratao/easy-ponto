@@ -1,6 +1,5 @@
-import { DeviceSession } from '@prisma/client'
-
-import { prisma } from '@/infra/prisma'
+import { prisma } from '@/infra/database/client'
+import type { DeviceSession } from '@/infra/database/generated/client'
 
 const upsert = async (
   token: string,

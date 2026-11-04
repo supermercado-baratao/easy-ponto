@@ -1,9 +1,12 @@
-import { Company, DeviceCredentials } from '@prisma/client'
 import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Button, Loader } from '@/app/components'
+import type {
+  Company,
+  DeviceCredentials
+} from '@/infra/database/generated/client'
 import { TCompanySynchronizationParams } from '@/models'
 
 import { importFromDevice } from './actions'

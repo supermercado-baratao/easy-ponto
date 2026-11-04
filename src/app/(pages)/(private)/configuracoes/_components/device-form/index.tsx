@@ -1,6 +1,5 @@
 'use client'
 
-import { DeviceCredentials } from '@prisma/client'
 import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
@@ -13,6 +12,7 @@ import {
   FormField,
   Loader
 } from '@/app/components'
+import type { DeviceCredentials } from '@/infra/database/generated/client'
 
 import { save } from './actions'
 import { TDeviceFormState } from './types'

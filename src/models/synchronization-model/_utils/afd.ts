@@ -1,5 +1,4 @@
-import { User } from '@prisma/client'
-
+import type { User } from '@/infra/database/generated/client'
 import { dayjs } from '@/lib'
 import { TPunchRecordCreateManyExistentsInAfdData } from '@/models'
 

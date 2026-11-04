@@ -1,11 +1,14 @@
 'use client'
 
-import { Company, DeviceCredentials } from '@prisma/client'
 import { useEffect, useRef } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Button, Input, Label, Loader } from '@/app/components'
+import type {
+  Company,
+  DeviceCredentials
+} from '@/infra/database/generated/client'
 
 import { importFile } from './actions'
 import { TBindParams, TImportFileState } from './types'

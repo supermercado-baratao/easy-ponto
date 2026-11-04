@@ -1,21 +1,21 @@
 import { defineConfig, devices } from '@playwright/test'
-import dotenv from 'dotenv'
 
-dotenv.config()
+if (!process.env.DATABASE_URL) process.loadEnvFile('.env.development')
 
 export default defineConfig({
   testDir: './src/tests/e2e',
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  timeout: 60000,
-  reporter: 'html',
-  use: {
-    trace: 'on-first-retry',
-    baseURL: process.env.NEXT_PUBLIC_BASE_URL
+  // `pnpm dev` compiles each route on its first request, which on a cold CI runner can outlast the
+  // default 5s of an assertion that waits for a navigation
+  expect: { timeout: 15_000 },
+  webServer: {
+    command: 'pnpm dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI
   },
-
+  use: {
+    baseURL: 'http://localhost:3000'
+  },
   projects: [
     {
       name: 'chromium',

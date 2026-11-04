@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import retry from 'async-retry'
-import * as cnpj from 'validation-br/dist/cnpj.js'
-import * as cpf from 'validation-br/dist/cpf.js'
+import { CNPJ } from 'validation-br/cnpj'
+import { CPF } from 'validation-br/cpf'
 
 import {
   adminUserModel,
@@ -28,7 +28,8 @@ const waitForAllServices = async () => {
   })
 }
 
-const clearDatabase = async () => await execAsync('pnpm db:reset --force')
+const clearDatabase = async () =>
+  await execAsync('pnpm exec prisma migrate reset --force')
 
 const populateDatabaseWithRealData = async () => {
   const { id: adminUserId } = await adminUserModel.create()
@@ -58,9 +59,9 @@ const populateDatabaseWithMockedData = async () => {
   const company = await companyModel.upsert({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
-    cpf: cpf.fake(),
+    cpf: CPF.fake().value,
     tipoDoc: 1,
-    cpfCnpj: cnpj.fake(),
+    cpfCnpj: CNPJ.fake().value,
     cei: faker.string.numeric(12),
     registration: faker.string.numeric(12)
   })

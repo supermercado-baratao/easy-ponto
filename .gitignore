@@ -1,10 +1,10 @@
 node_modules
 .next
-.env
-
-# Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+*.tsbuildinfo
+next-env.d.ts
+test-results
+playwright-report
+.claude/settings.local.json
+.playwright-mcp
+.env*.local
+src/infra/database/generated

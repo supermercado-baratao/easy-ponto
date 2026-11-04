@@ -1,18 +1,47 @@
 import react from '@vitejs/plugin-react'
-import dotenv from 'dotenv'
-import tsconfigPaths from 'vite-tsconfig-paths'
-import { defineConfig } from 'vitest/config'
-
-dotenv.config()
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [tsconfigPaths(), react()],
+  plugins: [react()],
+  resolve: {
+    tsconfigPaths: true
+  },
   test: {
-    environment: 'jsdom',
-    testTimeout: 60000,
-    include: process.env.RUN_EXTERNAL_TESTS
-      ? ['src/tests/external/**/*.test.ts']
-      : ['src/tests/**/*.test.ts', '!src/tests/external/**'],
-    exclude: ['node_modules', 'src/tests/e2e/**']
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'jsdom',
+          include: ['src/**/*.test.{ts,tsx}'],
+          exclude: [...configDefaults.exclude, 'src/tests/**'],
+          setupFiles: ['vitest.setup.ts']
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'integration',
+          environment: 'node',
+          include: ['src/tests/integration/**/*.test.ts'],
+          setupFiles: ['src/tests/setup.ts'],
+          // The files share one database
+          fileParallelism: false,
+          testTimeout: 15_000
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'external',
+          environment: 'node',
+          include: ['src/tests/external/**/*.test.ts'],
+          setupFiles: ['src/tests/setup.ts'],
+          // The files share one database and one physical device
+          fileParallelism: false,
+          testTimeout: 60_000
+        }
+      }
+    ]
   }
 })
