@@ -40,24 +40,23 @@ const createManyExistentsInAfd = async (
 }
 
 const findMany = async (
-  params?: TPunchRecordFindManyParams
+  params: TPunchRecordFindManyParams = {}
 ): Promise<PunchRecord[]> => {
-  const validParams = await findManyParamsSchema.parseAsync(params)
+  const { initialDate, finalDate, initialNsr, finalNsr, pis } =
+    await findManyParamsSchema.parseAsync(params)
   let query = punchRecords.where({})
 
-  if (validParams?.initialDate) {
-    const date = new Date(validParams.initialDate)
+  if (initialDate) {
+    const date = new Date(initialDate)
     date.setUTCHours(0, 0, 0, 0)
     query = query.where((record) => record.datetime.gte(date))
   }
 
-  if (validParams?.finalDate) {
-    const date = new Date(validParams.finalDate)
+  if (finalDate) {
+    const date = new Date(finalDate)
     date.setUTCHours(23, 59, 59, 999)
     query = query.where((record) => record.datetime.lte(date))
   }
-
-  const { initialNsr, finalNsr, pis } = validParams ?? {}
 
   if (initialNsr) query = query.where((record) => record.nsr.gte(initialNsr))
   if (finalNsr) query = query.where((record) => record.nsr.lte(finalNsr))
