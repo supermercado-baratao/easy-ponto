@@ -17,6 +17,9 @@ import {
 } from './types'
 import { normalizeUrl } from './utils'
 
+// Maximum accepted by the device API
+const USERS_PER_REQUEST = 100
+
 const login = async (
   api: AxiosInstance,
   credentials: TDeviceLoginCredentials
@@ -58,15 +61,22 @@ const loadUsers = async (
   api: AxiosInstance,
   session: string
 ): Promise<TDeviceUser[]> => {
-  const {
-    data: { users }
-  }: { data: { users: TDeviceUser[] } } = await api.post(
-    normalizeUrl({ path: '/load_users', session }),
-    {
-      limit: 100,
-      offset: 0
-    }
-  )
+  const count = await countUsers(api, session)
+  const users: TDeviceUser[] = []
+
+  for (let offset = 0; offset < count; offset += USERS_PER_REQUEST) {
+    const {
+      data: { users: page }
+    }: { data: { users: TDeviceUser[] } } = await api.post(
+      normalizeUrl({ path: '/load_users', session }),
+      {
+        limit: USERS_PER_REQUEST,
+        offset
+      }
+    )
+    users.push(...page)
+  }
+
   return users
 }
 
