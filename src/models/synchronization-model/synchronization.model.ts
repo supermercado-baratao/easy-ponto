@@ -110,9 +110,11 @@ const synchronizeAfd = async ({
     users
   )
   const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd)
-  await punchRecordModel.createManyExistentsInAfd(punchRecords)
+  if (punchRecords.length) {
+    await punchRecordModel.createManyExistentsInAfd(punchRecords)
+  }
 
-  const pis = userPis || users[0].pis || null
+  const pis = userPis || users[0]?.pis || null
   const user = pis ? await userModel.findUniqueByPisWithPunchRecords(pis) : null
 
   return {
