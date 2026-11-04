@@ -17,6 +17,24 @@ import {
 
 const punchRecords = db.orm.public.PunchRecord
 
+// Keeps each INSERT below the 65,535 parameters accepted by Postgres
+const INSERT_BATCH_SIZE = 5000
+
+const toBatches = <T>(items: readonly T[]): T[][] =>
+  Array.from(
+    { length: Math.ceil(items.length / INSERT_BATCH_SIZE) },
+    (_, index) =>
+      items.slice(index * INSERT_BATCH_SIZE, (index + 1) * INSERT_BATCH_SIZE)
+  )
+
+const getRecordKey = ({
+  pis,
+  datetime
+}: {
+  pis: string
+  datetime: Date
+}): string => `${pis}|${datetime.getTime()}`
+
 const createNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData
 ): Promise<PunchRecord> => {
@@ -29,14 +47,37 @@ const createManyNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData[]
 ): Promise<void> => {
   const validData = await createManyNonExistentsInAfdSchema.parseAsync(data)
-  await punchRecords.createAndCount(validData)
+  const pisList = [...new Set(validData.map(({ pis }) => pis))]
+  const savedRecords = await punchRecords
+    .where((record) => record.pis.in(pisList))
+    .all()
+  const seenRecords = new Set(savedRecords.map(getRecordKey))
+  const newRecords = validData.filter((record) => {
+    const key = getRecordKey(record)
+    if (seenRecords.has(key)) return false
+    seenRecords.add(key)
+    return true
+  })
+
+  await db.transaction(async (tx) => {
+    for (const batch of toBatches(newRecords)) {
+      await tx.orm.public.PunchRecord.createAndCount(batch)
+    }
+  })
 }
 
 const createManyExistentsInAfd = async (
   data: TPunchRecordCreateManyExistentsInAfdData
 ): Promise<void> => {
   const validData = await createManyExistentsInAfdSchema.parseAsync(data)
-  await punchRecords.createAndCount(validData)
+  await db.transaction(async (tx) => {
+    for (const batch of toBatches(validData)) {
+      await tx.orm.public.PunchRecord.createAndCount(batch, {
+        onConflict: 'skip',
+        conflictOn: ['nsr']
+      })
+    }
+  })
 }
 
 const findMany = async (
