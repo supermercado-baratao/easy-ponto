@@ -35,7 +35,7 @@ export const ImportFileButton = ({
     importFile.bind(null, params),
     initialState
   )
-  const formRef = useRef<HTMLFormElement>(null)
+  const formReference = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     if (state.success && state.data) {
@@ -44,17 +44,18 @@ export const ImportFileButton = ({
       return
     }
 
-    if (state.fatalError) {
-      toast.error('Um erro inesperado aconteceu!', {
-        description: 'Atualize a página e tente novamente.'
-      })
+    if (!state.fatalError) {
       return
     }
+
+    toast.error('Um erro inesperado aconteceu!', {
+      description: 'Atualize a página e tente novamente.'
+    })
   }, [pending, state])
 
   return (
     <>
-      <form action={formAction} ref={formRef}>
+      <form action={formAction} ref={formReference}>
         <Label htmlFor="file" className="cursor-pointer">
           <Button variant="outline" nativeButton={false} render={<span />}>
             Importar Arquivo
@@ -66,7 +67,7 @@ export const ImportFileButton = ({
           name="file"
           accept=".xls,.xlsx,.csv"
           className="hidden"
-          onChange={() => formRef.current?.requestSubmit()}
+          onChange={() => formReference.current?.requestSubmit()}
         />
       </form>
       <Loader open={pending} />

@@ -1,4 +1,4 @@
-import { db } from '@/infra/database/client'
+import { database } from '@/infra/database/client'
 import type { PunchRecord, TInputData } from '@/infra/database/types'
 
 type TPunchRecordInsert = Pick<PunchRecord, 'pis' | 'datetime'> &
@@ -12,7 +12,7 @@ type TPunchRecordFilters = {
   pis?: string | null
 }
 
-const punchRecords = db.orm.public.PunchRecord
+const punchRecords = database.orm.public.PunchRecord
 
 // Keeps each INSERT below the 65,535 parameters accepted by Postgres
 const INSERT_BATCH_SIZE = 5000
@@ -24,12 +24,12 @@ const toBatches = <T>(items: readonly T[]): T[][] =>
       items.slice(index * INSERT_BATCH_SIZE, (index + 1) * INSERT_BATCH_SIZE)
   )
 
-export const punchRecordRepo = {
+export const punchRecordRepository = {
   create: async (data: TPunchRecordInsert): Promise<PunchRecord> =>
     await punchRecords.create(data),
 
   createMany: async (data: TPunchRecordInsert[]): Promise<void> => {
-    await db.transaction(async (tx) => {
+    await database.transaction(async (tx) => {
       for (const batch of toBatches(data)) {
         await tx.orm.public.PunchRecord.createAndCount(batch)
       }
@@ -39,7 +39,7 @@ export const punchRecordRepo = {
   createManySkippingSavedNsrs: async (
     data: TPunchRecordInsert[]
   ): Promise<void> => {
-    await db.transaction(async (tx) => {
+    await database.transaction(async (tx) => {
       for (const batch of toBatches(data)) {
         await tx.orm.public.PunchRecord.createAndCount(batch, {
           onConflict: 'skip',
@@ -83,7 +83,7 @@ export const punchRecordRepo = {
   updateMany: async (
     data: Pick<PunchRecord, 'id' | 'datetime'>[]
   ): Promise<void> => {
-    await db.transaction(async (tx) => {
+    await database.transaction(async (tx) => {
       for (const { id, datetime } of data) {
         const updated = await tx.orm.public.PunchRecord.where({ id }).update({
           datetime

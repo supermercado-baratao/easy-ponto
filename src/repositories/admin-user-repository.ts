@@ -1,13 +1,13 @@
-import { db } from '@/infra/database/client'
+import { database } from '@/infra/database/client'
 import type {
   AdminUser,
   TAdminUserWithRelations,
   TInputData
 } from '@/infra/database/types'
 
-const adminUsers = db.orm.public.AdminUser
+const adminUsers = database.orm.public.AdminUser
 
-export const adminUserRepo = {
+export const adminUserRepository = {
   findUniqueById: async (id: string): Promise<TAdminUserWithRelations> =>
     await adminUsers
       .whereUnique({ id })

@@ -1,5 +1,5 @@
 import type { PunchRecord } from '@/infra/database/types'
-import { punchRecordRepo } from '@/repositories/punch-record-repo'
+import { punchRecordRepository } from '@/repositories/punch-record-repository'
 
 import {
   createManyExistentsInAfdSchema,
@@ -27,7 +27,7 @@ const createNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData
 ): Promise<PunchRecord> => {
   const validData = await createNonExistentInAfdSchema.parseAsync(data)
-  return await punchRecordRepo.create(validData)
+  return await punchRecordRepository.create(validData)
 }
 
 const createManyNonExistentInAfd = async (
@@ -35,8 +35,10 @@ const createManyNonExistentInAfd = async (
 ): Promise<void> => {
   const validData = await createManyNonExistentsInAfdSchema.parseAsync(data)
   const pisList = [...new Set(validData.map(({ pis }) => pis))]
-  const savedRecords = await punchRecordRepo.findManyByPisList(pisList)
-  const seenRecords = new Set(savedRecords.map(getRecordKey))
+  const savedRecords = await punchRecordRepository.findManyByPisList(pisList)
+  const seenRecords = new Set(
+    savedRecords.map((record) => getRecordKey(record))
+  )
   const newRecords = validData.filter((record) => {
     const key = getRecordKey(record)
     if (seenRecords.has(key)) return false
@@ -44,14 +46,14 @@ const createManyNonExistentInAfd = async (
     return true
   })
 
-  await punchRecordRepo.createMany(newRecords)
+  await punchRecordRepository.createMany(newRecords)
 }
 
 const createManyExistentsInAfd = async (
   data: TPunchRecordCreateManyExistentsInAfdData
 ): Promise<void> => {
   const validData = await createManyExistentsInAfdSchema.parseAsync(data)
-  await punchRecordRepo.createManySkippingSavedNsrs(validData)
+  await punchRecordRepository.createManySkippingSavedNsrs(validData)
 }
 
 const findMany = async (
@@ -65,7 +67,7 @@ const findMany = async (
   const endOfFinalDay = finalDate ? new Date(finalDate) : undefined
   endOfFinalDay?.setUTCHours(23, 59, 59, 999)
 
-  return await punchRecordRepo.findMany({
+  return await punchRecordRepository.findMany({
     initialDate: startOfInitialDay,
     finalDate: endOfFinalDay,
     initialNsr,
@@ -76,17 +78,17 @@ const findMany = async (
 
 const update = async (data: TPunchRecordUpdateData): Promise<PunchRecord> => {
   const { id, ...validData } = await updateSchema.parseAsync(data)
-  const punchRecord = await punchRecordRepo.update(id, validData)
+  const punchRecord = await punchRecordRepository.update(id, validData)
   if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
   return punchRecord
 }
 
 const updateMany = async (data: TPunchRecordUpdateData[]): Promise<void> => {
-  await punchRecordRepo.updateMany(data)
+  await punchRecordRepository.updateMany(data)
 }
 
 const deleteRecord = async (id: string): Promise<PunchRecord> => {
-  const punchRecord = await punchRecordRepo.delete(id)
+  const punchRecord = await punchRecordRepository.delete(id)
   if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
   return punchRecord
 }

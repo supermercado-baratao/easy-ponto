@@ -43,12 +43,13 @@ export const ImportButton = ({
       return
     }
 
-    if (state.fatalError) {
-      toast.error('Um erro inesperado aconteceu!', {
-        description: 'Atualize a página e tente novamente.'
-      })
+    if (!state.fatalError) {
       return
     }
+
+    toast.error('Um erro inesperado aconteceu!', {
+      description: 'Atualize a página e tente novamente.'
+    })
   }, [pending])
 
   const isPending = pending || _pending
@@ -61,7 +62,7 @@ export const ImportButton = ({
         disabled={isPending}
         className="w-full"
       >
-        {!isPending ? 'Importar' : <Loader mode="inline" />}
+        {isPending ? <Loader mode="inline" /> : 'Importar'}
       </Button>
     </form>
   )

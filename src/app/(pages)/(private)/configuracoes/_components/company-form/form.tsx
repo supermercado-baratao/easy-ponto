@@ -42,12 +42,13 @@ export const CompanyForm = ({
       return
     }
 
-    if (state.fatalError) {
-      toast.error('Um erro inesperado aconteceu!', {
-        description: 'Atualize a página e tente novamente.'
-      })
+    if (!state.fatalError) {
       return
     }
+
+    toast.error('Um erro inesperado aconteceu!', {
+      description: 'Atualize a página e tente novamente.'
+    })
   }, [pending])
 
   return (

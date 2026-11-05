@@ -11,15 +11,15 @@ export class InternalServerError extends Error {
 
   constructor({
     cause,
-    statusCode,
-    action
+    statusCode = 500,
+    action = 'Entre em contato com o suporte.'
   }: ErrorOptions & { statusCode?: number; action?: string }) {
     super('Um erro interno não esperado aconteceu', {
       cause
     })
     this.name = 'InternalServerError'
-    this.action = action || 'Entre em contato com o suporte.'
-    this.statusCode = statusCode || 500
+    this.action = action
+    this.statusCode = statusCode
   }
 
   toJSON(): TErrorResponse {
@@ -38,20 +38,20 @@ export class ValidationError extends Error {
 
   constructor({
     cause,
-    message,
-    action,
-    statusCode
+    message = 'Um erro de validação ocorreu.',
+    action = 'Ajuste os dados enviados e tente novamente.',
+    statusCode = 400
   }: ErrorOptions & {
     message?: string
     action?: string
     statusCode?: number
   }) {
-    super(message || 'Um erro de validação ocorreu.', {
+    super(message, {
       cause
     })
     this.name = 'ValidationError'
-    this.action = action || 'Ajuste os dados enviados e tente novamente.'
-    this.statusCode = statusCode || 400
+    this.action = action
+    this.statusCode = statusCode
   }
 
   toJSON(): TErrorResponse {

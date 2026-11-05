@@ -16,7 +16,7 @@ const Status = async () => {
     <Wrapper>
       {data && (
         <>
-          <header className="w-full max-w-screen-sm mb-2">
+          <header className="mb-2 w-full max-w-screen-sm">
             <Typography component="h1" variant="h4">
               Status do Sistema
             </Typography>
@@ -27,8 +27,8 @@ const Status = async () => {
               )}
             </Typography>
           </header>
-          <main className="lg:relative flex-1 w-full">
-            <Paper className="bg-card/90 mt-4 mx-auto max-w-screen-sm">
+          <main className="w-full flex-1 lg:relative">
+            <Paper className="mx-auto mt-4 max-w-screen-sm bg-card/90">
               <DatabaseSection status={data.dependencies.database} />
             </Paper>
             <DottedMap className="dotted-map" />

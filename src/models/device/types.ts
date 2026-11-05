@@ -1,6 +1,6 @@
 /**
- * Documentation: https://www.controlid.com.br/suporte/api_idclass_latest.html#index
- */
+Documentation: https://www.controlid.com.br/suporte/api_idclass_latest.html#index
+*/
 
 export type TDeviceLoginCredentials = {
   login: string
@@ -114,7 +114,7 @@ export type TUsersInfo = {
   total_printed: number
 }
 
-export type TDeviceSystemConfiguration = {
+export type TDeviceSystemConfig = {
   beep_enabled: boolean
   animation_enabled: boolean
   economic_receipt_enabled: boolean

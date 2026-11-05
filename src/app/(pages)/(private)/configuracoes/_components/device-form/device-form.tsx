@@ -37,12 +37,13 @@ export const DeviceForm = ({
       return
     }
 
-    if (state.fatalError || state.errors?.adminUserId) {
-      toast.error('Um erro inesperado aconteceu!', {
-        description: 'Atualize a página e tente novamente.'
-      })
+    if (!(state.fatalError || state.errors?.adminUserId)) {
       return
     }
+
+    toast.error('Um erro inesperado aconteceu!', {
+      description: 'Atualize a página e tente novamente.'
+    })
   }, [pending])
 
   return (
@@ -76,7 +77,7 @@ export const DeviceForm = ({
       </CardContent>
       <CardFooter>
         <Button type="submit" form="device-form" className="w-full">
-          {!pending ? 'Salvar' : <Loader mode="inline" />}
+          {pending ? <Loader mode="inline" /> : 'Salvar'}
         </Button>
       </CardFooter>
     </FormCard>

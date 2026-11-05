@@ -252,21 +252,29 @@ export type SpinnerProps = LucideProps & {
 
 export const Spinner = ({ variant, ...props }: SpinnerProps) => {
   switch (variant) {
-    case 'circle':
+    case 'circle': {
       return <Circle {...props} />
-    case 'pinwheel':
+    }
+    case 'pinwheel': {
       return <Pinwheel {...props} />
-    case 'circle-filled':
+    }
+    case 'circle-filled': {
       return <CircleFilled {...props} />
-    case 'ellipsis':
+    }
+    case 'ellipsis': {
       return <Ellipsis {...props} />
-    case 'ring':
+    }
+    case 'ring': {
       return <Ring {...props} />
-    case 'bars':
+    }
+    case 'bars': {
       return <Bars {...props} />
-    case 'infinite':
+    }
+    case 'infinite': {
       return <Infinite {...props} />
-    default:
+    }
+    default: {
       return <Default {...props} />
+    }
   }
 }

@@ -1,7 +1,7 @@
-import { db } from '@/infra/database/client'
+import { database } from '@/infra/database/client'
 import type { DeviceCredentials, TInputData } from '@/infra/database/types'
 
-export const deviceCredentialsRepo = {
+export const deviceCredentialsRepository = {
   upsertForAdminUser: async ({
     id,
     adminUserId,
@@ -11,7 +11,7 @@ export const deviceCredentialsRepo = {
     adminUserId: string
     data: TInputData<DeviceCredentials>
   }): Promise<DeviceCredentials> =>
-    await db.transaction(async (tx) => {
+    await database.transaction(async (tx) => {
       const updated = id
         ? await tx.orm.public.DeviceCredentials.where({ id }).update(data)
         : null

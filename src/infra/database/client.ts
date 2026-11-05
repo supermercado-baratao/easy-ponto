@@ -13,11 +13,11 @@ const createClient = () =>
   })
 
 const globalForDatabase = globalThis as unknown as {
-  db?: ReturnType<typeof createClient>
+  database?: ReturnType<typeof createClient>
 }
 
-const db = globalForDatabase.db ?? createClient()
+const database = globalForDatabase.database ?? createClient()
 
-if (process.env.NODE_ENV !== 'production') globalForDatabase.db = db
+if (process.env.NODE_ENV !== 'production') globalForDatabase.database = database
 
-export { db }
+export { database }

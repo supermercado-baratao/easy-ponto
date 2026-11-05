@@ -4,12 +4,11 @@ import { TStatusDatabase } from '@/models/status/types'
 
 import { Section } from './section'
 
-type TListItem = {
-  label: string
-  value: string | number
-}
-
 export const DatabaseSection = ({ status }: { status: TStatusDatabase }) => {
+  type TListItem = {
+    label: string
+    value: string | number
+  }
   const items: TListItem[] = [
     {
       label: 'Versão',
@@ -31,7 +30,7 @@ export const DatabaseSection = ({ status }: { status: TStatusDatabase }) => {
         {items.map((item) => (
           <li
             key={item.label}
-            className="bg-accent rounded-sm py-2 px-8 flex flex-col text-center items-center gap-1"
+            className="flex flex-col items-center gap-1 rounded-sm bg-accent px-8 py-2 text-center"
           >
             <Typography component="strong" variant="caption">
               {item.label}

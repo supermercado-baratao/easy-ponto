@@ -35,7 +35,7 @@ export const MainContent = ({
         )}
       </Header>
 
-      <_MainContent className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <_MainContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DeviceForm
           adminUserId={adminUser.id}
           deviceCredentials={deviceCredentials}

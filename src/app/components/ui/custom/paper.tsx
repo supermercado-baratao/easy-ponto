@@ -19,7 +19,7 @@ export const Paper = (props: TPaperProps) => {
     component,
     {
       className: cn(
-        'bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-4 shadow-sm',
+        'flex flex-col gap-6 rounded-xl border bg-card p-4 text-card-foreground shadow-sm',
         className
       ),
       ...rest

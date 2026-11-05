@@ -31,9 +31,9 @@ const EMPLOYEES = deviceUsers.slice(0, 37)
 
 const toPis = ({ pis }: TDeviceUser): string => pis.toString().padStart(12, '0')
 
-const createAfd = (total: number, firstNsr = 1): string =>
+const createAfd = (total: number): string =>
   Array.from({ length: total }, (_, index) => {
-    const nsr = (firstNsr + index).toString().padStart(9, '0')
+    const nsr = (index + 1).toString().padStart(9, '0')
     const day = ((index % 28) + 1).toString().padStart(2, '0')
     const pis = toPis(EMPLOYEES[index % EMPLOYEES.length])
     return `${nsr}3${day}0120260800${pis}abcd\r`
@@ -73,8 +73,10 @@ const synchronize = (
   })
 }
 
-const countRecords = async (): Promise<number> =>
-  (await punchRecordModel.findMany({})).length
+const countRecords = async (): Promise<number> => {
+  const records = await punchRecordModel.findMany({})
+  return records.length
+}
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
