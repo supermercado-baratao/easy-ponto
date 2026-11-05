@@ -3,7 +3,7 @@ import * as xlsx from 'xlsx'
 
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/lib/dayjs'
-import { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record-model/types'
+import { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record/types'
 import { ddMMYYYYToDate } from '@/utils/datetime'
 import { normalizeCnpj, normalizeCpf } from '@/utils/normalize'
 

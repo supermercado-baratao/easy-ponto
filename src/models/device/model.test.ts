@@ -1,7 +1,7 @@
 import { AxiosInstance } from 'axios'
 import { describe, expect, test, vi } from 'vitest'
 
-import { deviceModel } from './device.model'
+import { deviceModel } from './model'
 import { TDeviceUser } from './types'
 
 type TLoadUsersBody = { limit: number; offset: number }

@@ -1,8 +1,8 @@
 import { Suspense } from 'react'
 
 import { Loader } from '@/app/components/ui/custom/loader'
-import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
-import { userModel } from '@/models/user-model/user.model'
+import { adminUserModel } from '@/models/admin-user/model'
+import { userModel } from '@/models/user/model'
 
 import { MainContent } from './_components/main-content'
 

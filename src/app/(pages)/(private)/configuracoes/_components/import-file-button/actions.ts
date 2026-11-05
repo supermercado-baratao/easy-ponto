@@ -1,6 +1,6 @@
 'use server'
 
-import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
+import { synchronizationModel } from '@/models/synchronization/model'
 
 import { TBindParams, TImportFileState } from './types'
 

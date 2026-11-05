@@ -4,7 +4,7 @@ import { Paper } from '@/app/components/ui/custom/paper'
 import { Typography } from '@/app/components/ui/custom/typography'
 import { DottedMap } from '@/app/components/ui/magic-ui/dotted-map'
 import { dayjs } from '@/lib/dayjs'
-import { statusModel } from '@/models/status-model/status.model'
+import { statusModel } from '@/models/status/model'
 
 import { DatabaseSection } from './_components/database-section'
 import { Wrapper } from './_components/wrapper'

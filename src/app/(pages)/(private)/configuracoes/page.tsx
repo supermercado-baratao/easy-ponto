@@ -1,4 +1,4 @@
-import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
+import { adminUserModel } from '@/models/admin-user/model'
 
 import { MainContent } from './_components/main-content'
 

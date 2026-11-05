@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Header } from '@/app/components/block/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import type { Company, DeviceCredentials } from '@/infra/database/types'
-import { TAdminUserWithRelations } from '@/models/admin-user-model/types'
+import { TAdminUserWithRelations } from '@/models/admin-user/types'
 
 import { CompanyForm } from './company-form/form'
 import { DeviceForm } from './device-form/device-form'

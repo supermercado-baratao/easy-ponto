@@ -1,4 +1,4 @@
-import { TParsedAfdRecord } from '@/models/synchronization-model/types'
+import { TParsedAfdRecord } from '@/models/synchronization/types'
 
 export const parsedAfd: TParsedAfdRecord[] = [
   {

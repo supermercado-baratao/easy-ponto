@@ -1,6 +1,6 @@
 import { Typography } from '@/app/components/ui/custom/typography'
 import { Progress } from '@/app/components/ui/shadcn-ui/progress'
-import { TStatusDatabase } from '@/models/status-model/types'
+import { TStatusDatabase } from '@/models/status/types'
 
 import { Section } from './section'
 

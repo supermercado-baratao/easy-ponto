@@ -1,7 +1,7 @@
 'use server'
 
-import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
-import { TAfdSynchronizationParams } from '@/models/synchronization-model/types'
+import { synchronizationModel } from '@/models/synchronization/model'
+import { TAfdSynchronizationParams } from '@/models/synchronization/types'
 
 import { TSynchronizationState } from './types'
 

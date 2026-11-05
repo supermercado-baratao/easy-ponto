@@ -1,6 +1,6 @@
 import type { Company, PunchRecord, User } from '@/infra/database/types'
 
-import { TDeviceLoginCredentials, TGetAfdParams } from '../device-model/types'
+import { TDeviceLoginCredentials, TGetAfdParams } from '../device/types'
 
 export type TSynchronizationCredentials = TDeviceLoginCredentials & {
   ip: string

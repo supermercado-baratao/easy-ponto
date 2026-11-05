@@ -11,13 +11,13 @@ import {
   vi
 } from 'vitest'
 
-import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
-import { companyModel } from '@/models/company-model/company.model'
-import { deviceCredentialsModel } from '@/models/device-credentials-model/device-credentials.model'
-import { deviceModel } from '@/models/device-model/device.model'
-import { TDeviceUser } from '@/models/device-model/types'
-import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
-import { userModel } from '@/models/user-model/user.model'
+import { adminUserModel } from '@/models/admin-user/model'
+import { companyModel } from '@/models/company/model'
+import { deviceModel } from '@/models/device/model'
+import { TDeviceUser } from '@/models/device/types'
+import { deviceCredentialsModel } from '@/models/device-credentials/model'
+import { synchronizationModel } from '@/models/synchronization/model'
+import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
 import orchestrator from '@/tests/orchestrator'
 

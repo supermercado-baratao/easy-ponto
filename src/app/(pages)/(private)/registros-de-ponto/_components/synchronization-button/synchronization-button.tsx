@@ -8,8 +8,8 @@ import type { DeviceCredentials, User } from '@/infra/database/types'
 import {
   TAfdSynchronizationParams,
   TSynchronizationCredentials
-} from '@/models/synchronization-model/types'
-import { TUserWithPunchRecords } from '@/models/user-model/types'
+} from '@/models/synchronization/types'
+import { TUserWithPunchRecords } from '@/models/user/types'
 
 import { synchronize } from './actions'
 import { TSynchronizationState } from './types'

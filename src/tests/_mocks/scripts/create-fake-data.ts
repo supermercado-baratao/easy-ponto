@@ -5,9 +5,9 @@ import { faker } from '@faker-js/faker'
 import ora from 'ora'
 
 import { PIS_LENGTH } from '@/constants/length'
-import { deviceModel } from '@/models/device-model/device.model'
-import { createDeviceApiInstance } from '@/models/device-model/device-api'
-import { parseAfd } from '@/models/synchronization-model/_utils/afd'
+import { createDeviceApiInstance } from '@/models/device/device-api'
+import { deviceModel } from '@/models/device/model'
+import { parseAfd } from '@/models/synchronization/_utils/afd'
 import { execAsync } from '@/tests/_utils/exec-async'
 import { normalizeLeftZeros } from '@/utils/normalize'
 

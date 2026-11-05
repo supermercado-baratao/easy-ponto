@@ -6,8 +6,8 @@ import { Header } from '@/app/components/block/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
 import type { User } from '@/infra/database/types'
-import { TAdminUserWithRelations } from '@/models/admin-user-model/types'
-import { TUserWithPunchRecords } from '@/models/user-model/types'
+import { TAdminUserWithRelations } from '@/models/admin-user/types'
+import { TUserWithPunchRecords } from '@/models/user/types'
 
 import { SynchronizationButton } from './synchronization-button/synchronization-button'
 
