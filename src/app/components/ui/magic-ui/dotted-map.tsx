@@ -20,30 +20,30 @@ export interface DottedMapProps extends React.SVGProps<SVGSVGElement> {
 }
 
 const getGridMetrics = (points: { x: number; y: number }[]) => {
-  const sorted = [...points].sort((a, b) => a.y - b.y || a.x - b.x)
+  const sorted = points.toSorted((a, b) => a.y - b.y || a.x - b.x)
   const rowMap = new Map<number, number>()
   let step = 0
-  let prevY = Number.NaN
-  let prevXInRow = Number.NaN
+  let previousY = NaN
+  let previousXInRow = NaN
 
   for (const p of sorted) {
-    if (p.y !== prevY) {
+    if (p.y !== previousY) {
       // new row
-      prevY = p.y
-      prevXInRow = Number.NaN
+      previousY = p.y
+      previousXInRow = NaN
       if (!rowMap.has(p.y)) rowMap.set(p.y, rowMap.size)
     }
-    if (!Number.isNaN(prevXInRow)) {
-      const delta = p.x - prevXInRow
+    if (!Number.isNaN(previousXInRow)) {
+      const delta = p.x - previousXInRow
       if (delta > 0) step = step === 0 ? delta : Math.min(step, delta)
     }
-    prevXInRow = p.x
+    previousXInRow = p.x
   }
 
   return { xStep: step || 1, yToRowIndex: rowMap }
 }
 
-export function DottedMap({
+export const DottedMap = ({
   width = 150,
   height = 75,
   mapSamples = 5000,
@@ -53,7 +53,7 @@ export function DottedMap({
   stagger = true,
   className,
   style
-}: DottedMapProps) {
+}: DottedMapProps) => {
   const { points, addMarkers } = createMap({
     width,
     height,

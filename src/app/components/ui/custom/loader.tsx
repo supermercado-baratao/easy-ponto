@@ -25,7 +25,7 @@ export const Loader = (props: TLoaderProps) => {
   }
 
   return (
-    <div className="absolute w-full h-svh inset-0 flex items-center justify-center">
+    <div className="absolute inset-0 flex h-svh w-full items-center justify-center">
       <Spinner
         className={cn('size-8', className)}
         variant={variant}

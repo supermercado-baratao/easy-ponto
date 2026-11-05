@@ -1,9 +1,9 @@
-import { db } from '@/infra/database/client'
+import { database } from '@/infra/database/client'
 import type { DeviceSession } from '@/infra/database/types'
 
-const deviceSessions = db.orm.public.DeviceSession
+const deviceSessions = database.orm.public.DeviceSession
 
-export const deviceSessionRepo = {
+export const deviceSessionRepository = {
   upsert: async (
     token: string,
     deviceCredentialsId: string

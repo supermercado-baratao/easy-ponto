@@ -23,6 +23,8 @@ import orchestrator from '@/tests/orchestrator'
 
 const [deviceUser] = deviceUsers
 
+const compareNames = (a: string, b: string): number => a.localeCompare(b)
+
 const populate = async () => {
   const adminUser = await adminUserModel.create()
   const credentials = await deviceCredentialsModel.upsert({
@@ -76,8 +78,8 @@ describe('Synchronization Model', () => {
       const users = await synchronize(deviceUsers, data)
 
       expect(users).toHaveLength(deviceUsers.length)
-      expect(users.map(({ name }) => name).sort()).toEqual(
-        deviceUsers.map(({ name }) => name).sort()
+      expect(users.map(({ name }) => name).toSorted(compareNames)).toEqual(
+        deviceUsers.map(({ name }) => name).toSorted(compareNames)
       )
     })
 
@@ -125,7 +127,7 @@ describe('Synchronization Model', () => {
       await userModel.updateMany([{ id, cpf: CPF.fake().value }])
 
       const [user] = await synchronize(
-        [{ ...deviceUser, cpf: 12345678901 }],
+        [{ ...deviceUser, cpf: 12_345_678_901 }],
         data
       )
 

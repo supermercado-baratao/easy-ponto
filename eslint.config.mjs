@@ -4,7 +4,11 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import nextTs from 'eslint-config-next/typescript'
 import prettier from 'eslint-config-prettier/flat'
+import preferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
+import pluginPromise from 'eslint-plugin-promise'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import eslintPluginTailwindcss from 'eslint-plugin-tailwindcss'
+import unicorn from 'eslint-plugin-unicorn'
 
 const DATABASE_CLIENT = 'infra/database/client'
 
@@ -21,7 +25,56 @@ const FORBIDDEN_IMPORTS = {
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  pluginPromise.configs['flat/recommended'],
   prettier,
+  preferArrowFunctions.configs.all,
+  {
+    files: eslintPluginTailwindcss.configs.recommended.files,
+    extends: [eslintPluginTailwindcss.configs.recommended],
+    settings: {
+      tailwindcss: {
+        cssConfigPath: './src/app/styles/globals.css',
+        parseKeyFunctions: ['classnames', 'classNames']
+      }
+    },
+    rules: {
+      'tailwindcss/no-custom-classname': [
+        'warn',
+        // Classes defined in plain CSS or by Sonner
+        {
+          whitelist: ['dotted-map', String.raw`spinner-bars?(-\d+)?`, 'toaster']
+        }
+      ]
+    }
+  },
+  {
+    files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    plugins: {
+      unicorn
+    },
+    extends: ['unicorn/recommended'],
+    rules: {
+      'unicorn/consistent-boolean-name': 'off',
+      'unicorn/default-export-style': ['error', { functions: 'separate' }],
+      'unicorn/logical-assignment-operators': 'off',
+      'unicorn/no-null': 'off',
+      'unicorn/name-replacements': [
+        'error',
+        {
+          replacements: {
+            params: false,
+            props: false,
+            utils: false
+          }
+        }
+      ]
+    }
+  },
+  {
+    // Tests share state set in `beforeAll` or in an earlier test through top-level `let`
+    files: ['src/tests/**'],
+    rules: { 'unicorn/no-top-level-assignment-in-function': 'off' }
+  },
   {
     plugins: { 'simple-import-sort': simpleImportSort },
     rules: {

@@ -13,10 +13,10 @@ export const SidebarHeader = () => (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          className="data-[slot=sidebar-menu-button]:!p-1.5"
+          className="data-[slot=sidebar-menu-button]:p-1.5!"
           render={<Link href="/dashboard" />}
         >
-          <Clock className="!size-5" />
+          <Clock className="size-5!" />
           <span className="text-base font-semibold">Easy Ponto</span>
         </SidebarMenuButton>
       </SidebarMenuItem>

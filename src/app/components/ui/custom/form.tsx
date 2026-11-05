@@ -51,15 +51,12 @@ type TFormFieldProps = ComponentProps<'input'> & {
 }
 
 export const FormField = (props: TFormFieldProps) => {
-  const { name, label, error, className, id, ...inputProps } = props
+  const { name, label, error, className, id = name, ...inputProps } = props
 
   return (
     <div className={cn('grid gap-3', className)}>
       {typeof label === 'string' ? (
-        <Label
-          htmlFor={id ?? name}
-          className={error ? 'text-destructive' : 'inherit'}
-        >
+        <Label htmlFor={id} className={error ? 'text-destructive' : undefined}>
           {label}
         </Label>
       ) : (
@@ -67,15 +64,15 @@ export const FormField = (props: TFormFieldProps) => {
       )}
       <Input
         {...inputProps}
-        id={id ?? name}
+        id={id}
         name={name}
         className={
           error
-            ? 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive/50 focus-visible:ring-[3px]'
-            : 'inherit'
+            ? 'border-destructive focus-visible:border-destructive focus-visible:ring-[3px] focus-visible:ring-destructive/50'
+            : undefined
         }
       />
-      <p className="text-destructive relative bottom-3">{error}</p>
+      <p className="relative bottom-3 text-destructive">{error}</p>
     </div>
   )
 }
@@ -103,7 +100,7 @@ export const Select = ({
       {...props}
       aria-invalid={!!error}
     >
-      <Label htmlFor={name} className={error ? 'text-destructive' : 'inherit'}>
+      <Label htmlFor={name} className={error ? 'text-destructive' : undefined}>
         {label}
       </Label>
       <_Select
@@ -126,7 +123,7 @@ export const Select = ({
           </SelectGroup>
         </SelectContent>
       </_Select>
-      <p className="text-destructive relative bottom-3">{error}</p>
+      <p className="relative bottom-3 text-destructive">{error}</p>
     </div>
   )
 }

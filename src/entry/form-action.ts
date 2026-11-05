@@ -19,7 +19,7 @@ export type TState<TInputData, TOutputData> = {
 }
 
 const parseFormData = <T>(formData: FormData): T =>
-  Object.fromEntries(formData.entries()) as T
+  Object.fromEntries(formData) as T
 
 const parseErrors = <T>(error: z.ZodError): TError<T> => {
   const { properties } = z.treeifyError(error) as unknown as {

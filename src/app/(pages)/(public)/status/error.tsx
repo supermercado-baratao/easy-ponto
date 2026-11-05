@@ -10,7 +10,7 @@ import { Wrapper } from './_components/wrapper'
 const Error = () => {
   return (
     <Wrapper className="justify-center">
-      <div className="max-w-[30rem] text-center">
+      <div className="max-w-120 text-center">
         <Typography component="h1" variant="h4" className="mb-2">
           Sistema Offline
         </Typography>

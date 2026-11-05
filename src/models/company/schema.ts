@@ -5,18 +5,15 @@ const schema = z.object({
   name: z.string().min(1).max(255),
   address: z.string().min(1).max(255),
   cpf: z.string().refine((value) => isCPF(value), { message: 'CPF inválido' }),
-  tipoDoc: z.preprocess(
-    (val) => String(val),
-    z.enum(['0', '1']).transform((value) => Number(value))
-  ),
+  tipoDoc: z.preprocess(String, z.enum(['0', '1']).transform(Number)),
   cpfCnpj: z.string(),
   cei: z.string(),
   registration: z.string().nullable().optional()
 })
 
-export const upsertSchema = schema.superRefine((data, ctx) => {
+export const upsertSchema = schema.superRefine((data, context) => {
   if (data.tipoDoc === 0 && !isCPF(data.cpfCnpj)) {
-    ctx.addIssue({
+    context.addIssue({
       code: 'invalid_value',
       values: [data.cpfCnpj],
       path: ['cpfCnpj'],
@@ -25,13 +22,12 @@ export const upsertSchema = schema.superRefine((data, ctx) => {
   }
 
   if (data.tipoDoc === 1 && !isCNPJ(data.cpfCnpj)) {
-    ctx.addIssue({
+    context.addIssue({
       code: 'invalid_value',
       values: [data.cpfCnpj],
       path: ['cpfCnpj'],
       message: 'CNPJ inválido'
     })
-    return
   }
 })
 
@@ -40,10 +36,10 @@ export const updateSchema = schema
   .extend({
     id: z.uuid()
   })
-  .superRefine((data, ctx) => {
+  .superRefine((data, context) => {
     if (data.tipoDoc === 0) {
       if (!data.cpfCnpj || !isCPF(data.cpfCnpj)) {
-        ctx.addIssue({
+        context.addIssue({
           code: 'invalid_value',
           values: [data.cpfCnpj],
           path: ['cpfCnpj'],
@@ -53,14 +49,12 @@ export const updateSchema = schema
       return
     }
 
-    if (data.tipoDoc === 1) {
-      if (!data.cpfCnpj || !isCNPJ(data.cpfCnpj)) {
-        ctx.addIssue({
-          code: 'invalid_value',
-          values: [data.cpfCnpj],
-          path: ['cpfCnpj'],
-          message: 'CNPJ inválido'
-        })
-      }
+    if (data.tipoDoc === 1 && (!data.cpfCnpj || !isCNPJ(data.cpfCnpj))) {
+      context.addIssue({
+        code: 'invalid_value',
+        values: [data.cpfCnpj],
+        path: ['cpfCnpj'],
+        message: 'CNPJ inválido'
+      })
     }
   })

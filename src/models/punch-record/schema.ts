@@ -19,17 +19,15 @@ export const createManyNonExistentsInAfdSchema = z
   .array(createNonExistentInAfdSchema)
   .nonempty()
 
+const afdFieldsSchema = z.object({
+  afdDatetime: z.coerce.date(),
+  nsr: z.number().int().positive(),
+  registrationType: z.string().length(1),
+  hexadecimalCheckDigit: z.string().length(4)
+})
+
 export const createManyExistentsInAfdSchema = z
-  .array(
-    createNonExistentInAfdSchema.and(
-      z.object({
-        afdDatetime: z.coerce.date(),
-        nsr: z.number().int().positive(),
-        registrationType: z.string().length(1),
-        hexadecimalCheckDigit: z.string().length(4)
-      })
-    )
-  )
+  .array(createNonExistentInAfdSchema.and(afdFieldsSchema))
   .nonempty()
 
 export const updateSchema = z.object({

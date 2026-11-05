@@ -3,381 +3,381 @@ import { TDeviceUser } from '@/models/device/types'
 export const deviceUsers: TDeviceUser[] = [
   {
     name: 'Mr. Sherman Leffler MD',
-    pis: 386636099221,
-    code: 10184,
+    pis: 386_636_099_221,
+    code: 10_184,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10184,
+    rfid: 10_184,
     bars: '0000010184',
-    registration: 10184
+    registration: 10_184
   },
   {
     name: 'Dr. Rene Steuber',
-    pis: 347940950231,
-    code: 1553704,
+    pis: 347_940_950_231,
+    code: 1_553_704,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1036744,
+    rfid: 1_036_744,
     bars: '0001553704',
-    registration: 1553704
+    registration: 1_553_704
   },
   {
     name: 'Nova Johnson',
-    pis: 192688258041,
-    code: 87042,
+    pis: 192_688_258_041,
+    code: 87_042,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 87042,
+    rfid: 87_042,
     bars: '0000087042',
-    registration: 87042
+    registration: 87_042
   },
   {
     name: "Anjali D'Amore",
-    pis: 169817880839,
-    code: 10133,
+    pis: 169_817_880_839,
+    code: 10_133,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10133,
+    rfid: 10_133,
     bars: '0000010133',
-    registration: 10133
+    registration: 10_133
   },
   {
     name: 'Shari Muller',
-    pis: 722589760794,
-    code: 2187717,
+    pis: 722_589_760_794,
+    code: 2_187_717,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1463973,
+    rfid: 1_463_973,
     bars: '0002187717',
-    registration: 2187717
+    registration: 2_187_717
   },
   {
     name: 'Wade Ondricka',
-    pis: 359520289062,
-    code: 1612102,
+    pis: 359_520_289_062,
+    code: 1_612_102,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1060678,
+    rfid: 1_060_678,
     bars: '0001612102',
-    registration: 1612102
+    registration: 1_612_102
   },
   {
     name: 'Malvina Connelly',
-    pis: 477777492320,
-    code: 954110,
+    pis: 477_777_492_320,
+    code: 954_110,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 643934,
+    rfid: 643_934,
     bars: '0000954110',
-    registration: 954110
+    registration: 954_110
   },
   {
     name: 'Rocky Dach-Kemmer',
-    pis: 406292272973,
-    code: 1663015,
+    pis: 406_292_272_973,
+    code: 1_663_015,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1111591,
+    rfid: 1_111_591,
     bars: '0001663015',
-    registration: 1663015
+    registration: 1_663_015
   },
   {
     name: 'Erma Price',
-    pis: 678149343136,
-    code: 1612107,
+    pis: 678_149_343_136,
+    code: 1_612_107,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1060683,
+    rfid: 1_060_683,
     bars: '0001612107',
-    registration: 1612107
+    registration: 1_612_107
   },
   {
     name: 'Rogelio Romaguera',
-    pis: 401827303087,
-    code: 421945,
+    pis: 401_827_303_087,
+    code: 421_945,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 284089,
+    rfid: 284_089,
     bars: '0000421945',
-    registration: 421945
+    registration: 421_945
   },
   {
     name: 'Isai Renner',
-    pis: 385136037193,
-    code: 1612106,
+    pis: 385_136_037_193,
+    code: 1_612_106,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1060682,
+    rfid: 1_060_682,
     bars: '0001612106',
-    registration: 1612106
+    registration: 1_612_106
   },
   {
     name: 'Jimmie Wisoky',
-    pis: 536255491393,
-    code: 27361,
+    pis: 536_255_491_393,
+    code: 27_361,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 27361,
+    rfid: 27_361,
     bars: '0000027361',
-    registration: 27361
+    registration: 27_361
   },
   {
     name: 'Berta Cassin I',
-    pis: 340499799854,
-    code: 10159,
+    pis: 340_499_799_854,
+    code: 10_159,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10159,
+    rfid: 10_159,
     bars: '0000010159',
-    registration: 10159
+    registration: 10_159
   },
   {
     name: 'Orland Pfannerstill II',
-    pis: 618915075809,
-    code: 419491,
+    pis: 618_915_075_809,
+    code: 419_491,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 281635,
+    rfid: 281_635,
     bars: '0000419491',
-    registration: 419491
+    registration: 419_491
   },
   {
     name: 'Lupe Fadel',
-    pis: 479717031147,
-    code: 415886,
+    pis: 479_717_031_147,
+    code: 415_886,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 278030,
+    rfid: 278_030,
     bars: '0000415886',
-    registration: 415886
+    registration: 415_886
   },
   {
     name: 'Larissa Hirthe',
-    pis: 279242852188,
-    code: 1906700,
+    pis: 279_242_852_188,
+    code: 1_906_700,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1251884,
+    rfid: 1_251_884,
     bars: '0001906700',
-    registration: 1906700
+    registration: 1_906_700
   },
   {
     name: 'Nicole Corkery',
-    pis: 73124121547,
-    code: 1951962,
+    pis: 73_124_121_547,
+    code: 1_951_962,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1297146,
+    rfid: 1_297_146,
     bars: '0001951962',
-    registration: 1951962
+    registration: 1_951_962
   },
   {
     name: 'Hunter Von',
-    pis: 227927912205,
-    code: 10152,
+    pis: 227_927_912_205,
+    code: 10_152,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10152,
+    rfid: 10_152,
     bars: '0000010152',
-    registration: 10152
+    registration: 10_152
   },
   {
     name: 'Mildred White',
-    pis: 202618004501,
-    code: 10151,
+    pis: 202_618_004_501,
+    code: 10_151,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10151,
+    rfid: 10_151,
     bars: '0000010151',
-    registration: 10151
+    registration: 10_151
   },
   {
     name: 'Jonathon Nitzsche',
-    pis: 371407610342,
-    code: 10161,
+    pis: 371_407_610_342,
+    code: 10_161,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10161,
+    rfid: 10_161,
     bars: '0000010161',
-    registration: 10161
+    registration: 10_161
   },
   {
     name: 'Sandra Schroeder',
-    pis: 132375081112,
-    code: 950448,
+    pis: 132_375_081_112,
+    code: 950_448,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 640272,
+    rfid: 640_272,
     bars: '0000950448',
-    registration: 950448
+    registration: 950_448
   },
   {
     name: 'Harry Stark',
-    pis: 381910938302,
-    code: 10135,
+    pis: 381_910_938_302,
+    code: 10_135,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10135,
+    rfid: 10_135,
     bars: '0000010135',
-    registration: 10135
+    registration: 10_135
   },
   {
     name: 'Gene Lebsack PhD',
-    pis: 678142153733,
-    code: 87041,
+    pis: 678_142_153_733,
+    code: 87_041,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 87041,
+    rfid: 87_041,
     bars: '0000087041',
-    registration: 87041
+    registration: 87_041
   },
   {
     name: 'Mrs. Kate Gottlieb',
-    pis: 288966223530,
-    code: 10165,
+    pis: 288_966_223_530,
+    code: 10_165,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10165,
+    rfid: 10_165,
     bars: '0000010165',
-    registration: 10165
+    registration: 10_165
   },
   {
     name: 'Donald Kohler',
-    pis: 659151071536,
-    code: 10146,
+    pis: 659_151_071_536,
+    code: 10_146,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10146,
+    rfid: 10_146,
     bars: '0000010146',
-    registration: 10146
+    registration: 10_146
   },
   {
     name: 'Daisy West',
-    pis: 792987181806,
-    code: 1612105,
+    pis: 792_987_181_806,
+    code: 1_612_105,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1060681,
+    rfid: 1_060_681,
     bars: '0001612105',
-    registration: 1612105
+    registration: 1_612_105
   },
   {
     name: 'Nicolette Willms',
-    pis: 273669008841,
-    code: 1906699,
+    pis: 273_669_008_841,
+    code: 1_906_699,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1251883,
+    rfid: 1_251_883,
     bars: '0001906699',
-    registration: 1906699
+    registration: 1_906_699
   },
   {
     name: 'Kayley Beer',
-    pis: 109043057536,
-    code: 2291453,
+    pis: 109_043_057_536,
+    code: 2_291_453,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1533245,
+    rfid: 1_533_245,
     bars: '0002291453',
-    registration: 2291453
+    registration: 2_291_453
   },
   {
     name: 'Silvia Pollich',
-    pis: 685342591558,
-    code: 1906710,
+    pis: 685_342_591_558,
+    code: 1_906_710,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1251894,
+    rfid: 1_251_894,
     bars: '0001906710',
-    registration: 1906710
+    registration: 1_906_710
   },
   {
     name: 'Electa Hilll',
-    pis: 177309727269,
-    code: 10154,
+    pis: 177_309_727_269,
+    code: 10_154,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10154,
+    rfid: 10_154,
     bars: '0000010154',
-    registration: 10154
+    registration: 10_154
   },
   {
     name: 'Shelley Jacobs V',
-    pis: 777207270754,
-    code: 10144,
+    pis: 777_207_270_754,
+    code: 10_144,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10144,
+    rfid: 10_144,
     bars: '0000010144',
-    registration: 10144
+    registration: 10_144
   },
   {
     name: 'Janie Cummerata',
-    pis: 498516726195,
-    code: 1948037,
+    pis: 498_516_726_195,
+    code: 1_948_037,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 1293221,
+    rfid: 1_293_221,
     bars: '0001948037',
-    registration: 1948037
+    registration: 1_948_037
   },
   {
     name: 'Theodora Pacocha',
-    pis: 173788987240,
-    code: 10188,
+    pis: 173_788_987_240,
+    code: 10_188,
     templates_count: 4,
     password: '',
     admin: false,
-    rfid: 10188,
+    rfid: 10_188,
     bars: '0000010188',
-    registration: 10188
+    registration: 10_188
   },
   {
     name: 'Sylvia Hodkiewicz II',
-    pis: 836772004863,
-    code: 161210,
+    pis: 836_772_004_863,
+    code: 161_210,
     templates_count: 4,
     password: '1234',
     admin: false,
-    rfid: 1060679,
+    rfid: 1_060_679,
     bars: '0001612103',
-    registration: 1612103
+    registration: 1_612_103
   },
   {
     name: 'Vicky Mueller',
-    pis: 224201994920,
+    pis: 224_201_994_920,
     code: 2,
     templates_count: 4,
     password: '',
@@ -388,7 +388,7 @@ export const deviceUsers: TDeviceUser[] = [
   },
   {
     name: 'Dixie Effertz',
-    pis: 588311201450,
+    pis: 588_311_201_450,
     code: 1,
     templates_count: 4,
     password: '',
@@ -399,7 +399,7 @@ export const deviceUsers: TDeviceUser[] = [
   },
   {
     name: 'Cheyanne Daniel',
-    pis: 196727532052,
+    pis: 196_727_532_052,
     code: 3,
     templates_count: 4,
     password: '',

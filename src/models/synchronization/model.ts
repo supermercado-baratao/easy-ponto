@@ -61,27 +61,25 @@ const synchronizeUsers = async ({
   const deviceUsersToCreate: TDeviceUser[] = []
   const usersToUpdate: (Partial<TInputData<User>> & { id: string })[] = []
 
-  deviceUsers.forEach((deviceUser) => {
+  for (const deviceUser of deviceUsers) {
     const fields = mapDeviceUserToUserFields(deviceUser, companyId)
-    const foundUser = foundUsers.find(
-      (foundUser) => foundUser.pis === fields.pis
-    )
+    const foundUser = foundUsers.find((user) => user.pis === fields.pis)
     if (!foundUser) {
       deviceUsersToCreate.push(deviceUser)
-      return
+      continue
     }
     usersToUpdate.push({
       ...fields,
       id: foundUser.id,
       cpf: fields.cpf ?? foundUser.cpf
     })
-  })
+  }
 
   const usersToCreate = mapDeviceUserToUser(deviceUsersToCreate, companyId)
 
   await Promise.all([
-    usersToCreate.length && (await userModel.createMany(usersToCreate)),
-    usersToUpdate.length && (await userModel.updateMany(usersToUpdate))
+    usersToCreate.length > 0 && userModel.createMany(usersToCreate),
+    usersToUpdate.length > 0 && userModel.updateMany(usersToUpdate)
   ])
 
   const allUsers = await userModel.findManyByCompanyId(companyId)
@@ -112,7 +110,7 @@ const synchronizeAfd = async ({
     users
   )
   const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd)
-  if (punchRecords.length) {
+  if (punchRecords.length > 0) {
     await punchRecordModel.createManyExistentsInAfd(punchRecords)
   }
 
@@ -141,15 +139,15 @@ const importFile = async ({
     users
   )
 
-  const [, , updatedCompany] = await Promise.all([
-    usersToUpdate.length && (await userModel.updateMany(usersToUpdate)),
-    punchRecordsToCreate.length &&
-      (await punchRecordModel.createManyNonExistentInAfd(punchRecordsToCreate)),
+  const [updatedCompany] = await Promise.all([
     company.registration !== dataInJson.company.registration &&
-      (await companyModel.update({
+      companyModel.update({
         id: company.id,
         registration: dataInJson.company.registration
-      }))
+      }),
+    usersToUpdate.length > 0 && userModel.updateMany(usersToUpdate),
+    punchRecordsToCreate.length > 0 &&
+      punchRecordModel.createManyNonExistentInAfd(punchRecordsToCreate)
   ])
 
   return updatedCompany || company

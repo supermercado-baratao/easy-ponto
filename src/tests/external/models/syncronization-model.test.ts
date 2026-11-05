@@ -150,10 +150,10 @@ describe('Synchronization Model', () => {
     expect(data.datetime).toEqual(data.afdDatetime)
     // The device API also returns records from the day before the initial date
     const oldestAllowedDate = initialDate.subtract(1, 'day').startOf('day')
-    punchRecordsAfterSync.forEach(({ datetime }) => {
+    for (const { datetime } of punchRecordsAfterSync) {
       expect(datetime.getTime()).toBeGreaterThanOrEqual(
         oldestAllowedDate.valueOf()
       )
-    })
+    }
   })
 })

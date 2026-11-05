@@ -3,7 +3,7 @@ import retry from 'async-retry'
 import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 
-import { db } from '@/infra/database/client'
+import { database } from '@/infra/database/client'
 import { adminUserModel } from '@/models/admin-user/model'
 import { companyModel } from '@/models/company/model'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
@@ -31,12 +31,12 @@ const clearDatabase = async () => {
     throw new Error(`Refusing to clear the database ${databaseName}`)
   }
 
-  const plan = db.raw.sql`
+  const plan = database.raw.sql`
     TRUNCATE admin_users, companies, devices_credentials, devices_sessions, punch_records, users CASCADE
   `
     .affectedCount()
     .build()
-  await db.execute(plan)
+  await database.execute(plan)
 }
 
 const populateDatabaseWithRealData = async () => {

@@ -8,6 +8,6 @@ export const SubmitButton = ({ pending }: { pending: boolean }) => (
     className="flex-1"
     disabled={pending}
   >
-    {!pending ? 'Salvar' : <Loader mode="inline" />}
+    {pending ? <Loader mode="inline" /> : 'Salvar'}
   </Button>
 )

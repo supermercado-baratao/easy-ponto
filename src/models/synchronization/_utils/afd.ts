@@ -30,7 +30,7 @@ export const parseAfd = (afd: string): TParsedAfdRecord[] => {
   const records: TParsedAfdRecord[] = lines
     .map((line) => {
       if (line.length !== 39) {
-        return undefined
+        return
       }
       return {
         nsr: Number(line.slice(0, 9)),

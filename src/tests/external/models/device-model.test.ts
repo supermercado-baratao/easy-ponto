@@ -5,7 +5,6 @@ import { describe, expect, test } from 'vitest'
 
 import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
-import { TDeviceUser } from '@/models/device/types'
 
 let session: string = process.env.DEVICE_SESSION_TOKEN!
 
@@ -33,7 +32,7 @@ describe('Model Device', () => {
 
   test('Loading users', async () => {
     const users = await deviceModel.loadUsers(api, session)
-    users.forEach((user: TDeviceUser) => {
+    for (const user of users) {
       expect(user.name).toBeTypeOf('string')
       expect(user.pis).toBeTypeOf('number')
       expect(user.code).toBeTypeOf('number')
@@ -44,7 +43,7 @@ describe('Model Device', () => {
       expect(user.bars).toBeTypeOf('string')
       expect(user.registration).toBeTypeOf('number')
       expect(Object.keys(user).length).toBe(9)
-    })
+    }
   })
 
   test('Exporting users', async () => {
@@ -161,7 +160,7 @@ describe('Model Device', () => {
   })
 
   test('Getting system configuration', async () => {
-    const data = await deviceModel.getSystemConfiguration(api, session)
+    const data = await deviceModel.getSystemConfig(api, session)
     expect(data.beep_enabled).toBeTypeOf('boolean')
     expect(data.animation_enabled).toBeTypeOf('boolean')
     expect(data.economic_receipt_enabled).toBeTypeOf('boolean')

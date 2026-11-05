@@ -1,13 +1,13 @@
-import { db } from '@/infra/database/client'
+import { database } from '@/infra/database/client'
 import type {
   TInputData,
   TUserWithPunchRecords,
   User
 } from '@/infra/database/types'
 
-const users = db.orm.public.User
+const users = database.orm.public.User
 
-export const userRepo = {
+export const userRepository = {
   createMany: async (data: TInputData<User>[]): Promise<void> => {
     await users.createAndCount(data)
   },
@@ -26,7 +26,7 @@ export const userRepo = {
   updateMany: async (
     data: (Partial<TInputData<User>> & { id: string })[]
   ): Promise<void> => {
-    await db.transaction(async (tx) => {
+    await database.transaction(async (tx) => {
       for (const { id, ...user } of data) {
         const updated = await tx.orm.public.User.where({ id }).update(user)
         if (!updated) throw new Error(`User ${id} not found`)

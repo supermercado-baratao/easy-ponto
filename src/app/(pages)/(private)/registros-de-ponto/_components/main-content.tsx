@@ -40,7 +40,7 @@ export const MainContent = ({
         )}
       </Header>
       <_MainContent>
-        {users.length && user ? (
+        {user && users.length > 0 ? (
           <>
             <Typography component="h1" variant="h6">
               {user.name}

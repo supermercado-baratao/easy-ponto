@@ -6,7 +6,7 @@ import {
   TDeviceIdCloudStatus,
   TDeviceLoginCredentials,
   TDevicePublicKey,
-  TDeviceSystemConfiguration,
+  TDeviceSystemConfig,
   TDeviceSystemDatetime,
   TDeviceSystemInformation,
   TDeviceUser,
@@ -151,7 +151,7 @@ const getAfd = async (
         initial_date?: { day: number; month: number; year: number }
         initial_nsr?: number
       }
-    | undefined = undefined
+    | undefined
   if (initialDate) body = { initial_date: initialDate }
   if (initialNsr) body = { ...body, initial_nsr: initialNsr }
   const { data }: { data: string } = await api.post(
@@ -213,11 +213,11 @@ const getUsersInfo = async (
   return data
 }
 
-const getSystemConfiguration = async (
+const getSystemConfig = async (
   api: AxiosInstance,
   session: string
-): Promise<TDeviceSystemConfiguration> => {
-  const { data }: { data: TDeviceSystemConfiguration } = await api.post(
+): Promise<TDeviceSystemConfig> => {
+  const { data }: { data: TDeviceSystemConfig } = await api.post(
     normalizeUrl({ path: '/get_system_configuration', session })
   )
   return data
@@ -240,5 +240,5 @@ export const deviceModel = {
   getCoilPaper,
   getSystemDaylightSavingTime,
   getUsersInfo,
-  getSystemConfiguration
+  getSystemConfig
 }
