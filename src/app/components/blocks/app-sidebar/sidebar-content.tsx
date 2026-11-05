@@ -20,11 +20,9 @@ export const SidebarContent = () => (
           <SidebarMenu>
             {items.map((item, index) => (
               <SidebarMenuItem key={index}>
-                <SidebarMenuButton asChild>
-                  <Link href={item.path}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
+                <SidebarMenuButton render={<Link href={item.path} />}>
+                  <item.icon />
+                  <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

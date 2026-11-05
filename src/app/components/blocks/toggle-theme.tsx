@@ -1,11 +1,11 @@
 'use client'
 
+import { cn } from 'cn'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SidebarMenuButton } from '@/app/components/ui/shadcn/sidebar'
-import { cn } from '@/app/lib/utils'
 
 const Icon = () => {
   return (

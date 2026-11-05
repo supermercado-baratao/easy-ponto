@@ -56,8 +56,8 @@ export const ImportFileButton = ({
     <>
       <form action={formAction} ref={formRef}>
         <Label htmlFor="file" className="cursor-pointer">
-          <Button variant="outline" type="button" asChild>
-            <span>Importar Arquivo</span>
+          <Button variant="outline" nativeButton={false} render={<span />}>
+            Importar Arquivo
           </Button>
         </Label>
         <Input

@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from 'cn'
 import { ComponentProps, ReactNode } from 'react'
 
 import {
@@ -19,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/app/components/ui/shadcn/select'
-import { cn } from '@/app/lib/utils'
 
 type TFormCardProps = {
   title: string
@@ -106,7 +106,12 @@ export const Select = ({
       <Label htmlFor={name} className={error ? 'text-destructive' : 'inherit'}>
         {label}
       </Label>
-      <_Select key={defaultValue} name={name} defaultValue={defaultValue}>
+      <_Select
+        key={defaultValue}
+        name={name}
+        defaultValue={defaultValue}
+        items={options}
+      >
         <SelectTrigger className="w-full" aria-invalid={!!error}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
