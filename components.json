@@ -13,9 +13,9 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/app/components",
-    "utils": "@/lib",
-    "ui": "@/app/components/ui/shadcn-ui",
-    "lib": "@/lib",
+    "utils": "@/app/lib/utils",
+    "ui": "@/app/components/ui/shadcn",
+    "lib": "@/app/lib",
     "hooks": "@/app/hooks"
   },
   "registries": {

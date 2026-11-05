@@ -3,7 +3,9 @@
 import dayjs from 'dayjs'
 import { describe, expect, test } from 'vitest'
 
-import { createDeviceApiInstance, deviceModel, TDeviceUser } from '@/models'
+import { createDeviceApiInstance } from '@/models/device/device-api'
+import { deviceModel } from '@/models/device/model'
+import { TDeviceUser } from '@/models/device/types'
 
 let session: string = process.env.DEVICE_SESSION_TOKEN!
 

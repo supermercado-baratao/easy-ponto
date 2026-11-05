@@ -1,15 +1,4 @@
-import { db } from '@/infra/database/client'
-
-const getOpenedConnections = async (): Promise<number> => {
-  const databaseName = process.env.POSTGRES_DB as string
-  const plan = db.raw.sql`
-    SELECT COUNT(*)::int AS count FROM pg_stat_activity WHERE datname = ${databaseName}
-  `
-    .returnsRow({ count: 'pg/int4@1' })
-    .build()
-  const [row] = await db.query(plan)
-  return row.count
-}
+import { getOpenedConnections } from './data'
 
 const LandingPage = async () => {
   const openedConnections = await getOpenedConnections()

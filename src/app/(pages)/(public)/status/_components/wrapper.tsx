@@ -1,4 +1,4 @@
-import { cn } from '@/lib'
+import { cn } from '@/app/lib/utils'
 
 export const Wrapper = ({
   children,

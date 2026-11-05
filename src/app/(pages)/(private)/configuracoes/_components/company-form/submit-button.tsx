@@ -1,4 +1,5 @@
-import { Button, Loader } from '@/app/components'
+import { Loader } from '@/app/components/ui/custom/loader'
+import { Button } from '@/app/components/ui/shadcn/button'
 
 export const SubmitButton = ({ pending }: { pending: boolean }) => (
   <Button

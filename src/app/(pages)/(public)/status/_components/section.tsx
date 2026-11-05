@@ -1,4 +1,4 @@
-import { Typography } from '@/app/components'
+import { Typography } from '@/app/components/ui/custom/typography'
 
 type TSectionProps = {
   title: string

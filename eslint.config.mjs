@@ -6,6 +6,18 @@ import nextTs from 'eslint-config-next/typescript'
 import prettier from 'eslint-config-prettier/flat'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
+const DATABASE_CLIENT = 'infra/database/client'
+
+// Imports only flow down: app -> entry -> models -> repositories -> infra -> constants
+const FORBIDDEN_IMPORTS = {
+  'src/app/**': ['repositories', DATABASE_CLIENT],
+  'src/entry/**': ['app', 'repositories', DATABASE_CLIENT],
+  'src/models/**': ['app', 'entry', DATABASE_CLIENT],
+  'src/repositories/**': ['app', 'entry', 'models'],
+  'src/infra/**': ['app', 'entry', 'models', 'repositories'],
+  'src/constants/**': ['app', 'entry', 'models', 'repositories', 'infra']
+}
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -33,6 +45,22 @@ const eslintConfig = defineConfig([
       '@typescript-eslint/explicit-function-return-type': 'error'
     }
   },
+  ...Object.entries(FORBIDDEN_IMPORTS).map(([files, layers]) => ({
+    files: [files],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: `^@/(${layers.join('|')})(/|$)`,
+              message: 'Imports only flow down the layers.'
+            }
+          ]
+        }
+      ]
+    }
+  })),
   {
     files: ['**/*.json'],
     plugins: { json },

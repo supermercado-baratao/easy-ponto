@@ -1,4 +1,4 @@
-import { TDeviceUser } from '@/models'
+import { TDeviceUser } from '@/models/device/types'
 
 export const deviceUsers: TDeviceUser[] = [
   {

@@ -2,9 +2,10 @@
 
 import './style.css'
 
-import { DottedMap, Typography } from '@/app/components'
+import { Typography } from '@/app/components/ui/custom/typography'
+import { DottedMap } from '@/app/components/ui/magic-ui/dotted-map'
 
-import { Wrapper } from './_components'
+import { Wrapper } from './_components/wrapper'
 
 const Error = () => {
   return (

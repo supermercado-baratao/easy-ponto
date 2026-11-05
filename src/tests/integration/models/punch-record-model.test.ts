@@ -3,9 +3,11 @@ import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { companyModel, punchRecordModel, userModel } from '@/models'
-import { mapDeviceUserToUser } from '@/models/synchronization-model/_utils'
-import { deviceUsers } from '@/tests/_mocks'
+import { companyModel } from '@/models/company/model'
+import { punchRecordModel } from '@/models/punch-record/model'
+import { mapDeviceUserToUser } from '@/models/synchronization/_utils/user'
+import { userModel } from '@/models/user/model'
+import { deviceUsers } from '@/tests/_mocks/device-users'
 import orchestrator from '@/tests/orchestrator'
 
 let firstPis: string

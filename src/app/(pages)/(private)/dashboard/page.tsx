@@ -1,4 +1,4 @@
-import { Header } from '@/app/components'
+import { Header } from '@/app/components/blocks/header'
 
 const Dashboard = () => {
   return (

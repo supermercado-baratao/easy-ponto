@@ -1,13 +1,16 @@
 import './style.css'
 
-import { DottedMap, Paper, Typography } from '@/app/components'
-import { dayjs } from '@/lib'
-import { statusModel } from '@/models'
+import { Paper } from '@/app/components/ui/custom/paper'
+import { Typography } from '@/app/components/ui/custom/typography'
+import { DottedMap } from '@/app/components/ui/magic-ui/dotted-map'
+import { dayjs } from '@/infra/dayjs'
 
-import { DatabaseSection, Wrapper } from './_components'
+import { DatabaseSection } from './_components/database-section'
+import { Wrapper } from './_components/wrapper'
+import { getStatus } from './data'
 
 const Status = async () => {
-  const data = await statusModel.check()
+  const data = await getStatus()
 
   return (
     <Wrapper>

@@ -1,6 +1,6 @@
-import type { User } from '@/infra/database/types'
-import { TState } from '@/infra/form-action'
-import { TAfdSynchronizationParams, TUserWithPunchRecords } from '@/models'
+import { TState } from '@/entry/form-action'
+import type { TUserWithPunchRecords, User } from '@/infra/database/types'
+import { TAfdSynchronizationParams } from '@/models/synchronization/types'
 
 export type TSynchronizationState = TState<
   TAfdSynchronizationParams,
