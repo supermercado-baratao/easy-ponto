@@ -9,5 +9,13 @@ services:
     volumes:
       - database:/var/lib/postgresql
 
+  database-test:
+    image: postgres:18-alpine
+    env_file: ../../.env.test
+    ports:
+      - '5433:5432'
+    tmpfs:
+      - /var/lib/postgresql
+
 volumes:
   database:

@@ -26,6 +26,11 @@ const waitForAllServices = async () => {
 }
 
 const clearDatabase = async () => {
+  const databaseName = new URL(process.env.DATABASE_URL!).pathname.slice(1)
+  if (!databaseName.endsWith('_test')) {
+    throw new Error(`Refusing to clear the database ${databaseName}`)
+  }
+
   const plan = db.raw.sql`
     TRUNCATE admin_users, companies, devices_credentials, devices_sessions, punch_records, users CASCADE
   `
