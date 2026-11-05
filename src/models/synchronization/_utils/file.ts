@@ -28,9 +28,9 @@ export const parseXlsToJson = async (file: File): Promise<unknown[]> => {
 
 const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
 
-const ddMMYYYYToDate = (date: string): Date => {
+export const ddMMYYYYToDate = (date: string): Date => {
   const [day, month, year] = date.split('/')
-  return dayjs(`${year}-${Number(month) - 1}-${day}`).toDate()
+  return dayjs(`${year}-${month}-${day}`).toDate()
 }
 
 const isValidDate = (date: string): boolean => {
