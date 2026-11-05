@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 
 import { Label } from '@/app/components/ui/shadcn-ui/label'
 import { Separator } from '@/app/components/ui/shadcn-ui/separator'
-import { cn } from '@/lib'
+import { cn } from '@/lib/utils'
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (

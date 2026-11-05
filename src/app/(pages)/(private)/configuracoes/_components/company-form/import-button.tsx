@@ -2,9 +2,10 @@ import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
-import { Button, Loader } from '@/app/components'
+import { Loader } from '@/app/components/ui/custom/loader'
+import { Button } from '@/app/components/ui/shadcn-ui/button'
 import type { Company, DeviceCredentials } from '@/infra/database/types'
-import { TCompanySynchronizationParams } from '@/models'
+import { TCompanySynchronizationParams } from '@/models/synchronization-model/types'
 
 import { importFromDevice } from './actions'
 import { TCompanyState } from './types'

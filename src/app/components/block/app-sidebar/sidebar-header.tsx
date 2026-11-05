@@ -6,7 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from '@/app/components'
+} from '@/app/components/ui/shadcn-ui/sidebar'
 
 export const SidebarHeader = () => (
   <_SidebarHeader>

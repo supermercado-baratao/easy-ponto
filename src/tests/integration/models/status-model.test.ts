@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { statusModel, TStatusCheckData } from '@/models'
+import { statusModel } from '@/models/status-model/status.model'
+import { TStatusCheckData } from '@/models/status-model/types'
 import orchestrator from '@/tests/orchestrator'
 
 beforeAll(async () => {

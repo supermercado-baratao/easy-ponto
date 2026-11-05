@@ -1,6 +1,7 @@
 'use client'
 
-import { Separator, Sidebar } from '@/app/components'
+import { Separator } from '@/app/components/ui/shadcn-ui/separator'
+import { Sidebar } from '@/app/components/ui/shadcn-ui/sidebar'
 
 import { SidebarContent } from './sidebar-content'
 import { SidebarFooter } from './sidebar-footer'

@@ -4,18 +4,16 @@ import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import type { Company, PunchRecord, User } from '@/infra/database/types'
-import { dayjs } from '@/lib'
-import {
-  adminUserModel,
-  deviceCredentialsModel,
-  punchRecordModel,
-  synchronizationModel,
-  TAdminUserWithRelations,
-  TSynchronizationCredentials,
-  userModel
-} from '@/models'
+import { dayjs } from '@/lib/dayjs'
+import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
+import { TAdminUserWithRelations } from '@/models/admin-user-model/types'
+import { deviceCredentialsModel } from '@/models/device-credentials-model/device-credentials.model'
+import { punchRecordModel } from '@/models/punch-record-model/punch-record.model'
+import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
+import { TSynchronizationCredentials } from '@/models/synchronization-model/types'
+import { userModel } from '@/models/user-model/user.model'
 import orchestrator from '@/tests/orchestrator'
-import { normalizePis } from '@/utils'
+import { normalizePis } from '@/utils/normalize'
 
 let adminUser: TAdminUserWithRelations
 let credentials: TSynchronizationCredentials

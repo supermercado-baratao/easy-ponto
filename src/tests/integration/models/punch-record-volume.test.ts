@@ -14,16 +14,15 @@ import {
   vi
 } from 'vitest'
 
-import {
-  adminUserModel,
-  companyModel,
-  deviceCredentialsModel,
-  deviceModel,
-  punchRecordModel,
-  synchronizationModel,
-  TDeviceUser
-} from '@/models'
-import { deviceUsers, parsedAfd } from '@/tests/_mocks'
+import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
+import { companyModel } from '@/models/company-model/company.model'
+import { deviceCredentialsModel } from '@/models/device-credentials-model/device-credentials.model'
+import { deviceModel } from '@/models/device-model/device.model'
+import { TDeviceUser } from '@/models/device-model/types'
+import { punchRecordModel } from '@/models/punch-record-model/punch-record.model'
+import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
+import { deviceUsers } from '@/tests/_mocks/device-users'
+import { parsedAfd } from '@/tests/_mocks/parsed-afd'
 import orchestrator from '@/tests/orchestrator'
 
 // A little over a year for 60 employees, with 4 punches a day from Monday to Saturday

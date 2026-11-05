@@ -1,6 +1,6 @@
 import { createElement } from 'react'
 
-import { cn } from '@/lib'
+import { cn } from '@/lib/utils'
 
 type TPaperComponent = 'div' | 'main' | 'section' | 'article'
 

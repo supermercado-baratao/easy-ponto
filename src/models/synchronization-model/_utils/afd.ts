@@ -1,6 +1,6 @@
 import type { User } from '@/infra/database/types'
-import { dayjs } from '@/lib'
-import { TPunchRecordCreateManyExistentsInAfdData } from '@/models'
+import { dayjs } from '@/lib/dayjs'
+import { TPunchRecordCreateManyExistentsInAfdData } from '@/models/punch-record-model/types'
 
 import { TParsedAfdRecord } from '../types'
 

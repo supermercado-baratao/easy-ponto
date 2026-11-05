@@ -4,11 +4,12 @@ import path from 'node:path'
 import { faker } from '@faker-js/faker'
 import ora from 'ora'
 
-import { PIS_LENGTH } from '@/constants'
-import { createDeviceApiInstance, deviceModel } from '@/models'
-import { parseAfd } from '@/models/synchronization-model/_utils'
-import { execAsync } from '@/tests/_utils'
-import { normalizeLeftZeros } from '@/utils'
+import { PIS_LENGTH } from '@/constants/length'
+import { deviceModel } from '@/models/device-model/device.model'
+import { createDeviceApiInstance } from '@/models/device-model/device-api'
+import { parseAfd } from '@/models/synchronization-model/_utils/afd'
+import { execAsync } from '@/tests/_utils/exec-async'
+import { normalizeLeftZeros } from '@/utils/normalize'
 
 process.loadEnvFile('.env.local')
 

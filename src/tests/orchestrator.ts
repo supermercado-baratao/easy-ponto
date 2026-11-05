@@ -4,21 +4,18 @@ import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 
 import { db } from '@/infra/database/client'
-import {
-  adminUserModel,
-  companyModel,
-  deviceCredentialsModel,
-  punchRecordModel,
-  statusModel,
-  synchronizationModel,
-  userModel
-} from '@/models'
-import {
-  mapDeviceUserToUser,
-  mapParsedAfdToPunchRecordCreateMany
-} from '@/models/synchronization-model/_utils'
+import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
+import { companyModel } from '@/models/company-model/company.model'
+import { deviceCredentialsModel } from '@/models/device-credentials-model/device-credentials.model'
+import { punchRecordModel } from '@/models/punch-record-model/punch-record.model'
+import { statusModel } from '@/models/status-model/status.model'
+import { mapParsedAfdToPunchRecordCreateMany } from '@/models/synchronization-model/_utils/afd'
+import { mapDeviceUserToUser } from '@/models/synchronization-model/_utils/user'
+import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
+import { userModel } from '@/models/user-model/user.model'
 
-import { deviceUsers, parsedAfd } from './_mocks'
+import { deviceUsers } from './_mocks/device-users'
+import { parsedAfd } from './_mocks/parsed-afd'
 
 const waitForAllServices = async () => {
   await retry(async () => await statusModel.check(), {

@@ -2,15 +2,14 @@
 
 import { useState } from 'react'
 
-import {
-  Header,
-  MainContent as _MainContent,
-  Typography
-} from '@/app/components'
+import { Header } from '@/app/components/block/header'
+import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
+import { Typography } from '@/app/components/ui/custom/typography'
 import type { User } from '@/infra/database/types'
-import { TAdminUserWithRelations, TUserWithPunchRecords } from '@/models'
+import { TAdminUserWithRelations } from '@/models/admin-user-model/types'
+import { TUserWithPunchRecords } from '@/models/user-model/types'
 
-import { SynchronizationButton } from './synchronization-button'
+import { SynchronizationButton } from './synchronization-button/synchronization-button'
 
 export const MainContent = ({
   adminUser,

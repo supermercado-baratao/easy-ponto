@@ -1,13 +1,13 @@
 import { LogOut } from 'lucide-react'
 
+import { ToggleTheme } from '@/app/components/action/toggle-theme'
+import { GitLab } from '@/app/components/icons/gitlab'
 import {
-  GitLab,
   SidebarFooter as _SidebarFooter,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  ToggleTheme
-} from '@/app/components'
+  SidebarMenuItem
+} from '@/app/components/ui/shadcn-ui/sidebar'
 
 const Wrapper = ({ children }: { children: React.ReactNode }) => (
   <SidebarMenu>

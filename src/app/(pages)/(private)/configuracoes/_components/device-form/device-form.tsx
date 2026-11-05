@@ -4,14 +4,10 @@ import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
-import {
-  Button,
-  CardContent,
-  CardFooter,
-  FormCard,
-  FormField,
-  Loader
-} from '@/app/components'
+import { FormCard, FormField } from '@/app/components/ui/custom/form'
+import { Loader } from '@/app/components/ui/custom/loader'
+import { Button } from '@/app/components/ui/shadcn-ui/button'
+import { CardContent, CardFooter } from '@/app/components/ui/shadcn-ui/card'
 import type { DeviceCredentials } from '@/infra/database/types'
 
 import { save } from './actions'

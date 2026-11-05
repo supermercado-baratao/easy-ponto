@@ -11,16 +11,14 @@ import {
   vi
 } from 'vitest'
 
-import {
-  adminUserModel,
-  companyModel,
-  deviceCredentialsModel,
-  deviceModel,
-  synchronizationModel,
-  TDeviceUser,
-  userModel
-} from '@/models'
-import { deviceUsers } from '@/tests/_mocks'
+import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
+import { companyModel } from '@/models/company-model/company.model'
+import { deviceCredentialsModel } from '@/models/device-credentials-model/device-credentials.model'
+import { deviceModel } from '@/models/device-model/device.model'
+import { TDeviceUser } from '@/models/device-model/types'
+import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
+import { userModel } from '@/models/user-model/user.model'
+import { deviceUsers } from '@/tests/_mocks/device-users'
 import orchestrator from '@/tests/orchestrator'
 
 const [deviceUser] = deviceUsers

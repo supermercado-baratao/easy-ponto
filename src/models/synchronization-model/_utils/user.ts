@@ -1,8 +1,8 @@
-import { CPF_LENGTH, PIS_LENGTH } from '@/constants'
+import { CPF_LENGTH, PIS_LENGTH } from '@/constants/length'
 import type { User } from '@/infra/database/types'
-import { TDeviceUser } from '@/models'
-import { TInputData } from '@/types'
-import { normalizeLeftZeros } from '@/utils'
+import { TDeviceUser } from '@/models/device-model/types'
+import { TInputData } from '@/types/generics'
+import { normalizeLeftZeros } from '@/utils/normalize'
 
 type TDeviceUserFields = Omit<
   TInputData<User>,

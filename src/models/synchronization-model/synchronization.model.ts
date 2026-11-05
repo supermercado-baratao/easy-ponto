@@ -1,29 +1,28 @@
 import type { Company, User } from '@/infra/database/types'
-import {
-  adminUserModel,
-  companyModel,
-  createDeviceApiInstance,
-  deviceModel,
-  punchRecordModel,
-  TDeviceUser,
-  TUserWithPunchRecords,
-  userModel
-} from '@/models'
-import { TInputData } from '@/types'
+import { adminUserModel } from '@/models/admin-user-model/admin-user.model'
+import { companyModel } from '@/models/company-model/company.model'
+import { deviceModel } from '@/models/device-model/device.model'
+import { createDeviceApiInstance } from '@/models/device-model/device-api'
+import { TDeviceUser } from '@/models/device-model/types'
+import { punchRecordModel } from '@/models/punch-record-model/punch-record.model'
+import { TUserWithPunchRecords } from '@/models/user-model/types'
+import { userModel } from '@/models/user-model/user.model'
+import { TInputData } from '@/types/generics'
 
 import {
-  extractDataFromJson,
   filterExistingDeviceUsersInTheParsedAfd,
-  getPunchRecordsToCreate,
-  getSession,
-  getUsersToUpdate,
-  mapDeviceCompanyToCompany,
-  mapDeviceUserToUser,
-  mapDeviceUserToUserFields,
   mapParsedAfdToPunchRecordCreateMany,
-  parseAfd,
+  parseAfd
+} from './_utils/afd'
+import { mapDeviceCompanyToCompany } from './_utils/company'
+import {
+  extractDataFromJson,
+  getPunchRecordsToCreate,
+  getUsersToUpdate,
   parseXlsToJson
-} from './_utils'
+} from './_utils/file'
+import { getSession } from './_utils/session'
+import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
 import {
   TAfdSynchronizationParams,
   TCompanySynchronizationParams,

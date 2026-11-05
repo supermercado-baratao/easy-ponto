@@ -2,13 +2,14 @@ import { useEffect } from 'react'
 import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
-import { Button, Loader } from '@/app/components'
+import { Loader } from '@/app/components/ui/custom/loader'
+import { Button } from '@/app/components/ui/shadcn-ui/button'
 import type { DeviceCredentials, User } from '@/infra/database/types'
 import {
   TAfdSynchronizationParams,
-  TSynchronizationCredentials,
-  TUserWithPunchRecords
-} from '@/models'
+  TSynchronizationCredentials
+} from '@/models/synchronization-model/types'
+import { TUserWithPunchRecords } from '@/models/user-model/types'
 
 import { synchronize } from './actions'
 import { TSynchronizationState } from './types'

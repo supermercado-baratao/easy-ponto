@@ -1,4 +1,4 @@
-import { dayjs } from '@/lib'
+import { dayjs } from '@/lib/dayjs'
 
 export const isValidDate = (date: string): boolean => {
   return dayjs(date).isValid()

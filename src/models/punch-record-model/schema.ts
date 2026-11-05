@@ -1,8 +1,8 @@
 import { isPIS } from 'validation-br'
 import { z } from 'zod'
 
-import { PIS_LENGTH } from '@/constants'
-import { isValidDate } from '@/utils'
+import { PIS_LENGTH } from '@/constants/length'
+import { isValidDate } from '@/utils/datetime'
 
 export const createNonExistentInAfdSchema = z.object({
   pis: z

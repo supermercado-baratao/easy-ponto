@@ -7,7 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from '@/app/components'
+} from '@/app/components/ui/shadcn-ui/sidebar'
 
 import { navItems } from './nav-items'
 

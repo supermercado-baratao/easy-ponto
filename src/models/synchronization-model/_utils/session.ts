@@ -1,6 +1,7 @@
 import { AxiosInstance } from 'axios'
 
-import { deviceModel, deviceSessionModel } from '@/models'
+import { deviceModel } from '@/models/device-model/device.model'
+import { deviceSessionModel } from '@/models/device-session-model/index'
 
 import { TSynchronizationCredentials } from '../types'
 

@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 
-import { Header, MainContent as _MainContent } from '@/app/components'
+import { Header } from '@/app/components/block/header'
+import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import type { Company, DeviceCredentials } from '@/infra/database/types'
-import { TAdminUserWithRelations } from '@/models'
+import { TAdminUserWithRelations } from '@/models/admin-user-model/types'
 
-import { CompanyForm } from './company-form'
-import { DeviceForm } from './device-form'
-import { ImportFileButton } from './import-file-button'
+import { CompanyForm } from './company-form/form'
+import { DeviceForm } from './device-form/device-form'
+import { ImportFileButton } from './import-file-button/import-file-button'
 
 export const MainContent = ({
   adminUser

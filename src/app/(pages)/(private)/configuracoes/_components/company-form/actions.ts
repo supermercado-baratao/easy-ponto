@@ -1,11 +1,9 @@
 'use server'
 
 import { handleFormAction } from '@/infra/form-action'
-import {
-  companyModel,
-  synchronizationModel,
-  TCompanySynchronizationParams
-} from '@/models'
+import { companyModel } from '@/models/company-model/company.model'
+import { synchronizationModel } from '@/models/synchronization-model/synchronization.model'
+import { TCompanySynchronizationParams } from '@/models/synchronization-model/types'
 
 import { TCompanyState } from './types'
 

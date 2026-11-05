@@ -1,7 +1,7 @@
 'use server'
 
 import { handleFormAction } from '@/infra/form-action'
-import { deviceCredentialsModel } from '@/models'
+import { deviceCredentialsModel } from '@/models/device-credentials-model/device-credentials.model'
 
 import { TDeviceFormState } from './types'
 

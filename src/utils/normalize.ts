@@ -1,4 +1,4 @@
-import { CNPJ_LENGTH, CPF_LENGTH } from '@/constants'
+import { CNPJ_LENGTH, CPF_LENGTH } from '@/constants/length'
 
 export const normalizeLeftZeros = (
   number: number | string,

@@ -1,6 +1,6 @@
 import { db } from '@/infra/database/client'
 import type { DeviceCredentials } from '@/infra/database/types'
-import { TInputData } from '@/types'
+import { TInputData } from '@/types/generics'
 
 import { schema } from './schema'
 

@@ -1,1 +1,1 @@
-export { Loader as default } from '../components'
+export { Loader as default } from '../components/ui/custom/loader'
