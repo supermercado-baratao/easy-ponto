@@ -1,4 +1,4 @@
-import { IconInnerShadowTop } from '@tabler/icons-react'
+import { Clock } from 'lucide-react'
 import Link from 'next/link'
 
 import {
@@ -13,13 +13,11 @@ export const SidebarHeader = () => (
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          asChild
           className="data-[slot=sidebar-menu-button]:!p-1.5"
+          render={<Link href="/dashboard" />}
         >
-          <Link href="/dashboard">
-            <IconInnerShadowTop className="!size-5" />
-            <span className="text-base font-semibold">Easy Ponto</span>
-          </Link>
+          <Clock className="!size-5" />
+          <span className="text-base font-semibold">Easy Ponto</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

@@ -1,6 +1,5 @@
+import { cn } from 'cn'
 import { type LucideProps } from 'lucide-react'
-
-import { cn } from '@/app/lib/utils'
 
 import { Spinner } from '../shadcn-io/spinner'
 

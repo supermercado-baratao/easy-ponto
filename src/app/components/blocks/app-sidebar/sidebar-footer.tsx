@@ -18,23 +18,23 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
 export const items = [
   () => <ToggleTheme variant="sidebar" />,
   () => (
-    <SidebarMenuButton asChild>
-      <div>
-        <LogOut />
-        <span>Sair</span>
-      </div>
+    <SidebarMenuButton render={<div />}>
+      <LogOut />
+      <span>Sair</span>
     </SidebarMenuButton>
   ),
   () => (
-    <SidebarMenuButton asChild>
-      <a
-        href="https://github.com/diasjoaovitor"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <GitLab />
-        <span>GitLab</span>
-      </a>
+    <SidebarMenuButton
+      render={
+        <a
+          href="https://github.com/diasjoaovitor"
+          target="_blank"
+          rel="noopener noreferrer"
+        />
+      }
+    >
+      <GitLab />
+      <span>GitLab</span>
     </SidebarMenuButton>
   )
 ]

@@ -1,4 +1,4 @@
-import { cn } from '@/app/lib/utils'
+import { cn } from 'cn'
 
 export const MainContent = (props: React.ComponentProps<'div'>) => {
   const { className, children, ...rest } = props

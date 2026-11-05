@@ -1,7 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from 'cn'
 import { createElement } from 'react'
-
-import { cn } from '@/app/lib/utils'
 
 /* Adapted from:
  * https://ui.shadcn.com/docs/components/typography
