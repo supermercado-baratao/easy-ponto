@@ -5,9 +5,9 @@ import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
-import { Button } from '@/app/components/ui/shadcn-ui/button'
-import { Input } from '@/app/components/ui/shadcn-ui/input'
-import { Label } from '@/app/components/ui/shadcn-ui/label'
+import { Button } from '@/app/components/ui/shadcn/button'
+import { Input } from '@/app/components/ui/shadcn/input'
+import { Label } from '@/app/components/ui/shadcn/label'
 import type { Company, DeviceCredentials } from '@/infra/database/types'
 
 import { importFile } from './actions'

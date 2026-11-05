@@ -3,8 +3,8 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
-import { Button } from '@/app/components/ui/shadcn-ui/button'
-import { SidebarMenuButton } from '@/app/components/ui/shadcn-ui/sidebar'
+import { Button } from '@/app/components/ui/shadcn/button'
+import { SidebarMenuButton } from '@/app/components/ui/shadcn/sidebar'
 import { cn } from '@/lib/utils'
 
 const Icon = () => {

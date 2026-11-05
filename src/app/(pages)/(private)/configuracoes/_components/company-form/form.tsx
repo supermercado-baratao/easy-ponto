@@ -5,8 +5,8 @@ import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { FormCard, FormField, Select } from '@/app/components/ui/custom/form'
-import { CardContent, CardFooter } from '@/app/components/ui/shadcn-ui/card'
-import { Field } from '@/app/components/ui/shadcn-ui/field'
+import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
+import { Field } from '@/app/components/ui/shadcn/field'
 import type { Company, DeviceCredentials } from '@/infra/database/types'
 
 import { save } from './actions'

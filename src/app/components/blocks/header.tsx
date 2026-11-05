@@ -1,5 +1,5 @@
-import { Separator } from '@/app/components/ui/shadcn-ui/separator'
-import { SidebarTrigger } from '@/app/components/ui/shadcn-ui/sidebar'
+import { Separator } from '@/app/components/ui/shadcn/separator'
+import { SidebarTrigger } from '@/app/components/ui/shadcn/sidebar'
 
 export const Header = ({
   title,

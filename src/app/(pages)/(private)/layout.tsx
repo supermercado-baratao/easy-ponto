@@ -1,8 +1,8 @@
-import { AppSidebar } from '@/app/components/block/app-sidebar/app-sidebar'
+import { AppSidebar } from '@/app/components/blocks/app-sidebar/app-sidebar'
 import {
   SidebarInset,
   SidebarProvider
-} from '@/app/components/ui/shadcn-ui/sidebar'
+} from '@/app/components/ui/shadcn/sidebar'
 
 const Layout = ({
   children

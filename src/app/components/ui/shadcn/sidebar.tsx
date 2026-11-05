@@ -5,23 +5,23 @@ import { PanelLeftIcon } from 'lucide-react'
 import { Slot } from 'radix-ui'
 import * as React from 'react'
 
-import { Button } from '@/app/components/ui/shadcn-ui/button'
-import { Input } from '@/app/components/ui/shadcn-ui/input'
-import { Separator } from '@/app/components/ui/shadcn-ui/separator'
+import { Button } from '@/app/components/ui/shadcn/button'
+import { Input } from '@/app/components/ui/shadcn/input'
+import { Separator } from '@/app/components/ui/shadcn/separator'
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle
-} from '@/app/components/ui/shadcn-ui/sheet'
-import { Skeleton } from '@/app/components/ui/shadcn-ui/skeleton'
+} from '@/app/components/ui/shadcn/sheet'
+import { Skeleton } from '@/app/components/ui/shadcn/skeleton'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@/app/components/ui/shadcn-ui/tooltip'
+} from '@/app/components/ui/shadcn/tooltip'
 import { useIsMobile } from '@/app/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 

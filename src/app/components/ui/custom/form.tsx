@@ -7,9 +7,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle
-} from '@/app/components/ui/shadcn-ui/card'
-import { Input } from '@/app/components/ui/shadcn-ui/input'
-import { Label } from '@/app/components/ui/shadcn-ui/label'
+} from '@/app/components/ui/shadcn/card'
+import { Input } from '@/app/components/ui/shadcn/input'
+import { Label } from '@/app/components/ui/shadcn/label'
 import {
   Select as _Select,
   SelectContent,
@@ -18,7 +18,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue
-} from '@/app/components/ui/shadcn-ui/select'
+} from '@/app/components/ui/shadcn/select'
 import { cn } from '@/lib/utils'
 
 type TFormCardProps = {

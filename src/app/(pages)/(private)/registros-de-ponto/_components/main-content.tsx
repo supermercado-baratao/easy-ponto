@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { Header } from '@/app/components/block/header'
+import { Header } from '@/app/components/blocks/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
 import type { User } from '@/infra/database/types'

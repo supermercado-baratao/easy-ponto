@@ -3,7 +3,7 @@ import { useFormState } from 'react-dom'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
-import { Button } from '@/app/components/ui/shadcn-ui/button'
+import { Button } from '@/app/components/ui/shadcn/button'
 import type { DeviceCredentials, User } from '@/infra/database/types'
 import {
   TAfdSynchronizationParams,
