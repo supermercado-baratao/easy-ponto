@@ -1,30 +1,20 @@
-import { db } from '@/infra/database/client'
-import type { AdminUser, TInputData } from '@/infra/database/types'
+import type {
+  AdminUser,
+  TAdminUserWithRelations,
+  TInputData
+} from '@/infra/database/types'
+import { adminUserRepo } from '@/repositories/admin-user-repo'
 
-import { TAdminUserWithRelations } from './types'
+const findUniqueById = async (id: string): Promise<TAdminUserWithRelations> =>
+  await adminUserRepo.findUniqueById(id)
 
-const adminUsers = db.orm.public.AdminUser
-
-const findUniqueById = async (id: string): Promise<TAdminUserWithRelations> => {
-  const result = await adminUsers
-    .whereUnique({ id })
-    .include('company')
-    .include('deviceCredentials')
-    .include('user')
-    .firstOrThrow()
-  return result
-}
-
-const create = async (): Promise<AdminUser> => {
-  const result = await adminUsers.create({})
-  return result
-}
+const create = async (): Promise<AdminUser> => await adminUserRepo.create()
 
 const update = async ({
   id,
   ...data
 }: Partial<TInputData<AdminUser>> & { id: string }): Promise<AdminUser> => {
-  const result = await adminUsers.where({ id }).update(data)
+  const result = await adminUserRepo.update(id, data)
   if (!result) throw new Error(`AdminUser ${id} not found`)
   return result
 }

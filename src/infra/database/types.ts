@@ -14,3 +14,13 @@ type TAutomaticFields = 'id' | 'createdAt' | 'updatedAt'
 export type TInputData<T> = T extends readonly (infer U)[]
   ? Omit<U, TAutomaticFields>[]
   : Omit<T, TAutomaticFields>
+
+export type TAdminUserWithRelations = AdminUser & {
+  company: Company | null
+  deviceCredentials: DeviceCredentials | null
+  user: User | null
+}
+
+export type TUserWithPunchRecords = User & {
+  punchRecords: PunchRecord[]
+}

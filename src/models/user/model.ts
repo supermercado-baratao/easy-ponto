@@ -1,44 +1,31 @@
-import { db } from '@/infra/database/client'
-import type { TInputData, User } from '@/infra/database/types'
-
-import { TUserWithPunchRecords } from './types'
-
-const users = db.orm.public.User
+import type {
+  TInputData,
+  TUserWithPunchRecords,
+  User
+} from '@/infra/database/types'
+import { userRepo } from '@/repositories/user-repo'
 
 const createMany = async (data: TInputData<User>[]): Promise<void> => {
-  await users.createAndCount(data)
+  await userRepo.createMany(data)
 }
 
-const findManyByCompanyId = async (companyId: string): Promise<User[]> => {
-  const result = await users.where({ companyId }).all()
-  return result
-}
+const findManyByCompanyId = async (companyId: string): Promise<User[]> =>
+  await userRepo.findManyByCompanyId(companyId)
 
 const findManyByNames = async (names: string[]): Promise<User[]> => {
   if (names.length === 0) return []
-  const result = await users.where((user) => user.name.in(names)).all()
-  return result
+  return await userRepo.findManyByNames(names)
 }
 
 const findUniqueByPisWithPunchRecords = async (
   pis: string
-): Promise<TUserWithPunchRecords> => {
-  const result = await users
-    .whereUnique({ pis })
-    .include('punchRecords')
-    .firstOrThrow()
-  return result
-}
+): Promise<TUserWithPunchRecords> =>
+  await userRepo.findUniqueByPisWithPunchRecords(pis)
 
 const updateMany = async (
   data: (Partial<TInputData<User>> & { id: string })[]
 ): Promise<void> => {
-  await db.transaction(async (tx) => {
-    for (const { id, ...user } of data) {
-      const updated = await tx.orm.public.User.where({ id }).update(user)
-      if (!updated) throw new Error(`User ${id} not found`)
-    }
-  })
+  await userRepo.updateMany(data)
 }
 
 export const userModel = {

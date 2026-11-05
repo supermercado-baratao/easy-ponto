@@ -3,10 +3,14 @@
 import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import type { Company, PunchRecord, User } from '@/infra/database/types'
+import type {
+  Company,
+  PunchRecord,
+  TAdminUserWithRelations,
+  User
+} from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { adminUserModel } from '@/models/admin-user/model'
-import { TAdminUserWithRelations } from '@/models/admin-user/types'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { normalizePis } from '@/models/synchronization/_utils/normalize'

@@ -4,12 +4,15 @@ import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
-import type { DeviceCredentials, User } from '@/infra/database/types'
+import type {
+  DeviceCredentials,
+  TUserWithPunchRecords,
+  User
+} from '@/infra/database/types'
 import {
   TAfdSynchronizationParams,
   TSynchronizationCredentials
 } from '@/models/synchronization/types'
-import { TUserWithPunchRecords } from '@/models/user/types'
 
 import { synchronize } from './actions'
 import { TSynchronizationState } from './types'

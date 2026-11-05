@@ -1,39 +1,15 @@
-import { db } from '@/infra/database/client'
+import { statusRepo } from '@/repositories/status-repo'
 
 import { TStatusCheckData } from './types'
 
-const getDatabaseVersion = async (): Promise<string> => {
-  const plan = db.raw.sql`SHOW server_version`
-    .returnsRow({ server_version: 'pg/text@1' })
-    .build()
-  const [row] = await db.query(plan)
-  return row.server_version
-}
-
-const getMaxConnections = async (): Promise<string> => {
-  const plan = db.raw.sql`SHOW max_connections`
-    .returnsRow({ max_connections: 'pg/text@1' })
-    .build()
-  const [row] = await db.query(plan)
-  return row.max_connections
-}
-
-const getOpenedConnections = async (): Promise<number> => {
-  const databaseName = process.env.POSTGRES_DB as string
-  const plan = db.raw.sql`
-    SELECT COUNT(*)::int AS count FROM pg_stat_activity WHERE datname = ${databaseName}
-  `
-    .returnsRow({ count: 'pg/int4@1' })
-    .build()
-  const [row] = await db.query(plan)
-  return row.count
-}
+const getOpenedConnections = async (): Promise<number> =>
+  await statusRepo.getOpenedConnections()
 
 const check = async (): Promise<TStatusCheckData> => {
   const updatedAt = new Date()
   const [version, maxConnections] = await Promise.all([
-    getDatabaseVersion(),
-    getMaxConnections()
+    statusRepo.getDatabaseVersion(),
+    statusRepo.getMaxConnections()
   ])
   const count = await getOpenedConnections()
   return {
@@ -49,5 +25,6 @@ const check = async (): Promise<TStatusCheckData> => {
 }
 
 export const statusModel = {
-  check
+  check,
+  getOpenedConnections
 }

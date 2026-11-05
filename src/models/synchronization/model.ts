@@ -1,4 +1,9 @@
-import type { Company, TInputData, User } from '@/infra/database/types'
+import type {
+  Company,
+  TInputData,
+  TUserWithPunchRecords,
+  User
+} from '@/infra/database/types'
 import { adminUserModel } from '@/models/admin-user/model'
 import { companyModel } from '@/models/company/model'
 import { createDeviceApiInstance } from '@/models/device/device-api'
@@ -6,7 +11,6 @@ import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { userModel } from '@/models/user/model'
-import { TUserWithPunchRecords } from '@/models/user/types'
 
 import {
   filterExistingDeviceUsersInTheParsedAfd,

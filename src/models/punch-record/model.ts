@@ -1,5 +1,5 @@
-import { db } from '@/infra/database/client'
 import type { PunchRecord } from '@/infra/database/types'
+import { punchRecordRepo } from '@/repositories/punch-record-repo'
 
 import {
   createManyExistentsInAfdSchema,
@@ -15,18 +15,6 @@ import {
   TPunchRecordUpdateData
 } from './types'
 
-const punchRecords = db.orm.public.PunchRecord
-
-// Keeps each INSERT below the 65,535 parameters accepted by Postgres
-const INSERT_BATCH_SIZE = 5000
-
-const toBatches = <T>(items: readonly T[]): T[][] =>
-  Array.from(
-    { length: Math.ceil(items.length / INSERT_BATCH_SIZE) },
-    (_, index) =>
-      items.slice(index * INSERT_BATCH_SIZE, (index + 1) * INSERT_BATCH_SIZE)
-  )
-
 const getRecordKey = ({
   pis,
   datetime
@@ -39,8 +27,7 @@ const createNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData
 ): Promise<PunchRecord> => {
   const validData = await createNonExistentInAfdSchema.parseAsync(data)
-  const result = await punchRecords.create(validData)
-  return result
+  return await punchRecordRepo.create(validData)
 }
 
 const createManyNonExistentInAfd = async (
@@ -48,9 +35,7 @@ const createManyNonExistentInAfd = async (
 ): Promise<void> => {
   const validData = await createManyNonExistentsInAfdSchema.parseAsync(data)
   const pisList = [...new Set(validData.map(({ pis }) => pis))]
-  const savedRecords = await punchRecords
-    .where((record) => record.pis.in(pisList))
-    .all()
+  const savedRecords = await punchRecordRepo.findManyByPisList(pisList)
   const seenRecords = new Set(savedRecords.map(getRecordKey))
   const newRecords = validData.filter((record) => {
     const key = getRecordKey(record)
@@ -59,25 +44,14 @@ const createManyNonExistentInAfd = async (
     return true
   })
 
-  await db.transaction(async (tx) => {
-    for (const batch of toBatches(newRecords)) {
-      await tx.orm.public.PunchRecord.createAndCount(batch)
-    }
-  })
+  await punchRecordRepo.createMany(newRecords)
 }
 
 const createManyExistentsInAfd = async (
   data: TPunchRecordCreateManyExistentsInAfdData
 ): Promise<void> => {
   const validData = await createManyExistentsInAfdSchema.parseAsync(data)
-  await db.transaction(async (tx) => {
-    for (const batch of toBatches(validData)) {
-      await tx.orm.public.PunchRecord.createAndCount(batch, {
-        onConflict: 'skip',
-        conflictOn: ['nsr']
-      })
-    }
-  })
+  await punchRecordRepo.createManySkippingSavedNsrs(validData)
 }
 
 const findMany = async (
@@ -85,47 +59,34 @@ const findMany = async (
 ): Promise<PunchRecord[]> => {
   const { initialDate, finalDate, initialNsr, finalNsr, pis } =
     await findManyParamsSchema.parseAsync(params)
-  let query = punchRecords.where({})
 
-  if (initialDate) {
-    const date = new Date(initialDate)
-    date.setUTCHours(0, 0, 0, 0)
-    query = query.where((record) => record.datetime.gte(date))
-  }
+  const startOfInitialDay = initialDate ? new Date(initialDate) : undefined
+  startOfInitialDay?.setUTCHours(0, 0, 0, 0)
+  const endOfFinalDay = finalDate ? new Date(finalDate) : undefined
+  endOfFinalDay?.setUTCHours(23, 59, 59, 999)
 
-  if (finalDate) {
-    const date = new Date(finalDate)
-    date.setUTCHours(23, 59, 59, 999)
-    query = query.where((record) => record.datetime.lte(date))
-  }
-
-  if (initialNsr) query = query.where((record) => record.nsr.gte(initialNsr))
-  if (finalNsr) query = query.where((record) => record.nsr.lte(finalNsr))
-  if (pis) query = query.where({ pis })
-
-  return await query.all()
+  return await punchRecordRepo.findMany({
+    initialDate: startOfInitialDay,
+    finalDate: endOfFinalDay,
+    initialNsr,
+    finalNsr,
+    pis
+  })
 }
 
 const update = async (data: TPunchRecordUpdateData): Promise<PunchRecord> => {
   const { id, ...validData } = await updateSchema.parseAsync(data)
-  const punchRecord = await punchRecords.where({ id }).update(validData)
+  const punchRecord = await punchRecordRepo.update(id, validData)
   if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
   return punchRecord
 }
 
 const updateMany = async (data: TPunchRecordUpdateData[]): Promise<void> => {
-  await db.transaction(async (tx) => {
-    for (const { id, datetime } of data) {
-      const updated = await tx.orm.public.PunchRecord.where({ id }).update({
-        datetime
-      })
-      if (!updated) throw new Error(`PunchRecord ${id} not found`)
-    }
-  })
+  await punchRecordRepo.updateMany(data)
 }
 
 const deleteRecord = async (id: string): Promise<PunchRecord> => {
-  const punchRecord = await punchRecords.where({ id }).delete()
+  const punchRecord = await punchRecordRepo.delete(id)
   if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
   return punchRecord
 }
