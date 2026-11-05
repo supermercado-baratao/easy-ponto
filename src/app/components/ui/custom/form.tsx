@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/app/components/ui/shadcn/select'
-import { cn } from '@/lib/utils'
+import { cn } from '@/app/lib/utils'
 
 type TFormCardProps = {
   title: string

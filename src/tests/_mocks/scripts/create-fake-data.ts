@@ -8,8 +8,8 @@ import { PIS_LENGTH } from '@/constants/length'
 import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
 import { parseAfd } from '@/models/synchronization/_utils/afd'
+import { normalizeLeftZeros } from '@/models/synchronization/_utils/normalize'
 import { execAsync } from '@/tests/_utils/exec-async'
-import { normalizeLeftZeros } from '@/utils/normalize'
 
 process.loadEnvFile('.env.local')
 

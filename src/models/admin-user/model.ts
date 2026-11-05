@@ -1,6 +1,5 @@
 import { db } from '@/infra/database/client'
-import type { AdminUser } from '@/infra/database/types'
-import { TInputData } from '@/types/generics'
+import type { AdminUser, TInputData } from '@/infra/database/types'
 
 import { TAdminUserWithRelations } from './types'
 

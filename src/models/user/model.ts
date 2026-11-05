@@ -1,6 +1,5 @@
 import { db } from '@/infra/database/client'
-import type { User } from '@/infra/database/types'
-import { TInputData } from '@/types/generics'
+import type { TInputData, User } from '@/infra/database/types'
 
 import { TUserWithPunchRecords } from './types'
 

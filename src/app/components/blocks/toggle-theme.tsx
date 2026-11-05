@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes'
 
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SidebarMenuButton } from '@/app/components/ui/shadcn/sidebar'
-import { cn } from '@/lib/utils'
+import { cn } from '@/app/lib/utils'
 
 const Icon = () => {
   return (

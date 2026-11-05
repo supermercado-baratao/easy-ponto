@@ -2,10 +2,8 @@ import { isCNPJ, isCPF } from 'validation-br'
 import * as xlsx from 'xlsx'
 
 import type { User } from '@/infra/database/types'
-import { dayjs } from '@/lib/dayjs'
+import { dayjs } from '@/infra/dayjs'
 import { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record/types'
-import { ddMMYYYYToDate } from '@/utils/datetime'
-import { normalizeCnpj, normalizeCpf } from '@/utils/normalize'
 
 import { InvalidExcelFileError } from '../errors'
 import {
@@ -14,6 +12,7 @@ import {
   TPunchRecordInJson,
   TUserInJson
 } from '../types'
+import { normalizeCnpj, normalizeCpf } from './normalize'
 
 export const parseXlsToJson = async (file: File): Promise<unknown[]> => {
   const buffer = Buffer.from(await file.arrayBuffer())
@@ -28,6 +27,11 @@ export const parseXlsToJson = async (file: File): Promise<unknown[]> => {
 }
 
 const days = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
+
+const ddMMYYYYToDate = (date: string): Date => {
+  const [day, month, year] = date.split('/')
+  return dayjs(`${year}-${Number(month) - 1}-${day}`).toDate()
+}
 
 const isValidDate = (date: string): boolean => {
   const [day, month, year] = date.split('/')

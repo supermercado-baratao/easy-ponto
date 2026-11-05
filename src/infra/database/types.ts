@@ -8,3 +8,9 @@ export type DeviceCredentials = Scalars<Models.public_DeviceCredentials>
 export type DeviceSession = Scalars<Models.public_DeviceSession>
 export type PunchRecord = Scalars<Models.public_PunchRecord>
 export type User = Scalars<Models.public_User>
+
+type TAutomaticFields = 'id' | 'createdAt' | 'updatedAt'
+
+export type TInputData<T> = T extends readonly (infer U)[]
+  ? Omit<U, TAutomaticFields>[]
+  : Omit<T, TAutomaticFields>

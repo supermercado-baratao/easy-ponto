@@ -2,7 +2,9 @@ import { isPIS } from 'validation-br'
 import { z } from 'zod'
 
 import { PIS_LENGTH } from '@/constants/length'
-import { isValidDate } from '@/utils/datetime'
+import { dayjs } from '@/infra/dayjs'
+
+const isValidDate = (date: string): boolean => dayjs(date).isValid()
 
 export const createNonExistentInAfdSchema = z.object({
   pis: z
