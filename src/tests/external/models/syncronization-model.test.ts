@@ -114,7 +114,6 @@ describe('Synchronization Model', () => {
 
     await synchronizationModel.synchronizeAfd({
       credentials,
-      userPis: null,
       companyId: adminUser.companyId!,
       params: {
         initialDate: {

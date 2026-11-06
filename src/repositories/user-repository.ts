@@ -1,9 +1,5 @@
 import { database } from '@/infra/database/client'
-import type {
-  TInputData,
-  TUserWithPunchRecords,
-  User
-} from '@/infra/database/types'
+import type { TInputData, User } from '@/infra/database/types'
 
 const users = database.orm.public.User
 
@@ -13,15 +9,13 @@ export const userRepository = {
   },
 
   findManyByCompanyId: async (companyId: string): Promise<User[]> =>
-    await users.where({ companyId }).all(),
+    await users
+      .where({ companyId })
+      .orderBy((user) => user.name.asc())
+      .all(),
 
   findManyByNames: async (names: string[]): Promise<User[]> =>
     await users.where((user) => user.name.in(names)).all(),
-
-  findUniqueByPisWithPunchRecords: async (
-    pis: string
-  ): Promise<TUserWithPunchRecords> =>
-    await users.whereUnique({ pis }).include('punchRecords').firstOrThrow(),
 
   updateMany: async (
     data: (Partial<TInputData<User>> & { id: string })[]

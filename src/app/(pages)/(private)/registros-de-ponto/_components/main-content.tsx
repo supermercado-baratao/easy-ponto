@@ -1,65 +1,56 @@
-'use client'
-
-import { useState } from 'react'
-
 import { Header } from '@/app/components/blocks/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
+import type { TAdminUserWithRelations, User } from '@/infra/database/types'
 import type {
-  TAdminUserWithRelations,
-  TUserWithPunchRecords,
-  User
-} from '@/infra/database/types'
+  TPunchRecordDay,
+  TPunchRecordPeriod
+} from '@/models/punch-record/types'
 
+import { PeriodFilter } from './period-filter/period-filter'
+import { PunchRecordsTable } from './punch-records-table/punch-records-table'
 import { SynchronizationButton } from './synchronization-button/synchronization-button'
+import { UserHeader } from './user-header/user-header'
 
 export const MainContent = ({
   adminUser,
-  users: _users,
-  user: _user
+  users,
+  user,
+  period,
+  days
 }: {
   adminUser: TAdminUserWithRelations
   users: User[]
-  user: TUserWithPunchRecords | null
-}) => {
-  const [users, setUsers] = useState<User[]>(_users)
-  const [user, setUser] = useState<TUserWithPunchRecords | null>(_user)
-
-  return (
-    <>
-      <Header title="Registros de Ponto">
-        {adminUser.companyId && adminUser.deviceCredentials && (
-          <SynchronizationButton
-            userPis={user?.pis || null}
-            companyId={adminUser.companyId}
-            deviceCredentials={adminUser.deviceCredentials}
-            pending={false}
-            setUsers={setUsers}
-            setUser={setUser}
-          />
-        )}
-      </Header>
-      <_MainContent>
-        {user && users.length > 0 ? (
-          <>
-            <Typography component="h1" variant="h6">
-              {user.name}
-            </Typography>
-            <code>
-              <pre>{JSON.stringify(user!.punchRecords, null, 2)}</pre>
-            </code>
-          </>
-        ) : (
-          <>
-            <Typography component="p" variant="h6">
-              Nenhum usuário encontrado
-            </Typography>
-            <Typography component="p" variant="base">
-              Cadastre ou importe usuários do dispositivo para começar
-            </Typography>
-          </>
-        )}
-      </_MainContent>
-    </>
-  )
-}
+  user: User | null
+  period: TPunchRecordPeriod
+  days: TPunchRecordDay[]
+}) => (
+  <>
+    <Header title="Registros de Ponto">
+      {adminUser.companyId && adminUser.deviceCredentials && (
+        <SynchronizationButton
+          companyId={adminUser.companyId}
+          deviceCredentials={adminUser.deviceCredentials}
+        />
+      )}
+    </Header>
+    <_MainContent className="flex flex-col gap-6">
+      {user ? (
+        <>
+          <UserHeader users={users} user={user} period={period} />
+          <PeriodFilter pis={user.pis} period={period} />
+          <PunchRecordsTable days={days} />
+        </>
+      ) : (
+        <div>
+          <Typography component="p" variant="h6">
+            Nenhum funcionário encontrado
+          </Typography>
+          <Typography component="p" variant="base">
+            Cadastre ou importe funcionários do dispositivo para começar
+          </Typography>
+        </div>
+      )}
+    </_MainContent>
+  </>
+)

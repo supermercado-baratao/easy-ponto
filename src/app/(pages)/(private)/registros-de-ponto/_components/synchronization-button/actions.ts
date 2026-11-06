@@ -1,5 +1,7 @@
 'use server'
 
+import { refresh } from 'next/cache'
+
 import { synchronizationModel } from '@/models/synchronization/model'
 import { TAfdSynchronizationParams } from '@/models/synchronization/types'
 
@@ -10,21 +12,11 @@ export const synchronize = async (
   state: TSynchronizationState
 ): Promise<TSynchronizationState> => {
   try {
-    const data = await synchronizationModel.synchronizeAfd(params)
-    return {
-      ...state,
-      success: true,
-      data: {
-        user: data.user,
-        users: data.users
-      }
-    }
+    await synchronizationModel.synchronizeAfd(params)
+    refresh()
+    return { ...state, success: true, fatalError: false }
   } catch (error) {
     console.error(error)
-    return {
-      ...state,
-      success: false,
-      fatalError: true
-    }
+    return { ...state, success: false, fatalError: true }
   }
 }

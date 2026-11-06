@@ -5,15 +5,19 @@ import {
   createManyExistentsInAfdSchema,
   createManyNonExistentsInAfdSchema,
   createNonExistentInAfdSchema,
+  findManyByDayParamsSchema,
   findManyParamsSchema,
   updateSchema
 } from './schema'
 import {
   TPunchRecordCreateManyExistentsInAfdData,
   TPunchRecordCreateNonExistentInAfdData,
+  TPunchRecordDay,
+  TPunchRecordFindManyByDayParams,
   TPunchRecordFindManyParams,
   TPunchRecordUpdateData
 } from './types'
+import { groupByDay, resolvePeriod } from './utils'
 
 const getRecordKey = ({
   pis,
@@ -76,6 +80,14 @@ const findMany = async (
   })
 }
 
+const findManyByDay = async (
+  params: TPunchRecordFindManyByDayParams
+): Promise<TPunchRecordDay[]> => {
+  const { pis, ...period } = await findManyByDayParamsSchema.parseAsync(params)
+  const punchRecords = await findMany({ pis, ...period })
+  return groupByDay(punchRecords, period)
+}
+
 const update = async (data: TPunchRecordUpdateData): Promise<PunchRecord> => {
   const { id, ...validData } = await updateSchema.parseAsync(data)
   const punchRecord = await punchRecordRepository.update(id, validData)
@@ -98,6 +110,8 @@ export const punchRecordModel = {
   createManyNonExistentInAfd,
   createManyExistentsInAfd,
   findMany,
+  findManyByDay,
+  resolvePeriod,
   update,
   updateMany,
   delete: deleteRecord

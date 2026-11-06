@@ -1,20 +1,23 @@
-import { Suspense } from 'react'
-
-import { Loader } from '@/app/components/ui/custom/loader'
-
 import { MainContent } from './_components/main-content'
 import { getPunchRecordsPageData } from './data'
 
-// Remove this line when authentication is implemented and the USER_ID environment variable is removed.
+// Remove this line when authentication is implemented and the ADMIN_USER_ID environment variable is removed.
 export const dynamic = 'force-dynamic'
 
-const PunchRecords = async () => {
-  const { adminUser, users, user } = await getPunchRecordsPageData()
-  return (
-    <Suspense fallback={<Loader />}>
-      <MainContent adminUser={adminUser} users={users} user={user} />
-    </Suspense>
-  )
+const getFirstValue = (
+  value: string | string[] | undefined
+): string | undefined => (Array.isArray(value) ? value[0] : value)
+
+const PunchRecords = async ({
+  searchParams
+}: PageProps<'/registros-de-ponto'>) => {
+  const { pis, inicio, fim } = await searchParams
+  const data = await getPunchRecordsPageData({
+    pis: getFirstValue(pis),
+    initialDate: getFirstValue(inicio),
+    finalDate: getFirstValue(fim)
+  })
+  return <MainContent {...data} />
 }
 
 export default PunchRecords

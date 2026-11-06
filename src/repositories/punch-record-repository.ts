@@ -71,7 +71,7 @@ export const punchRecordRepository = {
     if (finalNsr) query = query.where((record) => record.nsr.lte(finalNsr))
     if (pis) query = query.where({ pis })
 
-    return await query.all()
+    return await query.orderBy((record) => record.datetime.asc()).all()
   },
 
   update: async (
