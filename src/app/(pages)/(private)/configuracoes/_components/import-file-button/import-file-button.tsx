@@ -1,52 +1,30 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
 import { Label } from '@/app/components/ui/shadcn/label'
-import type { Company, DeviceCredentials } from '@/infra/database/types'
 
 import { importFile } from './actions'
-import { TBindParams, TImportFileState } from './types'
+import { TImportFileState } from './types'
 
-type TImportFileButtonProps = {
-  company: Company
-  credentials: DeviceCredentials
-  setCompany: (value: Company) => void
-}
-
-export const ImportFileButton = ({
-  company,
-  credentials,
-  setCompany
-}: TImportFileButtonProps) => {
+export const ImportFileButton = () => {
   const initialState: TImportFileState = {}
-
-  const params: TBindParams = {
-    company,
-    credentials
-  }
-
-  const [state, formAction, pending] = useFormState(
-    importFile.bind(null, params),
-    initialState
-  )
+  const [state, formAction, pending] = useActionState(importFile, initialState)
   const formReference = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
-    if (state.success && state.data) {
+    if (pending) return
+
+    if (state.success) {
       toast.success('Arquivo importado com sucesso!')
-      setCompany(state.data)
       return
     }
 
-    if (!state.fatalError) {
-      return
-    }
+    if (!state.fatalError) return
 
     toast.error('Um erro inesperado aconteceu!', {
       description: 'Atualize a página e tente novamente.'

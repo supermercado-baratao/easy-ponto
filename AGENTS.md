@@ -14,7 +14,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 This is **Easy Ponto**, the timekeeping system of Supermercado Baratão. It reads the company, the employees and the punch records from the time clock (a Control iD iDClass, called the device in the code, through its HTTPS API). The store uses Secullum today, so importing its **Cartão Ponto** report (`.xls`, `.xlsx` or `.csv`) is a migration aid, not part of the regular flow: it brings over what the device doesn't have (department, position, admission date, payroll number) and the punches added by hand in Secullum. The stack: Postgres through **Prisma Next** (`@prisma/orm-postgres`, a release candidate), Server Components and Server Actions (there is no public API), and **shadcn/ui** on Base UI for the interface.
 
-There is no login yet: the `ADMIN_USER_ID` environment variable picks the `AdminUser` the private pages load. Login and roles come later; don't treat the missing authentication as a bug in unrelated work.
+There is no login yet: the `ADMIN_USER_ID` environment variable picks the `AdminUser` the private pages load. Server code reads it through `getAdminUser` (`src/entry/admin-user.ts`). Server Actions take the admin user, the company and the device credentials from there, never from the client, and the device password is never passed to a client component (#54). Login and roles come later; don't treat the missing authentication as a bug in unrelated work.
 
 ### Language
 

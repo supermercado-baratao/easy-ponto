@@ -1,50 +1,38 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { FormCard, FormField } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
-import type { DeviceCredentials } from '@/infra/database/types'
 
 import { save } from './actions'
-import { TDeviceFormState } from './types'
+import { TDeviceFormState, TDeviceFormValues } from './types'
 
 export const DeviceForm = ({
-  adminUserId,
-  deviceCredentials,
-  setDeviceCredentials
+  deviceCredentials
 }: {
-  adminUserId: string
-  deviceCredentials: DeviceCredentials | null
-  setDeviceCredentials: (deviceCredentials: DeviceCredentials) => void
+  deviceCredentials: TDeviceFormValues | null
 }) => {
-  const initialState: TDeviceFormState = {
-    data: deviceCredentials
-  }
-  const [state, formAction, pending] = useFormState(
-    save.bind(null, adminUserId),
-    initialState
-  )
+  const initialState: TDeviceFormState = {}
+  const [state, formAction, pending] = useActionState(save, initialState)
 
   useEffect(() => {
+    if (pending) return
+
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
-      setDeviceCredentials(state.data as DeviceCredentials)
       return
     }
 
-    if (!(state.fatalError || state.errors?.adminUserId)) {
-      return
-    }
+    if (!state.fatalError) return
 
     toast.error('Um erro inesperado aconteceu!', {
       description: 'Atualize a página e tente novamente.'
     })
-  }, [pending])
+  }, [pending, state])
 
   return (
     <FormCard
@@ -53,30 +41,46 @@ export const DeviceForm = ({
       className="h-fit"
     >
       <CardContent>
-        <form id="device-form" action={formAction} noValidate>
+        <form
+          key={deviceCredentials?.updatedAt.toISOString()}
+          id="device-form"
+          action={formAction}
+          noValidate
+        >
           <FormField
             name="ip"
             label="Endereço IPV4"
-            defaultValue={state.data?.ip}
+            defaultValue={deviceCredentials?.ip}
             error={state.errors?.ip}
           />
           <FormField
             name="login"
             label="Login"
-            defaultValue={state.data?.login}
+            defaultValue={deviceCredentials?.login}
+            autoComplete="off"
             error={state.errors?.login}
           />
           <FormField
             name="password"
             type="password"
             label="Senha"
-            defaultValue={state.data?.password}
+            autoComplete="new-password"
+            description={
+              deviceCredentials
+                ? 'Deixe em branco para manter a senha atual.'
+                : undefined
+            }
             error={state.errors?.password}
           />
         </form>
       </CardContent>
       <CardFooter>
-        <Button type="submit" form="device-form" className="w-full">
+        <Button
+          type="submit"
+          form="device-form"
+          className="w-full"
+          disabled={pending}
+        >
           {pending ? <Loader mode="inline" /> : 'Salvar'}
         </Button>
       </CardFooter>

@@ -2,17 +2,24 @@
 
 import { refresh } from 'next/cache'
 
+import { getAdminUser } from '@/entry/admin-user'
 import { synchronizationModel } from '@/models/synchronization/model'
-import { TAfdSynchronizationParams } from '@/models/synchronization/types'
 
 import { TSynchronizationState } from './types'
 
 export const synchronize = async (
-  params: TAfdSynchronizationParams,
   state: TSynchronizationState
 ): Promise<TSynchronizationState> => {
   try {
-    await synchronizationModel.synchronizeAfd(params)
+    const { id, companyId, deviceCredentials } = await getAdminUser()
+    if (!companyId || !deviceCredentials) {
+      throw new Error(`AdminUser ${id} has no company or device`)
+    }
+    await synchronizationModel.synchronizeAfd({
+      companyId,
+      credentials: deviceCredentials,
+      params: {}
+    })
     refresh()
     return { ...state, success: true, fatalError: false }
   } catch (error) {
