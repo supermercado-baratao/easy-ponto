@@ -1,32 +1,30 @@
 'use server'
 
+import { refresh } from 'next/cache'
+
+import { getAdminUser } from '@/entry/admin-user'
 import { synchronizationModel } from '@/models/synchronization/model'
 
-import { TBindParams, TImportFileState } from './types'
+import { TImportFileState } from './types'
 
 export const importFile = async (
-  params: TBindParams,
   state: TImportFileState,
   formData: FormData
 ): Promise<TImportFileState> => {
   try {
-    const file = formData.get('file') as File
-    const company = await synchronizationModel.importFile({
-      file,
-      company: params.company,
-      credentials: params.credentials
-    })
-    return {
-      ...state,
-      data: company,
-      success: true
+    const { id, company, deviceCredentials } = await getAdminUser()
+    if (!company || !deviceCredentials) {
+      throw new Error(`AdminUser ${id} has no company or device`)
     }
+    const data = await synchronizationModel.importFile({
+      file: formData.get('file') as File,
+      company,
+      credentials: deviceCredentials
+    })
+    refresh()
+    return { ...state, data, success: true, fatalError: false }
   } catch (error) {
     console.error(error)
-    return {
-      ...state,
-      success: false,
-      fatalError: true
-    }
+    return { ...state, success: false, fatalError: true }
   }
 }

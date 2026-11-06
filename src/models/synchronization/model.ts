@@ -1,5 +1,4 @@
 import type { Company, TInputData, User } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
 import { companyModel } from '@/models/company/model'
 import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
@@ -35,13 +34,10 @@ const synchronizeCompany = async ({
   const api = createDeviceApiInstance(credentials.ip)
   const session = await getSession(api, credentials)
   const deviceCompany = await deviceModel.loadCompany(api, session)
-  const company = mapDeviceCompanyToCompany(deviceCompany)
-  const upsertedCompany = await companyModel.upsert(company)
-  await adminUserModel.update({
-    id: adminUserId,
-    companyId: upsertedCompany.id
+  return await companyModel.upsertForAdminUser({
+    ...mapDeviceCompanyToCompany(deviceCompany),
+    adminUserId
   })
-  return upsertedCompany
 }
 
 const synchronizeUsers = async ({

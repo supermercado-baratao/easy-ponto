@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { FormCard, FormField, Select } from '@/app/components/ui/custom/form'
 import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
 import { Field } from '@/app/components/ui/shadcn/field'
-import type { Company, DeviceCredentials } from '@/infra/database/types'
+import type { Company } from '@/infra/database/types'
 
 import { save } from './actions'
 import { ImportButton } from './import-button'
@@ -15,41 +14,28 @@ import { SubmitButton } from './submit-button'
 import { TCompanyState } from './types'
 
 type TCompanyFormProps = {
-  adminUserId: string
   company: Company | null
-  deviceCredentials: DeviceCredentials | null
-  setCompany: (company: Company) => void
+  hasDevice: boolean
 }
 
-export const CompanyForm = ({
-  adminUserId,
-  company,
-  deviceCredentials,
-  setCompany
-}: TCompanyFormProps) => {
-  const initialState: TCompanyState = {
-    data: company
-  }
-  const [state, formAction, pending] = useFormState(save, initialState)
-  const [formState, setFormState] = useState(initialState.data)
+export const CompanyForm = ({ company, hasDevice }: TCompanyFormProps) => {
+  const initialState: TCompanyState = {}
+  const [state, formAction, pending] = useActionState(save, initialState)
 
   useEffect(() => {
+    if (pending) return
+
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- #11 reworks this state
-      setFormState(state.data)
-      setCompany(state.data as Company)
       return
     }
 
-    if (!state.fatalError) {
-      return
-    }
+    if (!state.fatalError) return
 
     toast.error('Um erro inesperado aconteceu!', {
       description: 'Atualize a página e tente novamente.'
     })
-  }, [pending])
+  }, [pending, state])
 
   return (
     <FormCard
@@ -58,30 +44,35 @@ export const CompanyForm = ({
       className="h-fit"
     >
       <CardContent>
-        <form id="company-form" action={formAction} noValidate>
+        <form
+          key={company?.updatedAt.toISOString()}
+          id="company-form"
+          action={formAction}
+          noValidate
+        >
           <FormField
             name="name"
             label="Nome*"
-            defaultValue={formState?.name}
+            defaultValue={company?.name}
             error={state.errors?.name}
           />
           <FormField
             name="address"
             label="Endereço*"
-            defaultValue={formState?.address}
+            defaultValue={company?.address}
             error={state.errors?.address}
           />
           <FormField
             name="cpf"
             label="CPF do Responsável*"
-            defaultValue={formState?.cpf}
+            defaultValue={company?.cpf}
             error={state.errors?.cpf}
           />
           <Select
             name="tipoDoc"
             label="Tipo de Documento*"
             placeholder="Tipo utilizado no campo CPF/CNPJ"
-            defaultValue={formState?.tipoDoc.toString()}
+            defaultValue={company?.tipoDoc.toString()}
             options={[
               { value: '0', label: '0 - CPF' },
               { value: '1', label: '1 - CNPJ' }
@@ -91,33 +82,26 @@ export const CompanyForm = ({
           <FormField
             name="cpfCnpj"
             label="CPF/CNPJ*"
-            defaultValue={formState?.cpfCnpj}
+            defaultValue={company?.cpfCnpj}
             error={state.errors?.cpfCnpj}
           />
           <FormField
             name="cei"
             label="CEI*"
-            defaultValue={formState?.cei}
+            defaultValue={company?.cei}
             error={state.errors?.cei}
           />
           <FormField
             name="registration"
             label="Inscrição"
-            defaultValue={formState?.registration ?? ''}
+            defaultValue={company?.registration ?? ''}
             error={state.errors?.registration}
           />
         </form>
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
-          {deviceCredentials && (
-            <ImportButton
-              adminUserId={adminUserId}
-              deviceCredentials={deviceCredentials}
-              pending={pending}
-              setFormState={setFormState}
-            />
-          )}
+          {hasDevice && <ImportButton isFormPending={pending} />}
           <SubmitButton pending={pending} />
         </Field>
       </CardFooter>

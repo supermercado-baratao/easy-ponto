@@ -1,53 +1,32 @@
-'use client'
-
-import { useState } from 'react'
-
 import { Header } from '@/app/components/blocks/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
-import type {
-  Company,
-  DeviceCredentials,
-  TAdminUserWithRelations
-} from '@/infra/database/types'
+import type { TAdminUserWithRelations } from '@/infra/database/types'
 
 import { CompanyForm } from './company-form/form'
 import { DeviceForm } from './device-form/device-form'
 import { ImportFileButton } from './import-file-button/import-file-button'
 
 export const MainContent = ({
-  adminUser
+  adminUser: { company, deviceCredentials }
 }: {
   adminUser: TAdminUserWithRelations
-}) => {
-  const [deviceCredentials, setDeviceCredentials] =
-    useState<DeviceCredentials | null>(adminUser.deviceCredentials)
-  const [company, setCompany] = useState<Company | null>(adminUser.company)
+}) => (
+  <>
+    <Header title="Configurações">
+      {company && deviceCredentials && <ImportFileButton />}
+    </Header>
 
-  return (
-    <>
-      <Header title="Configurações">
-        {company && deviceCredentials && (
-          <ImportFileButton
-            company={company}
-            credentials={deviceCredentials}
-            setCompany={setCompany}
-          />
-        )}
-      </Header>
-
-      <_MainContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DeviceForm
-          adminUserId={adminUser.id}
-          deviceCredentials={deviceCredentials}
-          setDeviceCredentials={setDeviceCredentials}
-        />
-        <CompanyForm
-          adminUserId={adminUser.id}
-          company={adminUser.company}
-          deviceCredentials={deviceCredentials}
-          setCompany={setCompany}
-        />
-      </_MainContent>
-    </>
-  )
-}
+    <_MainContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <DeviceForm
+        deviceCredentials={
+          deviceCredentials && {
+            ip: deviceCredentials.ip,
+            login: deviceCredentials.login,
+            updatedAt: deviceCredentials.updatedAt
+          }
+        }
+      />
+      <CompanyForm company={company} hasDevice={!!deviceCredentials} />
+    </_MainContent>
+  </>
+)

@@ -17,7 +17,7 @@ O `pnpm dev` sobe o Postgres, roda as migrations e inicia o servidor em [http://
 
 ### Administrador
 
-Ainda não há login: as páginas privadas (`/configuracoes`, `/registros-de-ponto`) carregam o administrador cujo `id` está na variável `ADMIN_USER_ID`. Sem ele, essas páginas dão erro.
+Ainda não há login: as páginas privadas (`/configuracoes`, `/registros-de-ponto`) carregam o administrador cujo `id` está na variável `ADMIN_USER_ID`. Sem ele, essas páginas dão erro. O servidor lê esse administrador e as credenciais do relógio sozinho, e a senha do relógio nunca vai para o navegador.
 
 1. Com o `pnpm dev` rodando, crie o administrador no banco local:
 

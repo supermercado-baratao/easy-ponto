@@ -1,58 +1,35 @@
-import { useEffect } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
-import type { Company, DeviceCredentials } from '@/infra/database/types'
-import { TCompanySynchronizationParams } from '@/models/synchronization/types'
 
 import { importFromDevice } from './actions'
 import { TCompanyState } from './types'
 
-export const ImportButton = ({
-  adminUserId,
-  deviceCredentials,
-  pending: _pending,
-  setFormState
-}: {
-  adminUserId: string
-  deviceCredentials: DeviceCredentials
-  pending: boolean
-  setFormState: (value: Company) => void
-}) => {
+export const ImportButton = ({ isFormPending }: { isFormPending: boolean }) => {
   const initialState: TCompanyState = {}
-
-  const bindArguments = {
-    adminUserId,
-    credentials: {
-      ...deviceCredentials,
-      deviceCredentialsId: deviceCredentials!.id
-    }
-  } as TCompanySynchronizationParams
-
-  const [state, formAction, pending] = useFormState(
-    importFromDevice.bind(null, bindArguments),
+  const [state, formAction, pending] = useActionState(
+    importFromDevice,
     initialState
   )
 
   useEffect(() => {
+    if (pending) return
+
     if (state.success) {
       toast.success('Dados importados com sucesso!')
-      setFormState(state.data as Company)
       return
     }
 
-    if (!state.fatalError) {
-      return
-    }
+    if (!state.fatalError) return
 
     toast.error('Um erro inesperado aconteceu!', {
       description: 'Atualize a página e tente novamente.'
     })
-  }, [pending])
+  }, [pending, state])
 
-  const isPending = pending || _pending
+  const isPending = pending || isFormPending
 
   return (
     <form action={formAction} className="w-1/5 min-w-20">

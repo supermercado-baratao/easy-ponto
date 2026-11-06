@@ -1,5 +1,5 @@
+import { getAdminUser } from '@/entry/admin-user'
 import type { TAdminUserWithRelations, User } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import type {
   TPunchRecordDay,
@@ -24,9 +24,7 @@ export const getPunchRecordsPageData = async ({
   initialDate?: string
   finalDate?: string
 }): Promise<TPunchRecordsPageData> => {
-  const adminUser = await adminUserModel.findUniqueById(
-    process.env.ADMIN_USER_ID!
-  )
+  const adminUser = await getAdminUser()
   const users = adminUser.companyId
     ? await userModel.findManyByCompanyId(adminUser.companyId)
     : []

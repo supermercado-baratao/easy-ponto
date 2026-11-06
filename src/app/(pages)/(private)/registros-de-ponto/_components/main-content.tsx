@@ -28,10 +28,7 @@ export const MainContent = ({
   <>
     <Header title="Registros de Ponto">
       {adminUser.companyId && adminUser.deviceCredentials && (
-        <SynchronizationButton
-          companyId={adminUser.companyId}
-          deviceCredentials={adminUser.deviceCredentials}
-        />
+        <SynchronizationButton />
       )}
     </Header>
     <_MainContent className="flex flex-col gap-6">

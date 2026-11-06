@@ -47,11 +47,21 @@ export const FormCard = ({
 type TFormFieldProps = ComponentProps<'input'> & {
   name: string
   label: string | ReactNode
+  description?: string
   error?: string
 }
 
 export const FormField = (props: TFormFieldProps) => {
-  const { name, label, error, className, id = name, ...inputProps } = props
+  const {
+    name,
+    label,
+    description,
+    error,
+    className,
+    id = name,
+    ...inputProps
+  } = props
+  const descriptionId = `${id}-description`
 
   return (
     <div className={cn('grid gap-3', className)}>
@@ -66,12 +76,18 @@ export const FormField = (props: TFormFieldProps) => {
         {...inputProps}
         id={id}
         name={name}
+        aria-describedby={description ? descriptionId : undefined}
         className={
           error
             ? 'border-destructive focus-visible:border-destructive focus-visible:ring-[3px] focus-visible:ring-destructive/50'
             : undefined
         }
       />
+      {description && (
+        <p id={descriptionId} className="-mt-1 text-sm text-muted-foreground">
+          {description}
+        </p>
+      )}
       <p className="relative bottom-3 text-destructive">{error}</p>
     </div>
   )
