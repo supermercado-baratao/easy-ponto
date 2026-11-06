@@ -1,9 +1,4 @@
-import type {
-  Company,
-  TInputData,
-  TUserWithPunchRecords,
-  User
-} from '@/infra/database/types'
+import type { Company, TInputData, User } from '@/infra/database/types'
 import { adminUserModel } from '@/models/admin-user/model'
 import { companyModel } from '@/models/company/model'
 import { createDeviceApiInstance } from '@/models/device/device-api'
@@ -90,12 +85,8 @@ const synchronizeUsers = async ({
 const synchronizeAfd = async ({
   params,
   credentials,
-  userPis,
   companyId
-}: TAfdSynchronizationParams): Promise<{
-  users: User[]
-  user: TUserWithPunchRecords | null
-}> => {
+}: TAfdSynchronizationParams): Promise<void> => {
   const api = createDeviceApiInstance(credentials.ip)
   const session = await getSession(api, credentials)
   const [users, afd] = await Promise.all([
@@ -112,14 +103,6 @@ const synchronizeAfd = async ({
   const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd)
   if (punchRecords.length > 0) {
     await punchRecordModel.createManyExistentsInAfd(punchRecords)
-  }
-
-  const pis = userPis || users[0]?.pis || null
-  const user = pis ? await userModel.findUniqueByPisWithPunchRecords(pis) : null
-
-  return {
-    users,
-    user
   }
 }
 

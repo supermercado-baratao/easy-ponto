@@ -1,14 +1,11 @@
-import { useEffect } from 'react'
-import { useFormState } from 'react-dom'
+'use client'
+
+import { useActionState, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
-import type {
-  DeviceCredentials,
-  TUserWithPunchRecords,
-  User
-} from '@/infra/database/types'
+import type { DeviceCredentials } from '@/infra/database/types'
 import {
   TAfdSynchronizationParams,
   TSynchronizationCredentials
@@ -18,19 +15,11 @@ import { synchronize } from './actions'
 import { TSynchronizationState } from './types'
 
 export const SynchronizationButton = ({
-  userPis,
   companyId,
-  deviceCredentials,
-  pending: _pending,
-  setUsers,
-  setUser
+  deviceCredentials
 }: {
-  userPis: string | null
   companyId: string
   deviceCredentials: DeviceCredentials
-  pending: boolean
-  setUsers: (value: User[]) => void
-  setUser: (value: TUserWithPunchRecords | null) => void
 }) => {
   const initialState: TSynchronizationState = {}
 
@@ -42,42 +31,37 @@ export const SynchronizationButton = ({
   const bindArguments: TAfdSynchronizationParams = {
     companyId,
     credentials,
-    params: {},
-    userPis
+    params: {}
   }
 
-  const [state, formAction, pending] = useFormState(
+  const [state, formAction, pending] = useActionState(
     synchronize.bind(null, bindArguments),
     initialState
   )
 
   useEffect(() => {
+    if (pending) return
+
     if (state.success) {
       toast.success('Dados importados com sucesso!')
-      setUsers(state.data?.users || [])
-      setUser(state.data?.user || null)
       return
     }
 
-    if (!state.fatalError) {
-      return
-    }
+    if (!state.fatalError) return
 
     toast.error('Um erro inesperado aconteceu!', {
       description: 'Atualize a página e tente novamente.'
     })
-  }, [pending])
-
-  const isPending = pending || _pending
+  }, [pending, state])
 
   return (
     <>
-      <form action={formAction} className="w-1/5 min-w-20">
-        <Button type="submit" disabled={isPending} variant="outline">
+      <form action={formAction}>
+        <Button type="submit" disabled={pending} variant="outline">
           Sincronizar
         </Button>
       </form>
-      <Loader open={isPending} />
+      <Loader open={pending} />
     </>
   )
 }

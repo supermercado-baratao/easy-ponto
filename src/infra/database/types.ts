@@ -20,7 +20,3 @@ export type TAdminUserWithRelations = AdminUser & {
   deviceCredentials: DeviceCredentials | null
   user: User | null
 }
-
-export type TUserWithPunchRecords = User & {
-  punchRecords: PunchRecord[]
-}

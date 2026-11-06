@@ -6,12 +6,18 @@ import { dayjs } from '@/infra/dayjs'
 
 const isValidDate = (date: string): boolean => dayjs(date).isValid()
 
+const pisSchema = z
+  .string()
+  .refine((value) => isPIS(value) || value.length === PIS_LENGTH, {
+    message: `PIS inválido`
+  })
+
+const dateSchema = z.string().refine((value) => isValidDate(value), {
+  message: 'Data deve estar no formato yyyy-mm-dd'
+})
+
 export const createNonExistentInAfdSchema = z.object({
-  pis: z
-    .string()
-    .refine((value) => isPIS(value) || value.length === PIS_LENGTH, {
-      message: `PIS inválido`
-    }),
+  pis: pisSchema,
   datetime: z.coerce.date()
 })
 
@@ -38,24 +44,15 @@ export const updateSchema = z.object({
 export const updateManySchema = z.array(updateSchema).nonempty()
 
 export const findManyParamsSchema = z.object({
-  pis: z
-    .string()
-    .refine((value) => isPIS(value) || value.length === PIS_LENGTH, {
-      message: `PIS inválido`
-    })
-    .nullish(),
+  pis: pisSchema.nullish(),
   initialNsr: z.coerce.number().int().positive().nullish(),
   finalNsr: z.coerce.number().int().positive().nullish(),
-  initialDate: z
-    .string()
-    .refine((value) => isValidDate(value), {
-      message: 'Data deve estar no formato yyyy-mm-dd'
-    })
-    .nullish(),
-  finalDate: z
-    .string()
-    .refine((value) => isValidDate(value), {
-      message: 'Data deve estar no formato yyyy-mm-dd'
-    })
-    .nullish()
+  initialDate: dateSchema.nullish(),
+  finalDate: dateSchema.nullish()
+})
+
+export const findManyByDayParamsSchema = z.object({
+  pis: pisSchema,
+  initialDate: dateSchema,
+  finalDate: dateSchema
 })

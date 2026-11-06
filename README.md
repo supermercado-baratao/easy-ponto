@@ -72,7 +72,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 - `models/` guarda as regras de negócio de cada domínio (inclusive a comunicação com o relógio de ponto, em `models/device`), `repositories/` as queries, `entry/` a adaptação das Server Actions aos models e `infra/` a base técnica (banco, datas e erros).
 - O `synchronizationModel` reúne as sincronizações: empresa, funcionários (pelo PIS), batidas do AFD (ignorando os NSRs já salvos) e a importação do relatório do Secullum para a migração (funcionários pelo nome e as batidas marcadas com `*`, que não estão no AFD).
 - As batidas do AFD de um PIS sem funcionário salvo são descartadas, até a #30 decidir como guardar o histórico de ex-funcionários.
-- Datas e horários são salvos em UTC com o horário local (`07:27` vira `07:27Z`), sempre pelo `dayjs` de `@/infra/dayjs`.
+- Datas e horários são salvos em UTC com o horário local (`07:27` vira `07:27Z`), sempre pelo `dayjs` de `@/infra/dayjs`. A data atual vem de `wallClockNow()`, no horário de São Paulo.
 - `actions.ts` com `'use server'` é só para mutações chamadas pelo cliente; dados lidos por uma Server Component vêm de um `data.ts`. As páginas que leem o banco renderizam a cada requisição.
 - Os formulários usam `useFormState` (os novos usam `useActionState`, o nome atual no React 19) com Server Actions que chamam o `handleFormAction()`: os erros do Zod viram mensagens nos campos, e os outros erros viram um toast.
 

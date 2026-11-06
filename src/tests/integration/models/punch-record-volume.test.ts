@@ -21,6 +21,7 @@ import { TDeviceUser } from '@/models/device/types'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { synchronizationModel } from '@/models/synchronization/model'
+import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
 import { parsedAfd } from '@/tests/_mocks/parsed-afd'
 import orchestrator from '@/tests/orchestrator'
@@ -68,7 +69,6 @@ const synchronize = (
   vi.spyOn(deviceModel, 'getAfd').mockResolvedValue(afd)
   return synchronizationModel.synchronizeAfd({
     ...data,
-    userPis: null,
     params: {}
   })
 }
@@ -141,19 +141,21 @@ describe('Punch record volume', () => {
     test('Succeeds when the device has no records', async () => {
       const data = await populate()
 
-      const { users, user } = await synchronize('', data)
+      await synchronize('', data)
 
+      const users = await userModel.findManyByCompanyId(data.companyId)
       expect(users).toHaveLength(EMPLOYEES.length)
-      expect(user?.punchRecords).toEqual([])
+      expect(await countRecords()).toBe(0)
     })
 
     test('Succeeds when the device has no users', async () => {
       const data = await populate()
 
-      const { users, user } = await synchronize('', data, [])
+      await synchronize('', data, [])
 
+      const users = await userModel.findManyByCompanyId(data.companyId)
       expect(users).toEqual([])
-      expect(user).toBeNull()
+      expect(await countRecords()).toBe(0)
     })
 
     test('Saves nothing when a batch fails', async () => {

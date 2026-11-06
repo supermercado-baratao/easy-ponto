@@ -1,8 +1,4 @@
-import type {
-  TInputData,
-  TUserWithPunchRecords,
-  User
-} from '@/infra/database/types'
+import type { TInputData, User } from '@/infra/database/types'
 import { userRepository } from '@/repositories/user-repository'
 
 const createMany = async (data: TInputData<User>[]): Promise<void> => {
@@ -16,11 +12,6 @@ const findManyByNames = async (names: string[]): Promise<User[]> => {
   return names.length === 0 ? [] : await userRepository.findManyByNames(names)
 }
 
-const findUniqueByPisWithPunchRecords = async (
-  pis: string
-): Promise<TUserWithPunchRecords> =>
-  await userRepository.findUniqueByPisWithPunchRecords(pis)
-
 const updateMany = async (
   data: (Partial<TInputData<User>> & { id: string })[]
 ): Promise<void> => {
@@ -31,6 +22,5 @@ export const userModel = {
   createMany,
   findManyByCompanyId,
   findManyByNames,
-  findUniqueByPisWithPunchRecords,
   updateMany
 }

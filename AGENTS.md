@@ -65,7 +65,7 @@ There is no login yet: the `ADMIN_USER_ID` environment variable picks the `Admin
 - `getSession` reuses the session token saved in `devices_sessions` while the device accepts it, and logs in again otherwise. `deviceModel.loadUsers` reads the users in pages of 100.
 - `synchronizationModel` (`src/models/synchronization/model.ts`) holds the flows: `synchronizeCompany`, `synchronizeUsers` (creates the new device users and updates the saved ones by PIS), `synchronizeAfd` (parses the AFD and saves the records, skipping the NSRs already saved) and `importFile` (reads the Secullum report for the migration, updates the users by name and the company registration, and creates the punches marked with `*`, which are not in the AFD).
 - The AFD records of a PIS that no saved user has are dropped on purpose, until #30 decides how to keep the history of former employees.
-- Dates and times are stored as UTC wall-clock values: `@/infra/dayjs` exports `dayjs.utc`, so a punch at `07:27` is saved as `07:27Z`. Always build dates through it.
+- Dates and times are stored as UTC wall-clock values: `@/infra/dayjs` exports `dayjs.utc`, so a punch at `07:27` is saved as `07:27Z`. Always build dates through it, and take the current date from `wallClockNow()` (the store's local time in São Paulo), never from `dayjs()`.
 
 ### Forms
 
