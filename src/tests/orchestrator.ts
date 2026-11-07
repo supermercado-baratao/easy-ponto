@@ -56,8 +56,14 @@ const populateDatabaseWithRealData = async () => {
   })
 }
 
-const populateDatabaseWithMockedData = async () => {
-  let adminUser = await adminUserModel.create()
+// The E2E server reads ADMIN_USER_ID when it starts, before the database is populated, so the E2E
+// admin user is created with a known id instead of the one `adminUserModel.create` generates
+const populateDatabaseWithMockedData = async ({
+  adminUserId
+}: { adminUserId?: string } = {}) => {
+  let adminUser = adminUserId
+    ? await database.orm.public.AdminUser.create({ id: adminUserId })
+    : await adminUserModel.create()
   const deviceCredentials = await deviceCredentialsModel.upsert({
     adminUserId: adminUser.id,
     ip: faker.internet.ipv4(),
