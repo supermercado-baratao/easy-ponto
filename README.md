@@ -90,6 +90,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 ### Testes
 
 - Vitest e Playwright. Os testes unitários ficam junto do código que testam, os de integração ficam em `src/tests/integration` e chamam os models no banco de testes, os externos ficam em `src/tests/external` e usam o aparelho real, e os end-to-end ficam em `src/tests/e2e`.
+- Os testes end-to-end sobem um servidor próprio na porta `3001`, ligado ao banco de testes, com um administrador fixo (o `ADMIN_USER_ID` do `.env.test`). Dá para rodá-los com o `pnpm dev` aberto, mas não ao mesmo tempo que os de integração, que usam o mesmo banco.
 - Os testes externos não rodam no CI nem nos hooks. Rode `pnpm test:external` só quando nada mais puder verificar a mudança.
 - Só testamos a lógica que escrevemos, não o comportamento de bibliotecas ou do framework.
 
