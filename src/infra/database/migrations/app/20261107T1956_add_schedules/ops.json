@@ -1,0 +1,396 @@
+[
+  {
+    "id": "table.schedules",
+    "label": "Create table \"schedules\"",
+    "summary": "Creates table \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"schedules\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"schedules\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"schedules\"",
+        "sql": "CREATE TABLE \"public\".\"schedules\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"start_date\" date NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  \"user_id\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"schedules\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"schedules\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"schedules\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.schedules_days",
+    "label": "Create table \"schedules_days\"",
+    "summary": "Creates table \"schedules_days\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "schedules_days"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"schedules_days\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_days\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"schedules_days\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"schedules_days\"",
+        "sql": "CREATE TABLE \"public\".\"schedules_days\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"entry_1\" int4,\n  \"entry_2\" int4,\n  \"entry_3\" int4,\n  \"exit_1\" int4,\n  \"exit_2\" int4,\n  \"exit_3\" int4,\n  \"id\" text NOT NULL,\n  \"schedule_id\" text NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  \"weekday\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"schedules_days\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_days\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"schedules_days\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.schedules.schedules_user_id_start_date_key",
+    "label": "Add unique constraint on \"schedules\" (user_id, start_date)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "schedules_user_id_start_date_key",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"schedules_user_id_start_date_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_user_id_start_date_key",
+          "public",
+          "\"public\".\"schedules\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"schedules_user_id_start_date_key\" on \"schedules\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"schedules_user_id_start_date_key\"",
+        "sql": "ALTER TABLE \"public\".\"schedules\" ADD CONSTRAINT \"schedules_user_id_start_date_key\" UNIQUE (\"user_id\", \"start_date\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"schedules_user_id_start_date_key\" exists on (user_id, start_date)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "schedules_user_id_start_date_key",
+          "public",
+          "\"public\".\"schedules\"",
+          "u",
+          "[\"user_id\",\"start_date\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.schedules_days.schedules_days_schedule_id_weekday_key",
+    "label": "Add unique constraint on \"schedules_days\" (schedule_id, weekday)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "schedules_days_schedule_id_weekday_key",
+        "table": "schedules_days"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"schedules_days_schedule_id_weekday_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_days_schedule_id_weekday_key",
+          "public",
+          "\"public\".\"schedules_days\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"schedules_days_schedule_id_weekday_key\" on \"schedules_days\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"schedules_days_schedule_id_weekday_key\"",
+        "sql": "ALTER TABLE \"public\".\"schedules_days\" ADD CONSTRAINT \"schedules_days_schedule_id_weekday_key\" UNIQUE (\"schedule_id\", \"weekday\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"schedules_days_schedule_id_weekday_key\" exists on (schedule_id, weekday)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "schedules_days_schedule_id_weekday_key",
+          "public",
+          "\"public\".\"schedules_days\"",
+          "u",
+          "[\"schedule_id\",\"weekday\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedules.schedules_user_id_idx_6c952402",
+    "label": "Create index \"schedules_user_id_idx_6c952402\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedules_user_id_idx_6c952402",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedules_user_id_idx_6c952402\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_user_id_idx_6c952402\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"schedules_user_id_idx_6c952402\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedules_user_id_idx_6c952402\"",
+        "sql": "CREATE INDEX \"schedules_user_id_idx_6c952402\" ON \"public\".\"schedules\" (\"user_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedules_user_id_idx_6c952402\" exists on \"schedules\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_user_id_idx_6c952402\"",
+          "i",
+          "I",
+          "\"public\".\"schedules\"",
+          "btree",
+          "[\"user_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.schedules_days.schedules_days_schedule_id_idx_83757f9e",
+    "label": "Create index \"schedules_days_schedule_id_idx_83757f9e\" on \"schedules_days\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "schedules_days_schedule_id_idx_83757f9e",
+        "table": "schedules_days"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"schedules_days_schedule_id_idx_83757f9e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_days_schedule_id_idx_83757f9e\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"schedules_days_schedule_id_idx_83757f9e\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"schedules_days_schedule_id_idx_83757f9e\"",
+        "sql": "CREATE INDEX \"schedules_days_schedule_id_idx_83757f9e\" ON \"public\".\"schedules_days\" (\"schedule_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"schedules_days_schedule_id_idx_83757f9e\" exists on \"schedules_days\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"schedules_days_schedule_id_idx_83757f9e\"",
+          "i",
+          "I",
+          "\"public\".\"schedules_days\"",
+          "btree",
+          "[\"schedule_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.schedules.schedules_user_id_fkey",
+    "label": "Add foreign key \"schedules_user_id_fkey\" on \"schedules\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "schedules_user_id_fkey",
+        "table": "schedules"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"schedules_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_user_id_fkey",
+          "public",
+          "\"public\".\"schedules\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"schedules_user_id_fkey\" on \"schedules\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"schedules_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"schedules\"\nADD CONSTRAINT \"schedules_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"users\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"schedules_user_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "schedules_user_id_fkey",
+          "public",
+          "\"public\".\"schedules\"",
+          "f",
+          "[\"user_id\"]",
+          "\"public\".\"users\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.schedules_days.schedules_days_schedule_id_fkey",
+    "label": "Add foreign key \"schedules_days_schedule_id_fkey\" on \"schedules_days\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "schedules_days_schedule_id_fkey",
+        "table": "schedules_days"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"schedules_days_schedule_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "schedules_days_schedule_id_fkey",
+          "public",
+          "\"public\".\"schedules_days\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"schedules_days_schedule_id_fkey\" on \"schedules_days\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"schedules_days_schedule_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"schedules_days\"\nADD CONSTRAINT \"schedules_days_schedule_id_fkey\"\nFOREIGN KEY (\"schedule_id\")\nREFERENCES \"public\".\"schedules\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"schedules_days_schedule_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "schedules_days_schedule_id_fkey",
+          "public",
+          "\"public\".\"schedules_days\"",
+          "f",
+          "[\"schedule_id\"]",
+          "\"public\".\"schedules\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]

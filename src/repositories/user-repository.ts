@@ -14,6 +14,9 @@ export const userRepository = {
       .orderBy((user) => user.name.asc())
       .all(),
 
+  findUniqueById: async (id: string): Promise<User | null> =>
+    await users.first({ id }),
+
   findManyByNames: async (names: string[]): Promise<User[]> =>
     await users.where((user) => user.name.in(names)).all(),
 
