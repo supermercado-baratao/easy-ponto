@@ -92,6 +92,7 @@ model User {
   adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
 
   punchRecords PunchRecord[]
+  schedules    Schedule[]
 
   @@map("users")
 }
@@ -112,4 +113,40 @@ model PunchRecord {
   user User @relation(fields: [pis], references: [pis])
 
   @@map("punch_records")
+}
+
+model Schedule {
+  id        String @id @onCreate(uuid())
+  startDate Date   @map("start_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  days ScheduleDay[]
+
+  @@unique([userId, startDate])
+  @@map("schedules")
+}
+
+model ScheduleDay {
+  id      String @id @onCreate(uuid())
+  weekday Int
+  entry1  Int?   @map("entry_1")
+  exit1   Int?   @map("exit_1")
+  entry2  Int?   @map("entry_2")
+  exit2   Int?   @map("exit_2")
+  entry3  Int?   @map("entry_3")
+  exit3   Int?   @map("exit_3")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  scheduleId String   @map("schedule_id")
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@unique([scheduleId, weekday])
+  @@map("schedules_days")
 }

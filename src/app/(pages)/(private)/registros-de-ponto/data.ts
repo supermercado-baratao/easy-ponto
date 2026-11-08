@@ -1,10 +1,16 @@
 import { getAdminUser } from '@/entry/admin-user'
-import type { TAdminUserWithRelations, User } from '@/infra/database/types'
+import type {
+  TAdminUserWithRelations,
+  TScheduleWithDays,
+  User
+} from '@/infra/database/types'
+import { dayjs } from '@/infra/dayjs'
 import { punchRecordModel } from '@/models/punch-record/model'
 import type {
   TPunchRecordDay,
   TPunchRecordPeriod
 } from '@/models/punch-record/types'
+import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
 
 type TPunchRecordsPageData = {
@@ -13,6 +19,8 @@ type TPunchRecordsPageData = {
   user: User | null
   period: TPunchRecordPeriod
   days: TPunchRecordDay[]
+  schedule: TScheduleWithDays | null
+  defaultScheduleStartDate: string
 }
 
 export const getPunchRecordsPageData = async ({
@@ -33,5 +41,22 @@ export const getPunchRecordsPageData = async ({
   const days = user
     ? await punchRecordModel.findManyByDay({ pis: user.pis, ...period })
     : []
-  return { adminUser, users, user, period, days }
+  const schedule = user
+    ? await scheduleModel.findInEffect({
+        userId: user.id,
+        date: period.finalDate
+      })
+    : null
+  const defaultScheduleStartDate = user?.admissionDate
+    ? dayjs(user.admissionDate).format('YYYY-MM-DD')
+    : period.initialDate
+  return {
+    adminUser,
+    users,
+    user,
+    period,
+    days,
+    schedule,
+    defaultScheduleStartDate
+  }
 }
