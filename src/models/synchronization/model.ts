@@ -4,6 +4,7 @@ import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
 import { punchRecordModel } from '@/models/punch-record/model'
+import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
 
 import {
@@ -15,6 +16,7 @@ import { mapDeviceCompanyToCompany } from './_utils/company'
 import {
   extractDataFromJson,
   getPunchRecordsToCreate,
+  getSchedulesToSave,
   getUsersToUpdate,
   parseXlsToJson
 } from './_utils/file'
@@ -117,6 +119,7 @@ const importFile = async ({
     dataInJson.punchRecords,
     users
   )
+  const schedulesToSave = getSchedulesToSave(dataInJson.schedules, users)
 
   const [updatedCompany] = await Promise.all([
     company.registration !== dataInJson.company.registration &&
@@ -126,7 +129,8 @@ const importFile = async ({
       }),
     usersToUpdate.length > 0 && userModel.updateMany(usersToUpdate),
     punchRecordsToCreate.length > 0 &&
-      punchRecordModel.createManyNonExistentInAfd(punchRecordsToCreate)
+      punchRecordModel.createManyNonExistentInAfd(punchRecordsToCreate),
+    ...schedulesToSave.map((schedule) => scheduleModel.save(schedule))
   ])
 
   return updatedCompany || company

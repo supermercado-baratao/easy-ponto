@@ -4,12 +4,20 @@ import * as xlsx from 'xlsx'
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record/types'
+import type { TScheduleSaveData } from '@/models/schedule/types'
+import {
+  getTimeFieldName,
+  TIME_FIELDS,
+  type TScheduleTimeFieldName,
+  type TWeekdayKey
+} from '@/models/schedule/utils'
 
 import { InvalidExcelFileError } from '../errors'
 import {
   TCompanyInJson,
   TDataInJson,
   TPunchRecordInJson,
+  TScheduleInJson,
   TUserInJson
 } from '../types'
 import { normalizeCnpj, normalizeCpf } from './normalize'
@@ -58,6 +66,46 @@ const toDatetime = (date: string, time: string): Date => {
   ).toDate()
 }
 
+const SCHEDULE_WEEKDAYS: Record<string, TWeekdayKey> = {
+  SEG: 'monday',
+  TER: 'tuesday',
+  QUA: 'wednesday',
+  QUI: 'thursday',
+  SEX: 'friday',
+  SÁB: 'saturday',
+  DOM: 'sunday'
+}
+
+const SCHEDULE_TIME_PATTERN = /^\d{1,2}:\d{2}$/
+
+const toScheduleTime = (value: unknown): string =>
+  typeof value === 'string' && SCHEDULE_TIME_PATTERN.test(value)
+    ? value.padStart(5, '0')
+    : ''
+
+const extractScheduleStartDate = (json: any[]): string => {
+  const [, day, month, year] = /^De: (\d{2})\/(\d{2})\/(\d{4})/.exec(
+    json[0]['CARTÃO PONTO']
+  )!
+  return `${year}-${month}-${day}`
+}
+
+const extractScheduleTimes = (
+  rows: any[]
+): Partial<Record<TScheduleTimeFieldName, string>> => {
+  const times: Partial<Record<TScheduleTimeFieldName, string>> = {}
+  for (const row of rows) {
+    const weekdayKey = SCHEDULE_WEEKDAYS[row['__EMPTY_5']]
+    if (!weekdayKey) continue
+    for (const [index, field] of TIME_FIELDS.entries()) {
+      times[getTimeFieldName(weekdayKey, field)] = toScheduleTime(
+        row[`__EMPTY_${6 + index}`]
+      )
+    }
+  }
+  return times
+}
+
 export const extractDataFromJson = (json: any[]): TDataInJson => {
   try {
     const cnpj = normalizeCnpj(json[3]['__EMPTY'])
@@ -71,6 +119,10 @@ export const extractDataFromJson = (json: any[]): TDataInJson => {
     const users: TUserInJson[] = []
 
     const punchRecords: TPunchRecordInJson[] = []
+
+    const schedules: TScheduleInJson[] = []
+
+    const scheduleStartDate = extractScheduleStartDate(json)
 
     for (const [index, item] of json.entries()) {
       const keys = Object.keys(item)
@@ -90,6 +142,14 @@ export const extractDataFromJson = (json: any[]): TDataInJson => {
           registration: json[index - 6]['__EMPTY']
         }
         users.push(user)
+        const times = extractScheduleTimes(json.slice(index - 7, index))
+        if (Object.keys(times).length > 0) {
+          schedules.push({
+            userName: user.name,
+            startDate: scheduleStartDate,
+            ...times
+          })
+        }
         continue
       }
 
@@ -116,7 +176,8 @@ export const extractDataFromJson = (json: any[]): TDataInJson => {
     return {
       company,
       users,
-      punchRecords
+      punchRecords,
+      schedules
     }
   } catch (error) {
     throw new InvalidExcelFileError(error as Error)
@@ -163,4 +224,23 @@ export const getPunchRecordsToCreate = (
   }
 
   return punchRecordsToCreate
+}
+
+export const getSchedulesToSave = (
+  schedulesInJson: TScheduleInJson[],
+  users: User[]
+): TScheduleSaveData[] => {
+  const schedulesToSave: TScheduleSaveData[] = []
+
+  for (const { userName, ...schedule } of schedulesInJson) {
+    const foundUser = users.find((user) => user.name === userName)
+    if (!foundUser) continue
+    schedulesToSave.push({
+      ...schedule,
+      companyId: foundUser.companyId,
+      userId: foundUser.id
+    })
+  }
+
+  return schedulesToSave
 }
