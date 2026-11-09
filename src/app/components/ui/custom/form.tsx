@@ -99,6 +99,7 @@ export const Select = ({
   label,
   error,
   name,
+  id = name,
   defaultValue,
   className,
   ...props
@@ -111,12 +112,8 @@ export const Select = ({
   error?: string
 } & ComponentProps<'div'>) => {
   return (
-    <div
-      className={cn('grid gap-3', className)}
-      {...props}
-      aria-invalid={!!error}
-    >
-      <Label htmlFor={name} className={error ? 'text-destructive' : undefined}>
+    <div className={cn('grid gap-3', className)} {...props}>
+      <Label htmlFor={id} className={error ? 'text-destructive' : undefined}>
         {label}
       </Label>
       <_Select
@@ -125,7 +122,7 @@ export const Select = ({
         defaultValue={defaultValue}
         items={options}
       >
-        <SelectTrigger className="w-full" aria-invalid={!!error}>
+        <SelectTrigger id={id} className="w-full" aria-invalid={!!error}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>

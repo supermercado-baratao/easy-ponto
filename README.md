@@ -75,6 +75,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 - Datas e horários são salvos em UTC com o horário local (`07:27` vira `07:27Z`), sempre pelo `dayjs` de `@/infra/dayjs`. A data atual vem de `wallClockNow()`, no horário de São Paulo.
 - `actions.ts` com `'use server'` é só para mutações chamadas pelo cliente; dados lidos por uma Server Component vêm de um `data.ts`. As páginas que leem o banco renderizam a cada requisição.
 - Os formulários usam `useFormState` (os novos usam `useActionState`, o nome atual no React 19) com Server Actions que chamam o `handleFormAction()`: os erros do Zod viram mensagens nos campos, e os outros erros viram um toast.
+- Todo registro que pode ser cadastrado também pode ser editado, e todos os campos do formulário são editáveis, menos os dados imutáveis (como os que vêm do AFD).
 
 ### Interface
 

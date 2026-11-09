@@ -72,6 +72,7 @@ There is no login yet: the `ADMIN_USER_ID` environment variable picks the `Admin
 - Forms are client components that call `useFormState` (new forms use `useActionState`, its current name in React 19) with a Server Action from their `actions.ts`, and render `FormCard`, `FormField` and `Select` from `src/app/components/ui/custom/form.tsx`, with `Loader` in the submit button while the action is pending.
 - A form submit wraps the model call in `handleFormAction(model.method, state, formData)` (`src/entry/form-action.ts`), which turns the `FormData` into an object, returns `data` and `success` and maps the errors: a `ZodError` becomes `errors` (the first message per field, in Portuguese through `z.config(pt())`) and anything else becomes `fatalError`, which the form shows as a toast (`sonner`). Actions that are not a form submit (e.g. `importFromDevice`, `importFile`) catch the error themselves and return `fatalError`.
 - Each model validates its own input with its `schema.ts` (`schema.parse(input)`), never in the action. Always persist the data Zod validated, never the raw input.
+- Whatever can be created can also be edited, and every field of a form is editable. The only exception is immutable data, such as the `id`, the timestamps and the fields read from the AFD (`nsr`, `afdDatetime`, ...).
 
 ### Linting & formatting
 

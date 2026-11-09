@@ -61,6 +61,7 @@ model Company {
 
   adminUsers AdminUser[]
   users      User[]
+  holidays   Holiday[]
 
   @@map("companies")
 }
@@ -149,4 +150,21 @@ model ScheduleDay {
 
   @@unique([scheduleId, weekday])
   @@map("schedules_days")
+}
+
+model Holiday {
+  id        String  @id @onCreate(uuid())
+  date      Date
+  name      String
+  scope     String
+  recurring Boolean
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  companyId String  @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, date])
+  @@map("holidays")
 }

@@ -1,5 +1,6 @@
 import {
   Calendar,
+  CalendarDays,
   Clock,
   Clock12,
   HelpCircle,
@@ -63,6 +64,11 @@ export const navItems: TNavItem[] = [
             title: 'Intervalos',
             path: '/intervalos',
             icon: Hourglass
+          },
+          {
+            title: 'Feriados',
+            path: '/feriados',
+            icon: CalendarDays
           }
         ]
       }
