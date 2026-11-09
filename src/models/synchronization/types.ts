@@ -1,6 +1,7 @@
 import type { Company, PunchRecord, User } from '@/infra/database/types'
 
 import { TDeviceLoginCredentials, TGetAfdParams } from '../device/types'
+import type { TScheduleSaveData } from '../schedule/types'
 
 export type TSynchronizationCredentials = TDeviceLoginCredentials & {
   ip: string
@@ -58,8 +59,16 @@ export type TPunchRecordInJson = Pick<
   userName: string
 }
 
+export type TScheduleInJson = Omit<
+  TScheduleSaveData,
+  'companyId' | 'userId'
+> & {
+  userName: string
+}
+
 export type TDataInJson = {
   company: TCompanyInJson
   users: TUserInJson[]
   punchRecords: TPunchRecordInJson[]
+  schedules: TScheduleInJson[]
 }

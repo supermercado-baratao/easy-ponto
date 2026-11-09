@@ -2,7 +2,7 @@
 
 Sistema de controle de ponto do Supermercado Baratão. Ele lê a empresa, os funcionários e as batidas do relógio de ponto (Control iD iDClass).
 
-Hoje a loja usa o Secullum, então o Easy Ponto também importa o relatório **Cartão Ponto** exportado de lá. Essa importação existe para facilitar a migração de um sistema para o outro, não para complementar o uso diário: ela traz o que o aparelho não tem (departamento, função, data de admissão e número da folha) e as batidas incluídas manualmente no Secullum.
+Hoje a loja usa o Secullum, então o Easy Ponto também importa o relatório **Cartão Ponto** exportado de lá. Essa importação existe para facilitar a migração de um sistema para o outro, não para complementar o uso diário: ela traz o que o aparelho não tem (departamento, função, data de admissão, número da folha e escala de horários) e as batidas incluídas manualmente no Secullum.
 
 ## Como rodar
 
@@ -70,7 +70,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 
 - O código do servidor é dividido em camadas, e os imports só descem: `app` → `entry` → `models` → `repositories` → `infra`, com `constants` disponível para todas, sem importar nenhuma delas. O ESLint garante essa direção, e só os repositories acessam o cliente do banco.
 - `models/` guarda as regras de negócio de cada domínio (inclusive a comunicação com o relógio de ponto, em `models/device`), `repositories/` as queries, `entry/` a adaptação das Server Actions aos models e `infra/` a base técnica (banco, datas e erros).
-- O `synchronizationModel` reúne as sincronizações: empresa, funcionários (pelo PIS), batidas do AFD (ignorando os NSRs já salvos) e a importação do relatório do Secullum para a migração (funcionários pelo nome e as batidas marcadas com `*`, que não estão no AFD).
+- O `synchronizationModel` reúne as sincronizações: empresa, funcionários (pelo PIS), batidas do AFD (ignorando os NSRs já salvos) e a importação do relatório do Secullum para a migração (funcionários pelo nome, as batidas marcadas com `*`, que não estão no AFD, e as escalas, a partir do primeiro dia do período do relatório).
 - As batidas do AFD de um PIS sem funcionário salvo são descartadas, até a #30 decidir como guardar o histórico de ex-funcionários.
 - Datas e horários são salvos em UTC com o horário local (`07:27` vira `07:27Z`), sempre pelo `dayjs` de `@/infra/dayjs`. A data atual vem de `wallClockNow()`, no horário de São Paulo.
 - `actions.ts` com `'use server'` é só para mutações chamadas pelo cliente; dados lidos por uma Server Component vêm de um `data.ts`. As páginas que leem o banco renderizam a cada requisição.

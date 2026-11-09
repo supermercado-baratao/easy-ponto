@@ -16,9 +16,15 @@ import { companyModel } from '@/models/company/model'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
+import { scheduleModel } from '@/models/schedule/model'
 import { synchronizationModel } from '@/models/synchronization/model'
 import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
+import {
+  createEmployee,
+  createReportFile,
+  createReportRows
+} from '@/tests/_utils/secullum-report'
 import orchestrator from '@/tests/orchestrator'
 
 const [deviceUser] = deviceUsers
@@ -55,6 +61,26 @@ const synchronize = (
     credentials
   })
 }
+
+const importFile = (
+  file: File,
+  { credentials, company }: Awaited<ReturnType<typeof populate>>
+) => {
+  vi.spyOn(deviceModel, 'loadUsers').mockResolvedValue([deviceUser])
+  return synchronizationModel.importFile({ file, company, credentials })
+}
+
+const createScheduleFile = (mondayEntry: string): File =>
+  createReportFile(
+    createReportRows({
+      employees: [
+        createEmployee({
+          name: deviceUser.name,
+          schedule: [['SEG', mondayEntry, '12:00']]
+        })
+      ]
+    })
+  )
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
@@ -132,6 +158,58 @@ describe('Synchronization Model', () => {
       )
 
       expect(user.cpf).toBe('12345678901')
+    })
+  })
+
+  describe('importFile', () => {
+    test('Saves the schedules of the users found by name', async () => {
+      const data = await populate()
+      const file = createReportFile(
+        createReportRows({
+          employees: [
+            createEmployee({ name: deviceUser.name }),
+            createEmployee({ name: 'Not on the device' })
+          ]
+        })
+      )
+
+      await importFile(file, data)
+
+      const [user] = await userModel.findManyByCompanyId(data.company.id)
+      const schedule = await scheduleModel.findInEffect({
+        userId: user.id,
+        date: '2025-10-01'
+      })
+      expect(schedule?.startDate).toBe('2025-10-01')
+      expect(schedule?.days[0]).toMatchObject({
+        weekday: 0,
+        entry1: null,
+        exit1: null
+      })
+      expect(schedule?.days[1]).toMatchObject({
+        weekday: 1,
+        entry1: 420,
+        exit1: 660,
+        entry2: 780,
+        exit2: 980,
+        entry3: null,
+        exit3: null
+      })
+    })
+
+    test('Replaces the schedule when the same file is imported again', async () => {
+      const data = await populate()
+      await importFile(createScheduleFile('8:00'), data)
+
+      await importFile(createScheduleFile('9:00'), data)
+
+      const [user] = await userModel.findManyByCompanyId(data.company.id)
+      const schedule = await scheduleModel.findInEffect({
+        userId: user.id,
+        date: '2025-10-01'
+      })
+      expect(schedule?.days).toHaveLength(7)
+      expect(schedule?.days[1]).toMatchObject({ entry1: 540, exit1: 720 })
     })
   })
 })

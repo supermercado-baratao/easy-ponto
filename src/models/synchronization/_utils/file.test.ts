@@ -1,86 +1,42 @@
 // @vitest-environment node
 
 import { describe, expect, test } from 'vitest'
-import * as xlsx from 'xlsx'
 
 import type { User } from '@/infra/database/types'
+import {
+  createEmployee,
+  createReportFile,
+  createReportRows,
+  type TRow
+} from '@/tests/_utils/secullum-report'
 
 import { InvalidExcelFileError } from '../errors'
-import { TDataInJson, TPunchRecordInJson, TUserInJson } from '../types'
+import {
+  TDataInJson,
+  TPunchRecordInJson,
+  TScheduleInJson,
+  TUserInJson
+} from '../types'
 import {
   ddMMYYYYToDate,
   extractDataFromJson,
   getPunchRecordsToCreate,
+  getSchedulesToSave,
   getUsersToUpdate,
   parseXlsToJson
 } from './file'
 
-type TRow = (string | null)[]
-
-type TEmployee = {
-  registration: string
-  name: string
-  payrollNumber: string
-  cpf: string
-  admissionDate: string
-  position: string
-  department: string
-  days: TRow[]
-}
-
-// The parser reads the user fields by their distance to the `Departamento` row and the CPF and
-// the admission date from the fifth column
-const createEmployeeRows = (employee: TEmployee): TRow[] => [
-  ['Matrícula:', employee.registration],
-  ['Horário:', '08:00 às 17:00'],
-  ['Nome:', employee.name],
-  ['Nº Folha:', employee.payrollNumber, null, 'CPF:', employee.cpf],
-  ['Admissão:', null, null, null, employee.admissionDate],
-  ['Função:', employee.position],
-  ['Departamento', employee.department],
-  ...employee.days
-]
-
-const createEmployee = (employee: Partial<TEmployee> = {}): TEmployee => ({
-  registration: '42',
-  name: 'Maria Teste',
-  payrollNumber: '7',
-  cpf: '529.982.247-25',
-  admissionDate: '15/08/2025',
-  position: 'Caixa',
-  department: 'Frente de loja',
-  days: [
-    ['01/10/25 - qua', '07:27', '12:00', '13:00*', '17:02'],
-    ['02/10/25 - qui', 'Falta']
-  ],
-  ...employee
+const workDay = (weekday: string): Record<string, string> => ({
+  [`${weekday}Entry1`]: '07:00',
+  [`${weekday}Exit1`]: '11:00',
+  [`${weekday}Entry2`]: '13:00',
+  [`${weekday}Exit2`]: '16:20',
+  [`${weekday}Entry3`]: '',
+  [`${weekday}Exit3`]: ''
 })
 
-const createRows = ({
-  cnpj = '11.222.333/0001-81',
-  employees = [createEmployee()]
-}: { cnpj?: string; employees?: TEmployee[] } = {}): TRow[] => [
-  ['CARTÃO PONTO'],
-  ['Período:', '01/10/25 a 31/10/25'],
-  ['Emissão:', '05/11/25'],
-  ['Empresa:', 'Supermercado Teste'],
-  ['CNPJ:', cnpj],
-  ['Inscrição:', '123456'],
-  ...employees.flatMap((employee) => createEmployeeRows(employee))
-]
-
-const createFile = (rows: TRow[]): File => {
-  const workbook = xlsx.utils.book_new()
-  xlsx.utils.book_append_sheet(workbook, xlsx.utils.aoa_to_sheet(rows))
-  const buffer: Buffer = xlsx.write(workbook, {
-    type: 'buffer',
-    bookType: 'xlsx'
-  })
-  return new File([new Uint8Array(buffer)], 'cartao-ponto.xlsx')
-}
-
 const extract = async (rows: TRow[]): Promise<TDataInJson> =>
-  extractDataFromJson(await parseXlsToJson(createFile(rows)))
+  extractDataFromJson(await parseXlsToJson(createReportFile(rows)))
 
 describe('ddMMYYYYToDate', () => {
   test.each([
@@ -97,7 +53,7 @@ describe('ddMMYYYYToDate', () => {
 describe('parseXlsToJson', () => {
   test('Reads the first sheet keyed by the first row', async () => {
     const json = await parseXlsToJson(
-      createFile([['CARTÃO PONTO'], ['Empresa:', 'Supermercado Teste']])
+      createReportFile([['CARTÃO PONTO'], ['Empresa:', 'Supermercado Teste']])
     )
 
     expect(json).toEqual([
@@ -108,7 +64,7 @@ describe('parseXlsToJson', () => {
 
 describe('extractDataFromJson', () => {
   test('Extracts the company', async () => {
-    const { company } = await extract(createRows())
+    const { company } = await extract(createReportRows())
 
     expect(company).toEqual({
       name: 'Supermercado Teste',
@@ -119,7 +75,7 @@ describe('extractDataFromJson', () => {
 
   test('Leaves the CNPJ empty when it is invalid', async () => {
     const { company } = await extract(
-      createRows({ cnpj: '11.222.333/0001-82' })
+      createReportRows({ cnpj: '11.222.333/0001-82' })
     )
 
     expect(company.cpfCnpj).toBe('')
@@ -127,7 +83,7 @@ describe('extractDataFromJson', () => {
 
   test('Extracts each user', async () => {
     const { users } = await extract(
-      createRows({
+      createReportRows({
         employees: [
           createEmployee(),
           createEmployee({ name: 'João Teste', registration: '43', days: [] })
@@ -151,7 +107,7 @@ describe('extractDataFromJson', () => {
 
   test('Leaves the CPF and the admission date empty when they are invalid', async () => {
     const { users } = await extract(
-      createRows({
+      createReportRows({
         employees: [
           createEmployee({ cpf: '529.982.247-26', admissionDate: '--/--/----' })
         ]
@@ -163,7 +119,7 @@ describe('extractDataFromJson', () => {
 
   test('Extracts the punch records of the user above them', async () => {
     const { punchRecords } = await extract(
-      createRows({
+      createReportRows({
         employees: [
           createEmployee(),
           createEmployee({
@@ -205,7 +161,7 @@ describe('extractDataFromJson', () => {
 
   test('Ignores the rows that are not days of the week', async () => {
     const { punchRecords } = await extract(
-      createRows({
+      createReportRows({
         employees: [
           createEmployee({
             days: [
@@ -219,6 +175,66 @@ describe('extractDataFromJson', () => {
     )
 
     expect(punchRecords).toEqual([])
+  })
+
+  test('Extracts the schedule of each user from the start of the period', async () => {
+    const { schedules } = await extract(
+      createReportRows({
+        employees: [
+          createEmployee(),
+          createEmployee({
+            name: 'João Teste',
+            schedule: [
+              ['SEG', '22:00', '23:30'],
+              ['DOM', '6:00', '10:00', '10:15', '12:00', '13:00', '14:00']
+            ]
+          })
+        ]
+      })
+    )
+
+    expect(schedules).toEqual([
+      {
+        userName: 'Maria Teste',
+        startDate: '2025-10-01',
+        ...workDay('monday'),
+        ...workDay('tuesday'),
+        ...workDay('wednesday'),
+        ...workDay('thursday'),
+        ...workDay('friday'),
+        ...workDay('saturday'),
+        sundayEntry1: '',
+        sundayExit1: '',
+        sundayEntry2: '',
+        sundayExit2: '',
+        sundayEntry3: '',
+        sundayExit3: ''
+      },
+      {
+        userName: 'João Teste',
+        startDate: '2025-10-01',
+        mondayEntry1: '22:00',
+        mondayExit1: '23:30',
+        mondayEntry2: '',
+        mondayExit2: '',
+        mondayEntry3: '',
+        mondayExit3: '',
+        sundayEntry1: '06:00',
+        sundayExit1: '10:00',
+        sundayEntry2: '10:15',
+        sundayExit2: '12:00',
+        sundayEntry3: '13:00',
+        sundayExit3: '14:00'
+      }
+    ])
+  })
+
+  test('Skips the users without the schedule block', async () => {
+    const { schedules } = await extract(
+      createReportRows({ employees: [createEmployee({ schedule: [] })] })
+    )
+
+    expect(schedules).toEqual([])
   })
 
   test('Throws InvalidExcelFileError when the file has another layout', async () => {
@@ -246,6 +262,33 @@ describe('getUsersToUpdate', () => {
         pis: '000000000001',
         cpf: '52998224725',
         position: 'Caixa'
+      }
+    ])
+  })
+})
+
+describe('getSchedulesToSave', () => {
+  test('Returns the schedules of the saved users with the same name', () => {
+    const users = [
+      { id: '1', companyId: 'company', name: 'Maria Teste' }
+    ] as User[]
+    const schedules: TScheduleInJson[] = [
+      {
+        userName: 'Maria Teste',
+        startDate: '2025-10-01',
+        mondayEntry1: '07:00',
+        mondayExit1: '11:00'
+      },
+      { userName: 'Ana Teste', startDate: '2025-10-01' }
+    ]
+
+    expect(getSchedulesToSave(schedules, users)).toEqual([
+      {
+        companyId: 'company',
+        userId: '1',
+        startDate: '2025-10-01',
+        mondayEntry1: '07:00',
+        mondayExit1: '11:00'
       }
     ])
   })
