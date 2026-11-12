@@ -14,7 +14,7 @@ import {
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 
-const timeSchema = z
+export const timeSchema = z
   .string()
   .refine((value) => value === '' || TIME_PATTERN.test(value), {
     message: 'Horário deve estar no formato hh:mm'

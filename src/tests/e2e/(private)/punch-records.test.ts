@@ -101,7 +101,9 @@ test.describe('Punch Records Page', () => {
         dayjs(date).format('DD/MM/YYYY'),
         dayjs(date).format('ddd'),
         ...times,
-        ...Array.from({ length: columns - times.length }, () => '')
+        ...Array.from({ length: columns - times.length }, () => ''),
+        '',
+        ''
       ])
     }
   })

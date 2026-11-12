@@ -1,10 +1,14 @@
 import { getAdminUser } from '@/entry/admin-user'
 import type {
+  JustificationType,
   TAdminUserWithRelations,
+  TJustificationWithType,
   TScheduleWithDays,
   User
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
+import { justificationModel } from '@/models/justification/model'
+import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import type {
   TPunchRecordDay,
@@ -21,6 +25,8 @@ type TPunchRecordsPageData = {
   days: TPunchRecordDay[]
   schedule: TScheduleWithDays | null
   defaultScheduleStartDate: string
+  justifications: TJustificationWithType[]
+  justificationTypes: JustificationType[]
 }
 
 export const getPunchRecordsPageData = async ({
@@ -47,6 +53,12 @@ export const getPunchRecordsPageData = async ({
         date: period.finalDate
       })
     : null
+  const justifications = user
+    ? await justificationModel.findManyInPeriod({ userId: user.id, ...period })
+    : []
+  const justificationTypes = adminUser.companyId
+    ? await justificationTypeModel.findManyByCompanyId(adminUser.companyId)
+    : []
   const defaultScheduleStartDate = user?.admissionDate
     ? dayjs(user.admissionDate).format('YYYY-MM-DD')
     : period.initialDate
@@ -57,6 +69,8 @@ export const getPunchRecordsPageData = async ({
     period,
     days,
     schedule,
-    defaultScheduleStartDate
+    defaultScheduleStartDate,
+    justifications,
+    justificationTypes
   }
 }

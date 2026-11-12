@@ -14,6 +14,9 @@ export default defineConfig({
   // `next dev` compiles each route on its first request, which on a cold CI runner can outlast the
   // default 5s of an assertion that waits for a navigation
   expect: { timeout: 15_000 },
+  // The CRUD flows chain several Server Actions, each compiled on its first call, and already took
+  // close to the default 30s with the machine idle
+  timeout: 60_000,
   webServer: {
     command: `pnpm test:services && pnpm exec next dev --port ${PORT}`,
     url: BASE_URL,
