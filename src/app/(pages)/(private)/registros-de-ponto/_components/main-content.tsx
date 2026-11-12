@@ -2,7 +2,9 @@ import { Header } from '@/app/components/blocks/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
 import type {
+  JustificationType,
   TAdminUserWithRelations,
+  TJustificationWithType,
   TScheduleWithDays,
   User
 } from '@/infra/database/types'
@@ -11,6 +13,7 @@ import type {
   TPunchRecordPeriod
 } from '@/models/punch-record/types'
 
+import { JustificationProvider } from './justification/justification-provider'
 import { PeriodFilter } from './period-filter/period-filter'
 import { PunchRecordsTable } from './punch-records-table/punch-records-table'
 import { ScheduleSection } from './schedule/schedule-section'
@@ -24,7 +27,9 @@ export const MainContent = ({
   period,
   days,
   schedule,
-  defaultScheduleStartDate
+  defaultScheduleStartDate,
+  justifications,
+  justificationTypes
 }: {
   adminUser: TAdminUserWithRelations
   users: User[]
@@ -33,6 +38,8 @@ export const MainContent = ({
   days: TPunchRecordDay[]
   schedule: TScheduleWithDays | null
   defaultScheduleStartDate: string
+  justifications: TJustificationWithType[]
+  justificationTypes: JustificationType[]
 }) => (
   <>
     <Header title="Registros de Ponto">
@@ -50,7 +57,12 @@ export const MainContent = ({
             defaultStartDate={defaultScheduleStartDate}
           />
           <PeriodFilter pis={user.pis} period={period} />
-          <PunchRecordsTable days={days} />
+          <JustificationProvider
+            user={{ id: user.id, name: user.name }}
+            types={justificationTypes}
+          >
+            <PunchRecordsTable days={days} justifications={justifications} />
+          </JustificationProvider>
         </>
       ) : (
         <div>

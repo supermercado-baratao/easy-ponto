@@ -1,6 +1,7 @@
 import {
   Calendar,
   CalendarDays,
+  ClipboardCheck,
   Clock,
   Clock12,
   HelpCircle,
@@ -69,6 +70,11 @@ export const navItems: TNavItem[] = [
             title: 'Feriados',
             path: '/feriados',
             icon: CalendarDays
+          },
+          {
+            title: 'Tipos de Justificativa',
+            path: '/tipos-de-justificativa',
+            icon: ClipboardCheck
           }
         ]
       }

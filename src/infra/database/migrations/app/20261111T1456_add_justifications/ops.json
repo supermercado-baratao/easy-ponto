@@ -1,0 +1,448 @@
+[
+  {
+    "id": "table.justification_types",
+    "label": "Create table \"justification_types\"",
+    "summary": "Creates table \"justification_types\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "justification_types"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"justification_types\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"justification_types\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"justification_types\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"justification_types\"",
+        "sql": "CREATE TABLE \"public\".\"justification_types\" (\n  \"code\" text NOT NULL,\n  \"company_id\" text NOT NULL,\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"description\" text NOT NULL,\n  \"effect\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"justification_types\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"justification_types\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"justification_types\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.justifications",
+    "label": "Create table \"justifications\"",
+    "summary": "Creates table \"justifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "justifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"justifications\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"justifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"justifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"justifications\"",
+        "sql": "CREATE TABLE \"public\".\"justifications\" (\n  \"created_at\" timestamptz(3) DEFAULT (now()) NOT NULL,\n  \"end_date\" date NOT NULL,\n  \"end_time\" int4,\n  \"id\" text NOT NULL,\n  \"note\" text,\n  \"start_date\" date NOT NULL,\n  \"start_time\" int4,\n  \"type_id\" text NOT NULL,\n  \"updated_at\" timestamptz(3) NOT NULL,\n  \"user_id\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"justifications\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"justifications\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"justifications\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.justification_types.justification_types_company_id_code_key",
+    "label": "Add unique constraint on \"justification_types\" (company_id, code)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "justification_types_company_id_code_key",
+        "table": "justification_types"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"justification_types_company_id_code_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "justification_types_company_id_code_key",
+          "public",
+          "\"public\".\"justification_types\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"justification_types_company_id_code_key\" on \"justification_types\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"justification_types_company_id_code_key\"",
+        "sql": "ALTER TABLE \"public\".\"justification_types\" ADD CONSTRAINT \"justification_types_company_id_code_key\" UNIQUE (\"company_id\", \"code\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"justification_types_company_id_code_key\" exists on (company_id, code)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "justification_types_company_id_code_key",
+          "public",
+          "\"public\".\"justification_types\"",
+          "u",
+          "[\"company_id\",\"code\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.justification_types.justification_types_company_id_idx_1303a718",
+    "label": "Create index \"justification_types_company_id_idx_1303a718\" on \"justification_types\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "justification_types_company_id_idx_1303a718",
+        "table": "justification_types"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"justification_types_company_id_idx_1303a718\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"justification_types_company_id_idx_1303a718\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"justification_types_company_id_idx_1303a718\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"justification_types_company_id_idx_1303a718\"",
+        "sql": "CREATE INDEX \"justification_types_company_id_idx_1303a718\" ON \"public\".\"justification_types\" (\"company_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"justification_types_company_id_idx_1303a718\" exists on \"justification_types\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"justification_types_company_id_idx_1303a718\"",
+          "i",
+          "I",
+          "\"public\".\"justification_types\"",
+          "btree",
+          "[\"company_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.justifications.justifications_type_id_idx_907568e1",
+    "label": "Create index \"justifications_type_id_idx_907568e1\" on \"justifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "justifications_type_id_idx_907568e1",
+        "table": "justifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"justifications_type_id_idx_907568e1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"justifications_type_id_idx_907568e1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"justifications_type_id_idx_907568e1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"justifications_type_id_idx_907568e1\"",
+        "sql": "CREATE INDEX \"justifications_type_id_idx_907568e1\" ON \"public\".\"justifications\" (\"type_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"justifications_type_id_idx_907568e1\" exists on \"justifications\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"justifications_type_id_idx_907568e1\"",
+          "i",
+          "I",
+          "\"public\".\"justifications\"",
+          "btree",
+          "[\"type_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.justifications.justifications_user_id_idx_6c952402",
+    "label": "Create index \"justifications_user_id_idx_6c952402\" on \"justifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "justifications_user_id_idx_6c952402",
+        "table": "justifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"justifications_user_id_idx_6c952402\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"justifications_user_id_idx_6c952402\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"justifications_user_id_idx_6c952402\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"justifications_user_id_idx_6c952402\"",
+        "sql": "CREATE INDEX \"justifications_user_id_idx_6c952402\" ON \"public\".\"justifications\" (\"user_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"justifications_user_id_idx_6c952402\" exists on \"justifications\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"justifications_user_id_idx_6c952402\"",
+          "i",
+          "I",
+          "\"public\".\"justifications\"",
+          "btree",
+          "[\"user_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.justification_types.justification_types_company_id_fkey",
+    "label": "Add foreign key \"justification_types_company_id_fkey\" on \"justification_types\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "justification_types_company_id_fkey",
+        "table": "justification_types"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"justification_types_company_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "justification_types_company_id_fkey",
+          "public",
+          "\"public\".\"justification_types\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"justification_types_company_id_fkey\" on \"justification_types\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"justification_types_company_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"justification_types\"\nADD CONSTRAINT \"justification_types_company_id_fkey\"\nFOREIGN KEY (\"company_id\")\nREFERENCES \"public\".\"companies\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"justification_types_company_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "justification_types_company_id_fkey",
+          "public",
+          "\"public\".\"justification_types\"",
+          "f",
+          "[\"company_id\"]",
+          "\"public\".\"companies\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.justifications.justifications_user_id_fkey",
+    "label": "Add foreign key \"justifications_user_id_fkey\" on \"justifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "justifications_user_id_fkey",
+        "table": "justifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"justifications_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "justifications_user_id_fkey",
+          "public",
+          "\"public\".\"justifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"justifications_user_id_fkey\" on \"justifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"justifications_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"justifications\"\nADD CONSTRAINT \"justifications_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"users\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"justifications_user_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "justifications_user_id_fkey",
+          "public",
+          "\"public\".\"justifications\"",
+          "f",
+          "[\"user_id\"]",
+          "\"public\".\"users\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.justifications.justifications_type_id_fkey",
+    "label": "Add foreign key \"justifications_type_id_fkey\" on \"justifications\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "justifications_type_id_fkey",
+        "table": "justifications"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"justifications_type_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "justifications_type_id_fkey",
+          "public",
+          "\"public\".\"justifications\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"justifications_type_id_fkey\" on \"justifications\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"justifications_type_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"justifications\"\nADD CONSTRAINT \"justifications_type_id_fkey\"\nFOREIGN KEY (\"type_id\")\nREFERENCES \"public\".\"justification_types\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"justifications_type_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "justifications_type_id_fkey",
+          "public",
+          "\"public\".\"justifications\"",
+          "f",
+          "[\"type_id\"]",
+          "\"public\".\"justification_types\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]
