@@ -101,11 +101,13 @@ export const Select = ({
   name,
   id = name,
   defaultValue,
+  onValueChange,
   className,
   ...props
 }: {
   name: string
   defaultValue?: string
+  onValueChange?: (value: string | null) => void
   placeholder: string
   label?: string
   options: { value: string; label: string }[]
@@ -120,6 +122,7 @@ export const Select = ({
         key={defaultValue}
         name={name}
         defaultValue={defaultValue}
+        onValueChange={onValueChange}
         items={options}
       >
         <SelectTrigger id={id} className="w-full" aria-invalid={!!error}>

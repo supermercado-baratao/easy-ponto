@@ -1,6 +1,9 @@
+import type { z } from 'zod'
+
 import type {
   Company,
   HoursBankClosing,
+  JustificationType,
   PunchRecord,
   User
 } from '@/infra/database/types'
@@ -8,6 +11,7 @@ import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
 
 import { TDeviceLoginCredentials, TGetAfdParams } from '../device/types'
 import type { TScheduleSaveData } from '../schedule/types'
+import type { codeResolutionSchema } from './schema'
 
 export type TSynchronizationCredentials = TDeviceLoginCredentials & {
   ip: string
@@ -39,11 +43,26 @@ export type TParsedAfdRecord = {
   hexadecimalCheckDigit: string
 }
 
+export type TCodeResolution = z.input<typeof codeResolutionSchema>
+
 export type TFileSynchronizationParams = {
   file: File
   company: Company
   credentials: TSynchronizationCredentials
+  resolutions?: Record<string, TCodeResolution>
 }
+
+export type TFileImportResult =
+  | {
+      status: 'unresolved'
+      unknownCodes: string[]
+      types: Pick<JustificationType, 'id' | 'code' | 'description'>[]
+    }
+  | {
+      status: 'imported'
+      company: Company
+      skippedJustifications: number
+    }
 
 export type TCompanyInJson = Pick<Company, 'name' | 'cpfCnpj' | 'registration'>
 
@@ -70,6 +89,15 @@ export type TScheduleInJson = Omit<
   'companyId' | 'userId'
 > & {
   userName: string
+}
+
+export type TJustificationInJson = {
+  userName: string
+  code: string
+  startDate: string
+  endDate: string
+  startTime: string
+  endTime: string
 }
 
 export type TDataInJson = {

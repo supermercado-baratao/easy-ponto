@@ -1,12 +1,26 @@
-import type { Company, TInputData, User } from '@/infra/database/types'
+import { z } from 'zod'
+
+import type {
+  Company,
+  Justification,
+  JustificationType,
+  TInputData,
+  User
+} from '@/infra/database/types'
 import { companyModel } from '@/models/company/model'
+import { updateSchema as companyUpdateSchema } from '@/models/company/schema'
 import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
 import { hoursBankModel } from '@/models/hours-bank/model'
+import { createSchema as justificationCreateSchema } from '@/models/justification/schema'
+import { findOverlappingJustification } from '@/models/justification/utils'
+import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
-import { scheduleModel } from '@/models/schedule/model'
+import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
 import { userModel } from '@/models/user/model'
+import { justificationRepository } from '@/repositories/justification-repository'
+import { synchronizationRepository } from '@/repositories/synchronization-repository'
 
 import {
   filterExistingDeviceUsersInTheParsedAfd,
@@ -16,6 +30,7 @@ import {
 import { mapDeviceCompanyToCompany } from './_utils/company'
 import {
   extractDataFromJson,
+  extractPeriod,
   getPunchRecordsToCreate,
   getSchedulesToSave,
   getUsersToUpdate,
@@ -25,11 +40,14 @@ import {
   extractHoursBankFromJson,
   getInitialBalancesToSave
 } from './_utils/hours-bank'
+import { extractJustificationsFromJson } from './_utils/justification'
 import { getSession } from './_utils/session'
 import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
+import { importFileSchema } from './schema'
 import {
   TAfdSynchronizationParams,
   TCompanySynchronizationParams,
+  TFileImportResult,
   TFileSynchronizationParams,
   TInitialBalanceImportParams,
   TInitialBalanceImportResult,
@@ -111,36 +129,189 @@ const synchronizeAfd = async ({
   }
 }
 
+const resolveTypes = (
+  codes: string[],
+  resolutions: z.infer<typeof importFileSchema>['resolutions'],
+  savedTypes: JustificationType[],
+  companyId: string
+): {
+  typeIds: Map<string, string>
+  typesToCreate: (TInputData<JustificationType> & { id: string })[]
+} => {
+  const typeIds = new Map(savedTypes.map((type) => [type.code, type.id]))
+  const typesToCreate: (TInputData<JustificationType> & { id: string })[] = []
+  const issues: z.core.$ZodIssue[] = []
+
+  for (const code of codes) {
+    if (typeIds.has(code)) continue
+    const resolution = resolutions[code]
+    if (resolution.action === 'associate') {
+      if (savedTypes.every((type) => type.id !== resolution.typeId)) {
+        throw new Error(
+          `JustificationType ${resolution.typeId} not found in company ${companyId}`
+        )
+      }
+      typeIds.set(code, resolution.typeId)
+      continue
+    }
+    const type = {
+      code: resolution.code,
+      description: resolution.description,
+      effect: resolution.effect
+    }
+    if (
+      savedTypes.some((saved) => saved.code === type.code) ||
+      typesToCreate.some((created) => created.code === type.code)
+    ) {
+      issues.push({
+        code: 'custom',
+        path: ['resolutions', code, 'code'],
+        message: 'Já existe um tipo com esse código',
+        input: type.code
+      })
+      continue
+    }
+    const id = crypto.randomUUID()
+    typesToCreate.push({ ...type, id, companyId })
+    typeIds.set(code, id)
+  }
+
+  if (issues.length > 0) throw new z.ZodError(issues)
+  return { typeIds, typesToCreate }
+}
+
+const toCompanyUpdate = ({
+  id,
+  registration = null
+}: z.infer<typeof companyUpdateSchema>): {
+  id: string
+  registration: string | null
+} => ({ id, registration })
+
+const isSameJustification = (
+  justification: TInputData<Justification>,
+  other: Justification
+): boolean =>
+  justification.typeId === other.typeId &&
+  justification.startDate === other.startDate &&
+  justification.endDate === other.endDate &&
+  justification.startTime === other.startTime &&
+  justification.endTime === other.endTime
+
 const importFile = async ({
   file,
   company,
-  credentials
-}: TFileSynchronizationParams): Promise<Company> => {
-  const [json, users] = await Promise.all([
+  credentials,
+  resolutions
+}: TFileSynchronizationParams): Promise<TFileImportResult> => {
+  const { resolutions: validResolutions } = importFileSchema.parse({
+    resolutions
+  })
+  const [json, users, savedTypes] = await Promise.all([
     parseXlsToJson(file),
-    synchronizeUsers({ companyId: company.id, credentials })
+    synchronizeUsers({ companyId: company.id, credentials }),
+    justificationTypeModel.findManyByCompanyId(company.id)
   ])
   const dataInJson = extractDataFromJson(json)
-  const usersToUpdate = getUsersToUpdate(users, dataInJson.users)
-  const punchRecordsToCreate = getPunchRecordsToCreate(
-    dataInJson.punchRecords,
-    users
+  const justificationsInJson = extractJustificationsFromJson(
+    json,
+    dataInJson.schedules
+  ).filter(({ userName }) => users.some((user) => user.name === userName))
+
+  const codes = [...new Set(justificationsInJson.map(({ code }) => code))]
+  const unknownCodes = codes.filter(
+    (code) =>
+      savedTypes.every((type) => type.code !== code) &&
+      !Object.hasOwn(validResolutions, code)
   )
-  const schedulesToSave = getSchedulesToSave(dataInJson.schedules, users)
+  if (unknownCodes.length > 0) {
+    return {
+      status: 'unresolved',
+      unknownCodes,
+      types: savedTypes.map(({ id, code, description }) => ({
+        id,
+        code,
+        description
+      }))
+    }
+  }
 
-  const [updatedCompany] = await Promise.all([
-    company.registration !== dataInJson.company.registration &&
-      companyModel.update({
-        id: company.id,
-        registration: dataInJson.company.registration
-      }),
-    usersToUpdate.length > 0 && userModel.updateMany(usersToUpdate),
-    punchRecordsToCreate.length > 0 &&
-      punchRecordModel.createManyNonExistentInAfd(punchRecordsToCreate),
-    ...schedulesToSave.map((schedule) => scheduleModel.save(schedule))
-  ])
+  const { typeIds, typesToCreate } = resolveTypes(
+    codes,
+    validResolutions,
+    savedTypes,
+    company.id
+  )
+  const { startDate, endDate } = extractPeriod(json)
+  const savedJustifications =
+    await justificationRepository.findManyInPeriodByUserIds({
+      userIds: users.map(({ id }) => id),
+      initialDate: startDate,
+      finalDate: endDate
+    })
 
-  return updatedCompany || company
+  let skippedJustifications = 0
+  const justificationsToCreate: TInputData<Justification>[] = []
+  for (const { userName, code, ...period } of justificationsInJson) {
+    const user = users.find(({ name }) => name === userName)!
+    const { userId, typeId, startDate, endDate, startTime, endTime, note } =
+      justificationCreateSchema.parse({
+        ...period,
+        companyId: company.id,
+        userId: user.id,
+        typeId: typeIds.get(code)
+      })
+    const justification = {
+      userId,
+      typeId,
+      startDate,
+      endDate,
+      startTime,
+      endTime,
+      note
+    }
+    const overlapping = findOverlappingJustification(
+      justification,
+      savedJustifications.filter(({ userId }) => userId === user.id)
+    )
+    if (!overlapping) {
+      justificationsToCreate.push(justification)
+      continue
+    }
+    if (!isSameJustification(justification, overlapping)) {
+      skippedJustifications++
+    }
+  }
+
+  const updatedCompany = await synchronizationRepository.importFile({
+    company:
+      company.registration === dataInJson.company.registration
+        ? null
+        : toCompanyUpdate(
+            companyUpdateSchema.parse({
+              id: company.id,
+              registration: dataInJson.company.registration
+            })
+          ),
+    users: getUsersToUpdate(users, dataInJson.users),
+    punchRecords: await punchRecordModel.findNewNonExistentInAfd(
+      getPunchRecordsToCreate(dataInJson.punchRecords, users)
+    ),
+    schedules: getSchedulesToSave(dataInJson.schedules, users).map(
+      (schedule) => {
+        const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
+        return { userId, startDate, days }
+      }
+    ),
+    justificationTypes: typesToCreate,
+    justifications: justificationsToCreate
+  })
+
+  return {
+    status: 'imported',
+    company: updatedCompany ?? company,
+    skippedJustifications
+  }
 }
 
 const importInitialBalance = async ({

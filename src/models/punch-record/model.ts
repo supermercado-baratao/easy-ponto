@@ -34,23 +34,28 @@ const createNonExistentInAfd = async (
   return await punchRecordRepository.create(validData)
 }
 
-const createManyNonExistentInAfd = async (
+const findNewNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData[]
-): Promise<void> => {
+): Promise<Pick<PunchRecord, 'pis' | 'datetime'>[]> => {
+  if (data.length === 0) return []
   const validData = await createManyNonExistentsInAfdSchema.parseAsync(data)
   const pisList = [...new Set(validData.map(({ pis }) => pis))]
   const savedRecords = await punchRecordRepository.findManyByPisList(pisList)
   const seenRecords = new Set(
     savedRecords.map((record) => getRecordKey(record))
   )
-  const newRecords = validData.filter((record) => {
+  return validData.filter((record) => {
     const key = getRecordKey(record)
     if (seenRecords.has(key)) return false
     seenRecords.add(key)
     return true
   })
+}
 
-  await punchRecordRepository.createMany(newRecords)
+const createManyNonExistentInAfd = async (
+  data: TPunchRecordCreateNonExistentInAfdData[]
+): Promise<void> => {
+  await punchRecordRepository.createMany(await findNewNonExistentInAfd(data))
 }
 
 const createManyExistentsInAfd = async (
@@ -108,6 +113,7 @@ const deleteRecord = async (id: string): Promise<PunchRecord> => {
 export const punchRecordModel = {
   createNonExistentInAfd,
   createManyNonExistentInAfd,
+  findNewNonExistentInAfd,
   createManyExistentsInAfd,
   findMany,
   findManyByDay,
