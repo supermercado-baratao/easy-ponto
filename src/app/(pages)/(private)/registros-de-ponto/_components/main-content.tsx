@@ -8,10 +8,8 @@ import type {
   TScheduleWithDays,
   User
 } from '@/infra/database/types'
-import type {
-  TPunchRecordDay,
-  TPunchRecordPeriod
-} from '@/models/punch-record/types'
+import type { TJourneyDay } from '@/models/journey/types'
+import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 
 import { JustificationProvider } from './justification/justification-provider'
 import { PeriodFilter } from './period-filter/period-filter'
@@ -35,7 +33,7 @@ export const MainContent = ({
   users: User[]
   user: User | null
   period: TPunchRecordPeriod
-  days: TPunchRecordDay[]
+  days: TJourneyDay[]
   schedule: TScheduleWithDays | null
   defaultScheduleStartDate: string
   justifications: TJustificationWithType[]

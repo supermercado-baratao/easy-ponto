@@ -7,6 +7,7 @@ import { holidayRepository } from '@/repositories/holiday-repository'
 import {
   addNationalHolidaysSchema,
   createSchema,
+  findManyByCompanyIdSchema,
   findManyByYearSchema,
   removeSchema,
   updateSchema,
@@ -65,6 +66,11 @@ const findManyByYear = async (
     .toSorted((a, b) => a.dateInYear.localeCompare(b.dateInYear))
 }
 
+const findManyByCompanyId = async (companyId: string): Promise<Holiday[]> =>
+  await holidayRepository.findManyByCompanyId(
+    findManyByCompanyIdSchema.parse(companyId)
+  )
+
 const create = async (data: THolidayCreateData): Promise<Holiday> => {
   const validData = createSchema.parse(data)
   await assertNoConflict(validData)
@@ -112,6 +118,7 @@ const addNationalHolidays = async (
 export const holidayModel = {
   resolveYear,
   findManyByYear,
+  findManyByCompanyId,
   create,
   update,
   remove,

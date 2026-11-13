@@ -4,10 +4,14 @@ import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { adminUserModel } from '@/models/admin-user/model'
 import { punchRecordModel } from '@/models/punch-record/model'
+import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
 
 const PERIOD = { initialDate: '2025-10-01', finalDate: '2025-10-31' }
 const MANUAL_PUNCH_DATETIME = '2025-10-15T23:00:00.000Z'
+// Before the mocked AFD, so the employee has only the punches created here
+const JOURNEY_PERIOD = { initialDate: '2024-01-07', finalDate: '2024-01-09' }
+const JOURNEY_PUNCH_TIMES = ['07:00', '11:00', '13:00', '17:30']
 
 let users: User[]
 
@@ -30,8 +34,25 @@ test.beforeAll(async () => {
   )
   users = await userModel.findManyByCompanyId(adminUser.companyId!)
   await punchRecordModel.createManyNonExistentInAfd([
-    { pis: users[0].pis, datetime: new Date(MANUAL_PUNCH_DATETIME) }
+    { pis: users[0].pis, datetime: new Date(MANUAL_PUNCH_DATETIME) },
+    ...JOURNEY_PUNCH_TIMES.map((time) => ({
+      pis: users[5].pis,
+      datetime: new Date(`2024-01-08T${time}:00.000Z`)
+    }))
   ])
+  await scheduleModel.save({
+    companyId: adminUser.companyId!,
+    userId: users[5].id,
+    startDate: '2024-01-01',
+    mondayEntry1: '07:00',
+    mondayExit1: '11:00',
+    mondayEntry2: '13:00',
+    mondayExit2: '17:00',
+    tuesdayEntry1: '07:00',
+    tuesdayExit1: '11:00',
+    tuesdayEntry2: '13:00',
+    tuesdayExit2: '17:00'
+  })
 })
 
 test.describe('Punch Records Page', () => {
@@ -72,7 +93,7 @@ test.describe('Punch Records Page', () => {
   })
 
   test('Filters the punch records by period', async ({ page }) => {
-    const period = { initialDate: '2025-11-01', finalDate: '2025-11-07' }
+    const period = { initialDate: '2025-11-03', finalDate: '2025-11-07' }
     const user = users[1]
     await page.goto(getHref(user.pis))
 
@@ -102,8 +123,8 @@ test.describe('Punch Records Page', () => {
         dayjs(date).format('ddd'),
         ...times,
         ...Array.from({ length: columns - times.length }, () => ''),
-        '',
-        ''
+        'Sem escala',
+        ...Array.from({ length: 7 }, () => '')
       ])
     }
   })
@@ -124,5 +145,58 @@ test.describe('Punch Records Page', () => {
       page.getByRole('table', { name: 'Registros de ponto' })
     ).toBeVisible()
     await expect(page.getByText('* Batida inserida manualmente')).toHaveCount(0)
+  })
+
+  test('Shows the journey of each day', async ({ page }) => {
+    await page.goto(getHref(users[5].pis, JOURNEY_PERIOD))
+
+    const rows = page
+      .getByRole('table', { name: 'Registros de ponto' })
+      .locator('tbody tr')
+    await expect(rows.nth(0).getByRole('cell')).toHaveText([
+      '07/01/2024',
+      'dom',
+      '',
+      '',
+      '',
+      '',
+      'Folga',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      ''
+    ])
+    await expect(rows.nth(1).getByRole('cell')).toHaveText([
+      '08/01/2024',
+      'seg',
+      ...JOURNEY_PUNCH_TIMES.map((time) => `${time}* (inserida manualmente)`),
+      '08:00',
+      '08:30',
+      '',
+      '',
+      '00:30',
+      '',
+      '',
+      ''
+    ])
+    await expect(rows.nth(2).getByRole('cell')).toHaveText([
+      '09/01/2024',
+      'ter',
+      '',
+      '',
+      '',
+      '',
+      '08:00',
+      '',
+      '08:00',
+      '',
+      '',
+      '',
+      '',
+      ''
+    ])
   })
 })
