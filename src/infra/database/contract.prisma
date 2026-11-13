@@ -214,8 +214,9 @@ model Justification {
 
 model HoursBankClosing {
   id        String @id @onCreate(uuid())
-  startDate Date   @map("start_date")
-  endDate   Date   @map("end_date")
+  startDate Date    @map("start_date")
+  endDate   Date    @map("end_date")
+  initial   Boolean @default(false)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")

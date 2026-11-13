@@ -22,12 +22,14 @@ import { userRepository } from '@/repositories/user-repository'
 import {
   HoursBankAdjustmentClosedError,
   HoursBankCloseError,
+  HoursBankInitialBalanceError,
   HoursBankReopenError
 } from './errors'
 import {
   closeSchema,
   createAdjustmentSchema,
   generateSchema,
+  initialBalanceSchema,
   removeAdjustmentSchema,
   reopenSchema,
   updateAdjustmentSchema
@@ -38,6 +40,7 @@ import type {
   THoursBankAdjustmentUpdateData,
   THoursBankCloseParams,
   THoursBankGenerateParams,
+  THoursBankInitialBalanceData,
   THoursBankReopenParams,
   THoursBankReport,
   THoursBankRow
@@ -193,6 +196,7 @@ const close = async (
     companyId,
     startDate: period.initialDate,
     endDate: period.finalDate,
+    initial: false,
     balances: rows.map((row) => ({
       userId: row.userId,
       previousBalance: row.previousBalance,
@@ -204,6 +208,26 @@ const close = async (
       adjustment: row.adjustment,
       balance: row.balance
     }))
+  })
+}
+
+const createInitialBalance = async (
+  data: THoursBankInitialBalanceData
+): Promise<HoursBankClosing> => {
+  const { companyId, startDate, endDate, balances } =
+    initialBalanceSchema.parse(data)
+  const lastClosing = await hoursBankClosingRepository.findLast(companyId)
+  if (lastClosing) throw new HoursBankInitialBalanceError()
+
+  return await hoursBankClosingRepository.create({
+    companyId,
+    startDate,
+    endDate,
+    initial: true,
+    balances: balances.map((totals) => {
+      const balance = { previousBalance: 0, lateness: 0, ...totals }
+      return { ...balance, balance: calculateBalance(balance) }
+    })
   })
 }
 
@@ -309,6 +333,7 @@ const removeAdjustment = async (
 export const hoursBankModel = {
   generate,
   close,
+  createInitialBalance,
   reopen,
   createAdjustment,
   updateAdjustment,

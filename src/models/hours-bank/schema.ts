@@ -64,3 +64,26 @@ export const reopenSchema = z.object({
   id: z.uuidv4(),
   companyId: z.uuidv4()
 })
+
+const totalMinutesSchema = z.number().int()
+
+const initialBalanceItemSchema = z.object({
+  userId: z.uuidv4(),
+  absence: totalMinutesSchema,
+  dayOff: totalMinutesSchema,
+  overtime60: totalMinutesSchema,
+  overtime100: totalMinutesSchema,
+  adjustment: totalMinutesSchema
+})
+
+export const initialBalanceSchema = z
+  .object({
+    companyId: z.uuidv4(),
+    startDate: z.iso.date(),
+    endDate: z.iso.date(),
+    balances: z.array(initialBalanceItemSchema)
+  })
+  .refine(({ startDate, endDate }) => startDate <= endDate, {
+    path: ['endDate'],
+    message: 'A data final deve ser igual ou depois da inicial'
+  })

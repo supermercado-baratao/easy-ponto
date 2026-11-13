@@ -1,4 +1,10 @@
-import type { Company, PunchRecord, User } from '@/infra/database/types'
+import type {
+  Company,
+  HoursBankClosing,
+  PunchRecord,
+  User
+} from '@/infra/database/types'
+import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
 
 import { TDeviceLoginCredentials, TGetAfdParams } from '../device/types'
 import type { TScheduleSaveData } from '../schedule/types'
@@ -71,4 +77,30 @@ export type TDataInJson = {
   users: TUserInJson[]
   punchRecords: TPunchRecordInJson[]
   schedules: TScheduleInJson[]
+}
+
+export type TPeriodInJson = {
+  startDate: string
+  endDate: string
+}
+
+export type THoursBankBalanceInJson = Omit<
+  THoursBankInitialBalanceItem,
+  'userId'
+> & {
+  userName: string
+}
+
+export type THoursBankInJson = TPeriodInJson & {
+  balances: THoursBankBalanceInJson[]
+}
+
+export type TInitialBalanceImportParams = {
+  file: File
+  companyId: string
+}
+
+export type TInitialBalanceImportResult = {
+  closing: HoursBankClosing
+  unmatchedNames: string[]
 }

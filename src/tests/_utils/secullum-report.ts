@@ -2,6 +2,28 @@ import * as xlsx from 'xlsx'
 
 export type TRow = (string | null)[]
 
+export const REPORT_COLUMNS = [
+  'Data',
+  'Ent. 1',
+  'Saí. 1',
+  'Ent. 2',
+  'Saí. 2',
+  'Carga',
+  'Normais',
+  'Faltas',
+  'Ex60%',
+  'Ent. 3',
+  'Saí. 3',
+  'Ex100%',
+  'DSR',
+  'DSR.Deb',
+  'Ajuste'
+] as const
+
+type TReportColumn = (typeof REPORT_COLUMNS)[number]
+
+export type TReportCells = Partial<Record<TReportColumn, string>>
+
 export type TEmployee = {
   registration: string
   name: string
@@ -11,6 +33,7 @@ export type TEmployee = {
   position: string
   department: string
   schedule: TRow[]
+  totals: TReportCells
   days: TRow[]
 }
 
@@ -25,9 +48,15 @@ const padEmployeeCells = (cells: TRow): TRow => [
   ...Array.from({ length: EMPLOYEE_COLUMNS - cells.length }, () => null)
 ]
 
+export const createDayRow = (label: string, cells: TReportCells = {}): TRow =>
+  REPORT_COLUMNS.map((column, index) =>
+    index === 0 ? label : (cells[column] ?? null)
+  )
+
 // Mirrors the layout of the Secullum report: the parser reads the user fields by their distance
-// to the `Departamento` row, the CPF and the admission date from the fifth column and the
-// "Horário de Trabalho" block from the seven rows above `Departamento`, next to the user fields
+// to the `Departamento` row, the CPF and the admission date from the fifth column, the
+// "Horário de Trabalho" block from the seven rows above `Departamento`, next to the user fields,
+// and the totals from the two rows below it (the column labels and the totals of the period)
 const createEmployeeRows = (employee: TEmployee): TRow[] => {
   const employeeCells: TRow[] = [
     [],
@@ -55,6 +84,8 @@ const createEmployeeRows = (employee: TEmployee): TRow[] => {
       ...(employee.schedule[index] ?? [])
     ]),
     ['Departamento', employee.department],
+    [...REPORT_COLUMNS],
+    REPORT_COLUMNS.map((column) => employee.totals[column] ?? null),
     ...employee.days
   ]
 }
@@ -78,6 +109,13 @@ export const createEmployee = (
     ['SÁB', ...WORK_DAY],
     ['DOM', ...DAY_OFF]
   ],
+  totals: {
+    Carga: '7:20',
+    Faltas: '7:20',
+    'Ex60%': '0:00',
+    'Ex100%': '0:00',
+    Ajuste: '0:00'
+  },
   days: [
     ['01/10/25 - qua', '07:27', '12:00', '13:00*', '17:02'],
     ['02/10/25 - qui', 'Falta']
@@ -87,10 +125,15 @@ export const createEmployee = (
 
 export const createReportRows = ({
   cnpj = '11.222.333/0001-81',
+  period = '01/10/2025 até 31/10/2025',
   employees = [createEmployee()]
-}: { cnpj?: string; employees?: TEmployee[] } = {}): TRow[] => [
+}: {
+  cnpj?: string
+  period?: string
+  employees?: TEmployee[]
+} = {}): TRow[] => [
   ['CARTÃO PONTO'],
-  ['De: 01/10/2025 até 31/10/2025'],
+  [`De: ${period}`],
   ['Emissão:', '05/11/25'],
   ['Empresa:', 'Supermercado Teste'],
   ['CNPJ:', cnpj],

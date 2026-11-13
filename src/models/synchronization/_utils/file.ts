@@ -16,6 +16,7 @@ import { InvalidExcelFileError } from '../errors'
 import {
   TCompanyInJson,
   TDataInJson,
+  TPeriodInJson,
   TPunchRecordInJson,
   TScheduleInJson,
   TUserInJson
@@ -83,11 +84,15 @@ const toScheduleTime = (value: unknown): string =>
     ? value.padStart(5, '0')
     : ''
 
-const extractScheduleStartDate = (json: any[]): string => {
-  const [, day, month, year] = /^De: (\d{2})\/(\d{2})\/(\d{4})/.exec(
-    json[0]['CARTÃO PONTO']
-  )!
-  return `${year}-${month}-${day}`
+export const extractPeriod = (json: any[]): TPeriodInJson => {
+  const [, startDay, startMonth, startYear, endDay, endMonth, endYear] =
+    /^De: (\d{2})\/(\d{2})\/(\d{4}) até (\d{2})\/(\d{2})\/(\d{4})/.exec(
+      json[0]['CARTÃO PONTO']
+    )!
+  return {
+    startDate: `${startYear}-${startMonth}-${startDay}`,
+    endDate: `${endYear}-${endMonth}-${endDay}`
+  }
 }
 
 const extractScheduleTimes = (
@@ -122,7 +127,7 @@ export const extractDataFromJson = (json: any[]): TDataInJson => {
 
     const schedules: TScheduleInJson[] = []
 
-    const scheduleStartDate = extractScheduleStartDate(json)
+    const scheduleStartDate = extractPeriod(json).startDate
 
     for (const [index, item] of json.entries()) {
       const keys = Object.keys(item)

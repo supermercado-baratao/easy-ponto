@@ -3,6 +3,7 @@ import { companyModel } from '@/models/company/model'
 import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
+import { hoursBankModel } from '@/models/hours-bank/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
@@ -20,12 +21,18 @@ import {
   getUsersToUpdate,
   parseXlsToJson
 } from './_utils/file'
+import {
+  extractHoursBankFromJson,
+  getInitialBalancesToSave
+} from './_utils/hours-bank'
 import { getSession } from './_utils/session'
 import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
 import {
   TAfdSynchronizationParams,
   TCompanySynchronizationParams,
   TFileSynchronizationParams,
+  TInitialBalanceImportParams,
+  TInitialBalanceImportResult,
   TUserSynchronizationParams
 } from './types'
 
@@ -136,9 +143,31 @@ const importFile = async ({
   return updatedCompany || company
 }
 
+const importInitialBalance = async ({
+  file,
+  companyId
+}: TInitialBalanceImportParams): Promise<TInitialBalanceImportResult> => {
+  const [json, users] = await Promise.all([
+    parseXlsToJson(file),
+    userModel.findManyByCompanyId(companyId)
+  ])
+  const { balances: balancesInJson, ...period } = extractHoursBankFromJson(json)
+  const { balances, unmatchedNames } = getInitialBalancesToSave(
+    balancesInJson,
+    users
+  )
+  const closing = await hoursBankModel.createInitialBalance({
+    companyId,
+    ...period,
+    balances
+  })
+  return { closing, unmatchedNames }
+}
+
 export const synchronizationModel = {
   synchronizeCompany,
   synchronizeUsers,
   synchronizeAfd,
-  importFile
+  importFile,
+  importInitialBalance
 }

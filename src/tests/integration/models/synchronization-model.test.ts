@@ -16,6 +16,8 @@ import { companyModel } from '@/models/company/model'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
+import { HoursBankInitialBalanceError } from '@/models/hours-bank/errors'
+import { hoursBankModel } from '@/models/hours-bank/model'
 import { scheduleModel } from '@/models/schedule/model'
 import { synchronizationModel } from '@/models/synchronization/model'
 import { userModel } from '@/models/user/model'
@@ -78,6 +80,20 @@ const createScheduleFile = (mondayEntry: string): File =>
           name: deviceUser.name,
           schedule: [['SEG', mondayEntry, '12:00']]
         })
+      ]
+    })
+  )
+
+const createBalanceFile = (): File =>
+  createReportFile(
+    createReportRows({
+      employees: [
+        createEmployee({
+          name: deviceUser.name,
+          totals: { Faltas: '1:00', 'Ex60%': '5:30', Ajuste: '0:30' },
+          days: []
+        }),
+        createEmployee({ name: 'Former Employee', days: [] })
       ]
     })
   )
@@ -210,6 +226,75 @@ describe('Synchronization Model', () => {
       })
       expect(schedule?.days).toHaveLength(7)
       expect(schedule?.days[1]).toMatchObject({ entry1: 540, exit1: 720 })
+    })
+  })
+
+  describe('importInitialBalance', () => {
+    test('Saves the balances as the closing of the report period', async () => {
+      const data = await populate()
+      await synchronize([deviceUser], data)
+
+      const { closing, unmatchedNames } =
+        await synchronizationModel.importInitialBalance({
+          file: createBalanceFile(),
+          companyId: data.company.id
+        })
+
+      expect(unmatchedNames).toEqual(['Former Employee'])
+      expect(closing).toMatchObject({
+        startDate: '2025-10-01',
+        endDate: '2025-10-31',
+        initial: true
+      })
+      const report = await hoursBankModel.generate({
+        companyId: data.company.id,
+        initialDate: '2025-10-01',
+        finalDate: '2025-10-31'
+      })
+      expect(report.rows).toEqual([
+        expect.objectContaining({
+          name: deviceUser.name,
+          previousBalance: 0,
+          absence: 60,
+          overtime60: 330,
+          adjustment: 30,
+          balance: 300
+        })
+      ])
+    })
+
+    test('Makes the imported balance the previous balance of the next period', async () => {
+      const data = await populate()
+      await synchronize([deviceUser], data)
+      await synchronizationModel.importInitialBalance({
+        file: createBalanceFile(),
+        companyId: data.company.id
+      })
+
+      const report = await hoursBankModel.generate({
+        companyId: data.company.id,
+        finalDate: '2025-11-05'
+      })
+
+      expect(report.period.initialDate).toBe('2025-11-01')
+      expect(report.rows[0].previousBalance).toBe(300)
+    })
+
+    test('Refuses the import when the company already has a closing', async () => {
+      const data = await populate()
+      await synchronize([deviceUser], data)
+      await hoursBankModel.close({
+        companyId: data.company.id,
+        initialDate: '2025-11-01',
+        finalDate: '2025-11-05'
+      })
+
+      await expect(
+        synchronizationModel.importInitialBalance({
+          file: createBalanceFile(),
+          companyId: data.company.id
+        })
+      ).rejects.toBeInstanceOf(HoursBankInitialBalanceError)
     })
   })
 })
