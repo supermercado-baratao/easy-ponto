@@ -10,6 +10,7 @@ import {
   closeSchema,
   createAdjustmentSchema,
   generateSchema,
+  initialBalanceSchema,
   removeAdjustmentSchema,
   reopenSchema,
   updateAdjustmentSchema
@@ -62,3 +63,8 @@ export type THoursBankAdjustmentUpdateData = z.input<
 export type THoursBankAdjustmentRemoveParams = z.infer<
   typeof removeAdjustmentSchema
 >
+
+export type THoursBankInitialBalanceData = z.input<typeof initialBalanceSchema>
+
+export type THoursBankInitialBalanceItem =
+  THoursBankInitialBalanceData['balances'][number]

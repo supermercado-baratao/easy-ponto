@@ -18,7 +18,8 @@ import {
 import { Button } from '@/app/components/ui/shadcn/button'
 import type { THoursBankReport } from '@/models/hours-bank/types'
 
-import { formatPeriod, getHoursReportHref } from '../utils'
+import { ImportInitialBalanceButton } from '../initial-balance/import-initial-balance-button'
+import { formatDate, formatPeriod, getHoursReportHref } from '../utils'
 import { closePeriod, reopenPeriod } from './actions'
 import type { TClosingState } from './types'
 
@@ -118,19 +119,32 @@ export const ClosingSection = ({
         className="flex flex-wrap items-center gap-4"
       >
         <p className="text-sm text-muted-foreground">
-          Período fechado. Os valores abaixo são os salvos no fechamento.
+          {closing.initial
+            ? `Saldo inicial até ${formatDate(closing.endDate)}, importado do relatório do Secullum.`
+            : 'Período fechado. Os valores abaixo são os salvos no fechamento.'}
         </p>
-        {closing.id === lastClosing?.id && (
-          <ClosingDialog
-            trigger="Reabrir período"
-            title="Reabrir período?"
-            description={`Os saldos salvos de ${formatPeriod(period)} serão descartados e o período volta a ser calculado pelas batidas.`}
-            confirmLabel="Reabrir"
-            successMessage="Período reaberto com sucesso!"
-            fields={{ id: closing.id }}
-            action={reopenPeriod}
-          />
-        )}
+        {closing.id === lastClosing?.id &&
+          (closing.initial ? (
+            <ClosingDialog
+              trigger="Descartar saldo inicial"
+              title="Descartar saldo inicial?"
+              description="Os saldos importados do Secullum serão descartados e o saldo inicial poderá ser importado de novo."
+              confirmLabel="Descartar"
+              successMessage="Saldo inicial descartado com sucesso!"
+              fields={{ id: closing.id }}
+              action={reopenPeriod}
+            />
+          ) : (
+            <ClosingDialog
+              trigger="Reabrir período"
+              title="Reabrir período?"
+              description={`Os saldos salvos de ${formatPeriod(period)} serão descartados e o período volta a ser calculado pelas batidas.`}
+              confirmLabel="Reabrir"
+              successMessage="Período reaberto com sucesso!"
+              fields={{ id: closing.id }}
+              action={reopenPeriod}
+            />
+          ))}
       </section>
     )
   }
@@ -154,11 +168,14 @@ export const ClosingSection = ({
         disabled={closeIssue !== null}
         describedBy={closeIssue ? issueId : undefined}
       />
+      {!lastClosing && <ImportInitialBalanceButton order={order} />}
       <div className="flex flex-col gap-1 text-sm text-muted-foreground">
         {closeIssue && <p id={issueId}>{closeIssue}</p>}
         {lastClosing && (
           <p>
-            {`Último período fechado: ${formatPeriod({ initialDate: lastClosing.startDate, finalDate: lastClosing.endDate })}.`}
+            {lastClosing.initial
+              ? `Saldo inicial importado até ${formatDate(lastClosing.endDate)}.`
+              : `Último período fechado: ${formatPeriod({ initialDate: lastClosing.startDate, finalDate: lastClosing.endDate })}.`}
           </p>
         )}
       </div>

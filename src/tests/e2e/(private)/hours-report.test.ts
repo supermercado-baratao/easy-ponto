@@ -3,6 +3,11 @@ import { expect, test } from '@playwright/test'
 import type { User } from '@/infra/database/types'
 import { adminUserModel } from '@/models/admin-user/model'
 import { userModel } from '@/models/user/model'
+import {
+  createEmployee,
+  createReportFile,
+  createReportRows
+} from '@/tests/_utils/secullum-report'
 
 // After the last mocked punch (2026-03-25): with hundreds of punches in the period, `next dev` takes
 // longer than the test timeout to render the report after each action
@@ -71,5 +76,48 @@ test.describe('Hours report', () => {
     await expect(
       row.getByRole('button', { name: `Ações de ${user.name}` })
     ).toBeVisible()
+  })
+
+  test('Imports the initial balance and discards it', async ({ page }) => {
+    const file = createReportFile(
+      createReportRows({
+        period: '01/04/2026 até 05/04/2026',
+        employees: [
+          createEmployee({
+            name: user.name,
+            totals: { Faltas: '1:00', 'Ex60%': '5:30', Ajuste: '0:30' },
+            days: []
+          })
+        ]
+      })
+    )
+    await page.goto(`/relatorio-de-horas?${new URLSearchParams(PERIOD)}`)
+
+    await page.getByLabel('Importar saldo inicial').setInputFiles({
+      name: file.name,
+      mimeType:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      buffer: Buffer.from(await file.arrayBuffer())
+    })
+    await expect(
+      page.getByText(
+        'Saldo inicial até 05/04/2026, importado do relatório do Secullum.'
+      )
+    ).toBeVisible()
+    const row = page
+      .getByRole('table', { name: 'Relatório de horas' })
+      .getByRole('row')
+      .filter({ hasText: user.name })
+    await expect(row.getByRole('cell').nth(BALANCE_COLUMN)).toHaveText('05:00')
+
+    await page.getByRole('button', { name: 'Descartar saldo inicial' }).click()
+    await page
+      .getByRole('alertdialog', { name: 'Descartar saldo inicial?' })
+      .getByRole('button', { name: 'Descartar' })
+      .click()
+    await expect(
+      page.getByRole('button', { name: 'Fechar período' })
+    ).toBeVisible()
+    await expect(page.getByText('Importar saldo inicial')).toBeVisible()
   })
 })

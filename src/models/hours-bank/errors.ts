@@ -29,3 +29,15 @@ export class HoursBankAdjustmentClosedError extends ValidationError {
     this.name = 'HoursBankAdjustmentClosedError'
   }
 }
+
+export class HoursBankInitialBalanceError extends ValidationError {
+  constructor() {
+    super({
+      message:
+        'O saldo inicial só pode ser importado antes do primeiro fechamento.',
+      action:
+        'Reabra os períodos fechados para importar o saldo inicial de novo.'
+    })
+    this.name = 'HoursBankInitialBalanceError'
+  }
+}
