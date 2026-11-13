@@ -12,6 +12,7 @@ import type {
   TScheduleFindManyInPeriodParams,
   TScheduleSaveData
 } from './types'
+import { selectInEffectSince } from './utils'
 
 const findInEffect = async (
   params: TScheduleFindInEffectParams
@@ -27,12 +28,7 @@ const findManyInPeriod = async (
     userId,
     date: finalDate
   })
-  const firstInEffectIndex = schedules.findIndex(
-    ({ startDate }) => startDate <= initialDate
-  )
-  return firstInEffectIndex === -1
-    ? schedules
-    : schedules.slice(0, firstInEffectIndex + 1)
+  return selectInEffectSince(schedules, initialDate)
 }
 
 const save = async (data: TScheduleSaveData): Promise<TScheduleWithDays> => {

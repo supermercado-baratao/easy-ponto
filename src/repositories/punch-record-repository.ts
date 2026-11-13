@@ -10,6 +10,7 @@ type TPunchRecordFilters = {
   initialNsr?: number | null
   finalNsr?: number | null
   pis?: string | null
+  pisList?: string[]
 }
 
 const punchRecords = database.orm.public.PunchRecord
@@ -57,7 +58,8 @@ export const punchRecordRepository = {
     finalDate,
     initialNsr,
     finalNsr,
-    pis
+    pis,
+    pisList
   }: TPunchRecordFilters): Promise<PunchRecord[]> => {
     let query = punchRecords.where({})
 
@@ -70,6 +72,7 @@ export const punchRecordRepository = {
     if (initialNsr) query = query.where((record) => record.nsr.gte(initialNsr))
     if (finalNsr) query = query.where((record) => record.nsr.lte(finalNsr))
     if (pis) query = query.where({ pis })
+    if (pisList) query = query.where((record) => record.pis.in(pisList))
 
     return await query.orderBy((record) => record.datetime.asc()).all()
   },

@@ -9,7 +9,7 @@ import { TIME_PAIRS } from '@/models/schedule/utils'
 import type { TJourney, TJourneyDayInput, TJourneyPair } from './types'
 
 // CLT art. 58, § 1º: variations of up to 5 minutes per punch, limited to 10 minutes a day, are neither
-// discounted nor paid as overtime. Provisional until the CLT review of the journey rules (#41)
+// discounted nor paid as overtime. Provisional until the CLT review of the journey rules (#65)
 export const PUNCH_TOLERANCE = 5
 export const DAILY_TOLERANCE = 10
 
@@ -53,16 +53,16 @@ const getOverlap = (first: TInterval, second: TInterval): number =>
     Math.min(first.end, second.end) - Math.max(first.start, second.start)
   )
 
-const getExcusedMinutes = (
+const getCoveredMinutes = (
   scheduled: TInterval[],
   justifications: TJustificationWithType[]
 ): number => {
-  const excused = justifications
+  const covered = justifications
     .map(({ startTime, endTime }) => ({ start: startTime, end: endTime }))
     .filter(isInterval)
   let total = 0
   for (const interval of scheduled) {
-    for (const excuse of excused) total += getOverlap(interval, excuse)
+    for (const cover of covered) total += getOverlap(interval, cover)
   }
   return total
 }
@@ -102,6 +102,7 @@ export const calculateDay = ({
     worked,
     absence: 0,
     lateness: 0,
+    dayOff: 0,
     overtime60: 0,
     overtime100: 0
   }
@@ -124,18 +125,25 @@ export const calculateDay = ({
   }
 
   const expected =
-    sumIntervals(scheduled) - getExcusedMinutes(scheduled, excuses)
+    sumIntervals(scheduled) - getCoveredMinutes(scheduled, excuses)
+  const deductions = justifications.filter(
+    ({ type }) => type.effect === 'deduct'
+  )
+  const dayOff = deductions.some(({ startTime }) => startTime === null)
+    ? expected
+    : Math.min(expected, getCoveredMinutes(scheduled, deductions))
+  const due = expected - dayOff
   if (punchRecords.length === 0) {
-    return { ...journey, expected, absence: expected }
+    return { ...journey, expected, dayOff, absence: due }
   }
 
   const punchTimes = punchRecords.map(({ datetime }) => toMinutes(datetime))
-  const balance = isWithinTolerance(punchTimes, scheduled)
-    ? 0
-    : worked - expected
+  const balance =
+    dayOff === 0 && isWithinTolerance(punchTimes, scheduled) ? 0 : worked - due
   return {
     ...journey,
     expected,
+    dayOff,
     lateness: Math.max(0, -balance),
     overtime60: Math.max(0, balance)
   }

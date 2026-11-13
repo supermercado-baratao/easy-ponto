@@ -1,6 +1,7 @@
 import {
   Calendar,
   CalendarDays,
+  ChartColumn,
   ClipboardCheck,
   Clock,
   Clock12,
@@ -40,6 +41,11 @@ export const navItems: TNavItem[] = [
             title: 'Registros de Ponto',
             path: '/registros-de-ponto',
             icon: Clock
+          },
+          {
+            title: 'Relatório de Horas',
+            path: '/relatorio-de-horas',
+            icon: ChartColumn
           },
           {
             title: 'Calendário',

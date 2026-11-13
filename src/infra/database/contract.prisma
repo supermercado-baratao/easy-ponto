@@ -63,6 +63,7 @@ model Company {
   users              User[]
   holidays           Holiday[]
   justificationTypes JustificationType[]
+  hoursBankClosings  HoursBankClosing[]
 
   @@map("companies")
 }
@@ -96,6 +97,8 @@ model User {
   punchRecords   PunchRecord[]
   schedules      Schedule[]
   justifications Justification[]
+  hoursBankBalances    HoursBankBalance[]
+  hoursBankAdjustments HoursBankAdjustment[]
 
   @@map("users")
 }
@@ -207,4 +210,60 @@ model Justification {
   type   JustificationType @relation(fields: [typeId], references: [id])
 
   @@map("justifications")
+}
+
+model HoursBankClosing {
+  id        String @id @onCreate(uuid())
+  startDate Date   @map("start_date")
+  endDate   Date   @map("end_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  companyId String  @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  balances HoursBankBalance[]
+
+  @@unique([companyId, endDate])
+  @@map("hours_bank_closings")
+}
+
+model HoursBankBalance {
+  id              String @id @onCreate(uuid())
+  previousBalance Int    @map("previous_balance")
+  absence         Int
+  lateness        Int
+  dayOff          Int    @map("day_off")
+  overtime60      Int    @map("overtime_60")
+  overtime100     Int    @map("overtime_100")
+  adjustment      Int
+  balance         Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  closingId String           @map("closing_id")
+  closing   HoursBankClosing @relation(fields: [closingId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([closingId, userId])
+  @@map("hours_bank_balances")
+}
+
+model HoursBankAdjustment {
+  id      String @id @onCreate(uuid())
+  date    Date
+  minutes Int
+  reason  String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("hours_bank_adjustments")
 }

@@ -41,6 +41,20 @@ export const scheduleRepository = {
       .orderBy((schedule) => schedule.startDate.desc())
       .all(),
 
+  findManyStartedUntilByUserIds: async ({
+    userIds,
+    date
+  }: {
+    userIds: string[]
+    date: string
+  }): Promise<TScheduleWithDays[]> =>
+    await schedules
+      .where((schedule) => schedule.userId.in(userIds))
+      .where((schedule) => schedule.startDate.lte(date))
+      .include('days', (days) => days.orderBy((day) => day.weekday.asc()))
+      .orderBy((schedule) => schedule.startDate.desc())
+      .all(),
+
   save: async ({
     userId,
     startDate,
