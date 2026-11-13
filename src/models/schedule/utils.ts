@@ -1,3 +1,5 @@
+import type { TScheduleWithDays } from '@/infra/database/types'
+
 export const WEEKDAYS = [
   { key: 'monday', weekday: 1 },
   { key: 'tuesday', weekday: 2 },
@@ -39,4 +41,16 @@ export const timeToMinutes = (time: string): number => {
 export const minutesToTime = (minutes: number): string => {
   const hours = String(Math.floor(minutes / 60)).padStart(2, '0')
   return `${hours}:${String(minutes % 60).padStart(2, '0')}`
+}
+
+export const selectInEffectSince = (
+  schedulesByStartDateDesc: TScheduleWithDays[],
+  date: string
+): TScheduleWithDays[] => {
+  const firstInEffectIndex = schedulesByStartDateDesc.findIndex(
+    ({ startDate }) => startDate <= date
+  )
+  return firstInEffectIndex === -1
+    ? schedulesByStartDateDesc
+    : schedulesByStartDateDesc.slice(0, firstInEffectIndex + 1)
 }

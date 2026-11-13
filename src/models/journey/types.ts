@@ -23,6 +23,7 @@ export type TJourney = {
   worked: number
   absence: number
   lateness: number
+  dayOff: number
   overtime60: number
   overtime100: number
 }

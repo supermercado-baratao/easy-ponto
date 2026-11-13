@@ -124,7 +124,7 @@ test.describe('Punch Records Page', () => {
         ...times,
         ...Array.from({ length: columns - times.length }, () => ''),
         'Sem escala',
-        ...Array.from({ length: 7 }, () => '')
+        ...Array.from({ length: 8 }, () => '')
       ])
     }
   })
@@ -167,6 +167,7 @@ test.describe('Punch Records Page', () => {
       '',
       '',
       '',
+      '',
       ''
     ])
     await expect(rows.nth(1).getByRole('cell')).toHaveText([
@@ -175,6 +176,7 @@ test.describe('Punch Records Page', () => {
       ...JOURNEY_PUNCH_TIMES.map((time) => `${time}* (inserida manualmente)`),
       '08:00',
       '08:30',
+      '',
       '',
       '',
       '00:30',
@@ -192,6 +194,7 @@ test.describe('Punch Records Page', () => {
       '08:00',
       '',
       '08:00',
+      '',
       '',
       '',
       '',

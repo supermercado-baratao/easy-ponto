@@ -49,6 +49,7 @@ const PunchRecordCell = ({ record }: { record?: PunchRecord }) => {
 const BALANCE_COLUMNS = [
   { key: 'absence', label: 'Falta' },
   { key: 'lateness', label: 'Atraso' },
+  { key: 'dayOff', label: 'Folga (banco)' },
   { key: 'overtime60', label: 'Extra 60%' },
   { key: 'overtime100', label: 'Extra 100%' }
 ] as const

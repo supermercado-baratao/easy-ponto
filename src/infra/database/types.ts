@@ -7,6 +7,9 @@ export type Company = Scalars<Models.public_Company>
 export type DeviceCredentials = Scalars<Models.public_DeviceCredentials>
 export type DeviceSession = Scalars<Models.public_DeviceSession>
 export type Holiday = Scalars<Models.public_Holiday>
+export type HoursBankAdjustment = Scalars<Models.public_HoursBankAdjustment>
+export type HoursBankBalance = Scalars<Models.public_HoursBankBalance>
+export type HoursBankClosing = Scalars<Models.public_HoursBankClosing>
 export type Justification = Scalars<Models.public_Justification>
 export type JustificationType = Scalars<Models.public_JustificationType>
 export type PunchRecord = Scalars<Models.public_PunchRecord>
@@ -32,4 +35,8 @@ export type TScheduleWithDays = Schedule & {
 
 export type TJustificationWithType = Justification & {
   type: JustificationType
+}
+
+export type THoursBankClosingWithBalances = HoursBankClosing & {
+  balances: (HoursBankBalance & { user: User })[]
 }

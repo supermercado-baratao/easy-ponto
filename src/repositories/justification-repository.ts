@@ -28,6 +28,23 @@ export const justificationRepository = {
       .orderBy((justification) => justification.startDate.asc())
       .all(),
 
+  findManyInPeriodByUserIds: async ({
+    userIds,
+    initialDate,
+    finalDate
+  }: {
+    userIds: string[]
+    initialDate: string
+    finalDate: string
+  }): Promise<TJustificationWithType[]> =>
+    await justifications
+      .where((justification) => justification.userId.in(userIds))
+      .where((justification) => justification.startDate.lte(finalDate))
+      .where((justification) => justification.endDate.gte(initialDate))
+      .include('type')
+      .orderBy((justification) => justification.startDate.asc())
+      .all(),
+
   existsByTypeId: async (typeId: string): Promise<boolean> =>
     (await justifications.first({ typeId })) !== null,
 
