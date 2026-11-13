@@ -100,3 +100,9 @@ export const findInEffectParamsSchema = z.object({
   userId: z.uuidv4(),
   date: z.iso.date()
 })
+
+export const findManyInPeriodParamsSchema = z.object({
+  userId: z.uuidv4(),
+  initialDate: z.iso.date(),
+  finalDate: z.iso.date()
+})

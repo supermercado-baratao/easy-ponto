@@ -29,6 +29,8 @@ export const removeSchema = z.object({
   companyId: z.uuidv4()
 })
 
+export const findManyByCompanyIdSchema = z.uuidv4()
+
 export const findManyByYearSchema = z.object({
   companyId: z.uuidv4(),
   year: yearSchema

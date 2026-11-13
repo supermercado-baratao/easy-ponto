@@ -33,6 +33,18 @@ beforeAll(async () => {
   ;[{ id: userId }] = await userModel.findManyByCompanyId(company.id)
 })
 
+const findStartDates = async (
+  initialDate: string,
+  finalDate: string
+): Promise<string[]> => {
+  const schedules = await scheduleModel.findManyInPeriod({
+    userId,
+    initialDate,
+    finalDate
+  })
+  return schedules.map(({ startDate }) => startDate)
+}
+
 describe('Schedule Model', () => {
   test('Returns no schedule before the first one starts', async () => {
     await scheduleModel.save({
@@ -94,6 +106,20 @@ describe('Schedule Model', () => {
     expect(
       await scheduleModel.findInEffect({ userId, date: '2026-12-31' })
     ).toEqual(next)
+  })
+
+  test('Finds every schedule in effect during the period', async () => {
+    expect(await findStartDates('2026-02-01', '2026-03-31')).toEqual([
+      '2026-03-01',
+      '2026-01-01'
+    ])
+    expect(await findStartDates('2026-03-01', '2026-12-31')).toEqual([
+      '2026-03-01'
+    ])
+    expect(await findStartDates('2026-01-15', '2026-02-15')).toEqual([
+      '2026-01-01'
+    ])
+    expect(await findStartDates('2025-01-01', '2025-12-31')).toEqual([])
   })
 
   test('Refuses an employee of another company', async () => {
