@@ -1,4 +1,8 @@
-import { database } from '@/infra/database/client'
+import {
+  database,
+  runInTransaction,
+  type TTransaction
+} from '@/infra/database/client'
 import type { TInputData, User } from '@/infra/database/types'
 
 const users = database.orm.public.User
@@ -21,9 +25,10 @@ export const userRepository = {
     await users.where((user) => user.name.in(names)).all(),
 
   updateMany: async (
-    data: (Partial<TInputData<User>> & { id: string })[]
+    data: (Partial<TInputData<User>> & { id: string })[],
+    transaction?: TTransaction
   ): Promise<void> => {
-    await database.transaction(async (tx) => {
+    await runInTransaction(transaction, async (tx) => {
       for (const { id, ...user } of data) {
         const updated = await tx.orm.public.User.where({ id }).update(user)
         if (!updated) throw new Error(`User ${id} not found`)

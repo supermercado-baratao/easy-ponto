@@ -7,9 +7,11 @@ import { FormField, Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
-import { JUSTIFICATION_EFFECTS } from '@/models/justification-type/utils'
+import {
+  EFFECT_LABELS,
+  JUSTIFICATION_EFFECTS
+} from '@/models/justification-type/utils'
 
-import { EFFECT_LABELS } from '../utils'
 import { save } from './actions'
 import type {
   TJustificationTypeFormState,

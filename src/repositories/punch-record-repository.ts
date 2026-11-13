@@ -1,4 +1,8 @@
-import { database } from '@/infra/database/client'
+import {
+  database,
+  runInTransaction,
+  type TTransaction
+} from '@/infra/database/client'
 import type { PunchRecord, TInputData } from '@/infra/database/types'
 
 type TPunchRecordInsert = Pick<PunchRecord, 'pis' | 'datetime'> &
@@ -29,8 +33,11 @@ export const punchRecordRepository = {
   create: async (data: TPunchRecordInsert): Promise<PunchRecord> =>
     await punchRecords.create(data),
 
-  createMany: async (data: TPunchRecordInsert[]): Promise<void> => {
-    await database.transaction(async (tx) => {
+  createMany: async (
+    data: TPunchRecordInsert[],
+    transaction?: TTransaction
+  ): Promise<void> => {
+    await runInTransaction(transaction, async (tx) => {
       for (const batch of toBatches(data)) {
         await tx.orm.public.PunchRecord.createAndCount(batch)
       }

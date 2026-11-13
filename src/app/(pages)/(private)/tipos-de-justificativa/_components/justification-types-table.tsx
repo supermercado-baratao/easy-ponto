@@ -7,10 +7,10 @@ import {
   TableRow
 } from '@/app/components/ui/shadcn/table'
 import type { JustificationType } from '@/infra/database/types'
+import { getEffectLabel } from '@/models/justification-type/utils'
 
 import { JustificationTypeSheet } from './justification-type-sheet/justification-type-sheet'
 import { RemoveJustificationTypeButton } from './remove-justification-type-button/remove-justification-type-button'
-import { getEffectLabel } from './utils'
 
 export const JustificationTypesTable = ({
   types

@@ -1,4 +1,8 @@
-import { database } from '@/infra/database/client'
+import {
+  database,
+  runInTransaction,
+  type TTransaction
+} from '@/infra/database/client'
 import type {
   Schedule,
   ScheduleDay,
@@ -55,12 +59,11 @@ export const scheduleRepository = {
       .orderBy((schedule) => schedule.startDate.desc())
       .all(),
 
-  save: async ({
-    userId,
-    startDate,
-    days
-  }: TScheduleSaveData): Promise<TScheduleWithDays> =>
-    await database.transaction(async (tx) => {
+  save: async (
+    { userId, startDate, days }: TScheduleSaveData,
+    transaction?: TTransaction
+  ): Promise<TScheduleWithDays> =>
+    await runInTransaction(transaction, async (tx) => {
       const txSchedules = tx.orm.public.Schedule
       const { id } =
         (await txSchedules
