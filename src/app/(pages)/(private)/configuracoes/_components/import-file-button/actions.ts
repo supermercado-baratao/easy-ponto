@@ -3,6 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { getAdminUser } from '@/entry/admin-user'
+import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 
 import { TImportFileState } from './types'
@@ -25,6 +26,15 @@ export const importFile = async (
     return { ...state, data, success: true, fatalError: false }
   } catch (error) {
     console.error(error)
+    if (error instanceof ValidationError) {
+      return {
+        ...state,
+        success: false,
+        fatalError: false,
+        message: error.message,
+        action: error.action
+      }
+    }
     return { ...state, success: false, fatalError: true }
   }
 }
