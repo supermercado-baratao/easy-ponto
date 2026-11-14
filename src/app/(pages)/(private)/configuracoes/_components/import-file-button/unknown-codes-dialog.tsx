@@ -132,14 +132,12 @@ export const UnknownCodesDialog = ({
                       label="Código"
                       defaultValue={code}
                       error={errorOf('code')}
-                      aria-invalid={errorOf('code') ? true : undefined}
                     />
                     <FormField
                       id={`${id}-description-${index}`}
                       name={`description-${index}`}
                       label="Descrição"
                       error={errorOf('description')}
-                      aria-invalid={errorOf('description') ? true : undefined}
                     />
                     <Select
                       id={`${id}-effect-${index}`}
@@ -159,8 +157,13 @@ export const UnknownCodesDialog = ({
           <DialogClose render={<Button variant="outline" />} disabled={pending}>
             Cancelar
           </DialogClose>
-          <Button type="submit" form={formId} disabled={pending}>
-            {pending ? <Loader mode="inline" /> : 'Importar'}
+          <Button
+            type="submit"
+            form={formId}
+            disabled={pending}
+            focusableWhenDisabled
+          >
+            {pending ? <Loader mode="inline" label="Importar" /> : 'Importar'}
           </Button>
         </DialogFooter>
       </DialogContent>

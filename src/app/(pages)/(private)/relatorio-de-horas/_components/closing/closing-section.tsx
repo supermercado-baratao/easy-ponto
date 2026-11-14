@@ -90,8 +90,17 @@ const ClosingDialog = ({
             {Object.entries(fields).map(([name, value]) => (
               <input key={name} type="hidden" name={name} value={value} />
             ))}
-            <Button type="submit" disabled={pending} className="w-full">
-              {pending ? <Loader mode="inline" /> : confirmLabel}
+            <Button
+              type="submit"
+              disabled={pending}
+              focusableWhenDisabled
+              className="w-full"
+            >
+              {pending ? (
+                <Loader mode="inline" label={confirmLabel} />
+              ) : (
+                confirmLabel
+              )}
             </Button>
           </form>
         </AlertDialogFooter>

@@ -57,15 +57,13 @@ export const AdjustmentForm = ({
     name: string
     defaultValue?: string
     error?: string
-    'aria-invalid'?: true
   } => {
     const error = state.errors?.[name as keyof typeof state.errors]
     return {
       id: `${id}-${name}`,
       name,
       defaultValue: values[name],
-      error,
-      'aria-invalid': error ? true : undefined
+      error
     }
   }
 
@@ -91,8 +89,13 @@ export const AdjustmentForm = ({
       </form>
       <SheetFooter className="flex-row justify-end">
         <SheetClose render={<Button variant="outline" />}>Cancelar</SheetClose>
-        <Button type="submit" form={formId} disabled={pending}>
-          {pending ? <Loader mode="inline" /> : 'Salvar'}
+        <Button
+          type="submit"
+          form={formId}
+          disabled={pending}
+          focusableWhenDisabled
+        >
+          {pending ? <Loader mode="inline" label="Salvar" /> : 'Salvar'}
         </Button>
       </SheetFooter>
     </>
