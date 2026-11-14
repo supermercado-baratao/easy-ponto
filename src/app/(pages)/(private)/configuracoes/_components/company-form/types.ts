@@ -2,4 +2,10 @@ import { TState } from '@/entry/form-action'
 import type { Company } from '@/infra/database/types'
 import { TCompanyUpsertData } from '@/models/company/types'
 
-export type TCompanyState = TState<TCompanyUpsertData, Company>
+export type TCompanyFormValues = Partial<
+  Record<keyof TCompanyUpsertData | 'updatedAt', string>
+>
+
+export type TCompanyState = TState<TCompanyUpsertData, Company> & {
+  values?: TCompanyFormValues
+}

@@ -1,13 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useActionState, useId, useRef } from 'react'
+import { useActionState, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
-import { Label } from '@/app/components/ui/shadcn/label'
 import type { THoursBankOrder } from '@/models/hours-bank/types'
 
 import { getHoursReportHref } from '../utils'
@@ -20,8 +19,8 @@ export const ImportInitialBalanceButton = ({
   order: THoursBankOrder
 }) => {
   const router = useRouter()
-  const inputId = useId()
   const formReference = useRef<HTMLFormElement>(null)
+  const inputReference = useRef<HTMLInputElement>(null)
   const initialState: TInitialBalanceState = {}
   const [, formAction, pending] = useActionState(
     async (
@@ -63,19 +62,17 @@ export const ImportInitialBalanceButton = ({
   return (
     <>
       <form action={formAction} ref={formReference}>
-        <Label htmlFor={inputId} className="cursor-pointer">
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<span />}
-            disabled={pending}
-            focusableWhenDisabled
-          >
-            Importar saldo inicial
-          </Button>
-        </Label>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending}
+          focusableWhenDisabled
+          onClick={() => inputReference.current?.click()}
+        >
+          Importar saldo inicial
+        </Button>
         <Input
-          id={inputId}
+          ref={inputReference}
           type="file"
           name="file"
           accept=".xls,.xlsx,.csv"

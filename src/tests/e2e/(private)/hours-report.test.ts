@@ -93,7 +93,10 @@ test.describe('Hours report', () => {
     )
     await page.goto(`/relatorio-de-horas?${new URLSearchParams(PERIOD)}`)
 
-    await page.getByLabel('Importar saldo inicial').setInputFiles({
+    const fileChooserPromise = page.waitForEvent('filechooser')
+    await page.getByRole('button', { name: 'Importar saldo inicial' }).click()
+    const fileChooser = await fileChooserPromise
+    await fileChooser.setFiles({
       name: file.name,
       mimeType:
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -118,6 +121,8 @@ test.describe('Hours report', () => {
     await expect(
       page.getByRole('button', { name: 'Fechar período' })
     ).toBeVisible()
-    await expect(page.getByText('Importar saldo inicial')).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Importar saldo inicial' })
+    ).toBeVisible()
   })
 })

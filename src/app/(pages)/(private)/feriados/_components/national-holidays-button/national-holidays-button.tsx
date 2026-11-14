@@ -46,6 +46,7 @@ export const NationalHolidaysButton = ({ year }: { year: number }) => {
         type="submit"
         variant="outline"
         disabled={pending}
+        focusableWhenDisabled
       >
         {pending ? <Loader mode="inline" /> : null}
         Adicionar feriados nacionais de {year}

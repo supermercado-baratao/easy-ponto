@@ -122,9 +122,10 @@ const RemoveAdjustmentDialog = ({
               type="submit"
               variant="destructive"
               disabled={pending}
+              focusableWhenDisabled
               className="w-full"
             >
-              {pending ? <Loader mode="inline" /> : 'Remover'}
+              {pending ? <Loader mode="inline" label="Remover" /> : 'Remover'}
             </Button>
           </form>
         </AlertDialogFooter>

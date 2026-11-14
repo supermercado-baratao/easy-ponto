@@ -79,13 +79,14 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 - As batidas do AFD de um PIS sem funcionário salvo são descartadas, até a #30 decidir como guardar o histórico de ex-funcionários.
 - Datas e horários são salvos em UTC com o horário local (`07:27` vira `07:27Z`), sempre pelo `dayjs` de `@/infra/dayjs`. A data atual vem de `wallClockNow()`, no horário de São Paulo.
 - `actions.ts` com `'use server'` é só para mutações chamadas pelo cliente; dados lidos por uma Server Component vêm de um `data.ts`. As páginas que leem o banco renderizam a cada requisição.
-- Os formulários usam `useFormState` (os novos usam `useActionState`, o nome atual no React 19) com Server Actions que chamam o `handleFormAction()`: os erros do Zod viram mensagens nos campos, e os outros erros viram um toast.
+- Os formulários usam `useFormState` (os novos usam `useActionState`, o nome atual no React 19) com Server Actions que chamam o `handleFormAction()`: os erros do Zod viram mensagens nos campos, e os outros erros viram um toast. Depois de um erro, a action devolve os valores digitados (menos as senhas), porque o React limpa o formulário ao fim da action.
 - Todo registro que pode ser cadastrado também pode ser editado, e todos os campos do formulário são editáveis, menos os dados imutáveis (como os que vêm do AFD).
 
 ### Interface
 
 - shadcn/ui (sobre Base UI) e Tailwind CSS v4, com o tema do shadcn e a paleta do Tailwind como vêm. Componentes novos entram com `pnpm shadcn:add <componente>`.
 - Componentes compartilhados ficam em `src/app/components`, e hooks compartilhados do cliente em `src/app/hooks`.
+- Um seletor de arquivo é um `Button` que abre um `<input type="file">` escondido, para ser acessível pelo teclado.
 - O dark mode usa o `next-themes`: segue o sistema por padrão e pode ser trocado no cabeçalho.
 
 ### Banco de dados
