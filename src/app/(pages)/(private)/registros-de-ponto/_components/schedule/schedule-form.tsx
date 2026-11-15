@@ -150,8 +150,13 @@ export const ScheduleForm = ({
       </form>
       <SheetFooter className="flex-row justify-end">
         <SheetClose render={<Button variant="outline" />}>Cancelar</SheetClose>
-        <Button type="submit" form={formId} disabled={pending}>
-          {pending ? <Loader mode="inline" /> : 'Salvar'}
+        <Button
+          type="submit"
+          form={formId}
+          disabled={pending}
+          focusableWhenDisabled
+        >
+          {pending ? <Loader mode="inline" label="Salvar" /> : 'Salvar'}
         </Button>
       </SheetFooter>
     </>

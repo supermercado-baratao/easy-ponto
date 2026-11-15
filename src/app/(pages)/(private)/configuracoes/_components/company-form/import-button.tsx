@@ -37,9 +37,10 @@ export const ImportButton = ({ isFormPending }: { isFormPending: boolean }) => {
         variant="outline"
         type="submit"
         disabled={isPending}
+        focusableWhenDisabled
         className="w-full"
       >
-        {isPending ? <Loader mode="inline" /> : 'Importar'}
+        {isPending ? <Loader mode="inline" label="Importar" /> : 'Importar'}
       </Button>
     </form>
   )

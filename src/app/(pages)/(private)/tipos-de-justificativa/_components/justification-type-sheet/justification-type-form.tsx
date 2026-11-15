@@ -76,7 +76,6 @@ export const JustificationTypeForm = ({
           label="Código"
           defaultValue={values.code}
           error={state.errors?.code}
-          aria-invalid={state.errors?.code ? true : undefined}
         />
         <FormField
           id={`${id}-description`}
@@ -84,7 +83,6 @@ export const JustificationTypeForm = ({
           label="Descrição"
           defaultValue={values.description}
           error={state.errors?.description}
-          aria-invalid={state.errors?.description ? true : undefined}
         />
         <Select
           id={`${id}-effect`}
@@ -98,8 +96,13 @@ export const JustificationTypeForm = ({
       </form>
       <SheetFooter className="flex-row justify-end">
         <SheetClose render={<Button variant="outline" />}>Cancelar</SheetClose>
-        <Button type="submit" form={formId} disabled={pending}>
-          {pending ? <Loader mode="inline" /> : 'Salvar'}
+        <Button
+          type="submit"
+          form={formId}
+          disabled={pending}
+          focusableWhenDisabled
+        >
+          {pending ? <Loader mode="inline" label="Salvar" /> : 'Salvar'}
         </Button>
       </SheetFooter>
     </>

@@ -59,9 +59,18 @@ export const FormField = (props: TFormFieldProps) => {
     error,
     className,
     id = name,
+    'aria-describedby': ariaDescribedBy,
     ...inputProps
   } = props
   const descriptionId = `${id}-description`
+  const errorId = `${id}-error`
+  const describedBy = [
+    ariaDescribedBy,
+    description && descriptionId,
+    error && errorId
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div className={cn('grid gap-3', className)}>
@@ -76,19 +85,17 @@ export const FormField = (props: TFormFieldProps) => {
         {...inputProps}
         id={id}
         name={name}
-        aria-describedby={description ? descriptionId : undefined}
-        className={
-          error
-            ? 'border-destructive focus-visible:border-destructive focus-visible:ring-[3px] focus-visible:ring-destructive/50'
-            : undefined
-        }
+        aria-describedby={describedBy || undefined}
+        aria-invalid={!!error}
       />
       {description && (
         <p id={descriptionId} className="-mt-1 text-sm text-muted-foreground">
           {description}
         </p>
       )}
-      <p className="relative bottom-3 text-destructive">{error}</p>
+      <p id={errorId} className="relative bottom-3 text-destructive">
+        {error}
+      </p>
     </div>
   )
 }
@@ -113,6 +120,8 @@ export const Select = ({
   options: { value: string; label: string }[]
   error?: string
 } & ComponentProps<'div'>) => {
+  const errorId = `${id}-error`
+
   return (
     <div className={cn('grid gap-3', className)} {...props}>
       <Label htmlFor={id} className={error ? 'text-destructive' : undefined}>
@@ -125,7 +134,12 @@ export const Select = ({
         onValueChange={onValueChange}
         items={options}
       >
-        <SelectTrigger id={id} className="w-full" aria-invalid={!!error}>
+        <SelectTrigger
+          id={id}
+          className="w-full"
+          aria-invalid={!!error}
+          aria-describedby={error ? errorId : undefined}
+        >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -139,7 +153,9 @@ export const Select = ({
           </SelectGroup>
         </SelectContent>
       </_Select>
-      <p className="relative bottom-3 text-destructive">{error}</p>
+      <p id={errorId} className="relative bottom-3 text-destructive">
+        {error}
+      </p>
     </div>
   )
 }

@@ -7,7 +7,8 @@ export const SubmitButton = ({ pending }: { pending: boolean }) => (
     form="company-form"
     className="flex-1"
     disabled={pending}
+    focusableWhenDisabled
   >
-    {pending ? <Loader mode="inline" /> : 'Salvar'}
+    {pending ? <Loader mode="inline" label="Salvar" /> : 'Salvar'}
   </Button>
 )

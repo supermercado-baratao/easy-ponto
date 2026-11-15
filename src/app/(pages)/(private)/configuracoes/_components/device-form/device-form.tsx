@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { FormCard, FormField } from '@/app/components/ui/custom/form'
@@ -18,12 +18,21 @@ export const DeviceForm = ({
 }) => {
   const initialState: TDeviceFormState = {}
   const [state, formAction, pending] = useActionState(save, initialState)
+  const formReference = useRef<HTMLFormElement>(null)
+  const values = state.values ?? deviceCredentials
 
   useEffect(() => {
     if (pending) return
 
     if (state.success) {
       toast.success('Dados salvos com sucesso!')
+      return
+    }
+
+    if (state.errors) {
+      formReference.current
+        ?.querySelector<HTMLElement>('[aria-invalid="true"]')
+        ?.focus()
       return
     }
 
@@ -43,6 +52,7 @@ export const DeviceForm = ({
       <CardContent>
         <form
           key={deviceCredentials?.updatedAt.toISOString()}
+          ref={formReference}
           id="device-form"
           action={formAction}
           noValidate
@@ -50,13 +60,13 @@ export const DeviceForm = ({
           <FormField
             name="ip"
             label="Endereço IPV4"
-            defaultValue={deviceCredentials?.ip}
+            defaultValue={values?.ip}
             error={state.errors?.ip}
           />
           <FormField
             name="login"
             label="Login"
-            defaultValue={deviceCredentials?.login}
+            defaultValue={values?.login}
             autoComplete="off"
             error={state.errors?.login}
           />
@@ -80,8 +90,9 @@ export const DeviceForm = ({
           form="device-form"
           className="w-full"
           disabled={pending}
+          focusableWhenDisabled
         >
-          {pending ? <Loader mode="inline" /> : 'Salvar'}
+          {pending ? <Loader mode="inline" label="Salvar" /> : 'Salvar'}
         </Button>
       </CardFooter>
     </FormCard>

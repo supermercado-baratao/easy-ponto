@@ -1,12 +1,11 @@
 'use client'
 
-import { startTransition, useActionState, useId, useRef, useState } from 'react'
+import { startTransition, useActionState, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
-import { Label } from '@/app/components/ui/shadcn/label'
 import type { TCodeResolution } from '@/models/synchronization/types'
 
 import { importFile } from './actions'
@@ -21,8 +20,8 @@ const describeSkipped = (count: number): string | undefined => {
 }
 
 export const ImportFileButton = () => {
-  const inputId = useId()
   const formReference = useRef<HTMLFormElement>(null)
+  const inputReference = useRef<HTMLInputElement>(null)
   const fileReference = useRef<File | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   // Remounts the dialog for each unresolved import, so it never keeps the choices of a cancelled one
@@ -78,19 +77,17 @@ export const ImportFileButton = () => {
   return (
     <>
       <form action={submitFile} ref={formReference}>
-        <Label htmlFor={inputId} className="cursor-pointer">
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<span />}
-            disabled={pending}
-            focusableWhenDisabled
-          >
-            Importar Arquivo
-          </Button>
-        </Label>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending}
+          focusableWhenDisabled
+          onClick={() => inputReference.current?.click()}
+        >
+          Importar Arquivo
+        </Button>
         <Input
-          id={inputId}
+          ref={inputReference}
           type="file"
           name="file"
           accept=".xls,.xlsx,.csv"
