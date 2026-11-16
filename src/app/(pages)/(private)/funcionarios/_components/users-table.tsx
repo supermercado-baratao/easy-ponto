@@ -8,11 +8,11 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
+import { getStatusLabel } from '@/app/utils/user-status'
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 
 import { UserSheet } from './user-sheet/user-sheet'
-import { getStatusLabel } from './utils'
 
 export const UsersTable = ({ users }: { users: User[] }) => (
   <Table aria-label="Funcionários">

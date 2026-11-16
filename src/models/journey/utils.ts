@@ -6,12 +6,24 @@ import type {
 import { dayjs } from '@/infra/dayjs'
 import { TIME_PAIRS } from '@/models/schedule/utils'
 
-import type { TJourney, TJourneyDayInput, TJourneyPair } from './types'
+import type {
+  TJourney,
+  TJourneyDayInput,
+  TJourneyPair,
+  TScheduleAlert,
+  TScheduleDaySummary
+} from './types'
 
 // CLT art. 58, § 1º: variations of up to 5 minutes per punch, limited to 10 minutes a day, are neither
 // discounted nor paid as overtime. Provisional until the CLT review of the journey rules (#65)
 export const PUNCH_TOLERANCE = 5
 export const DAILY_TOLERANCE = 10
+
+// CLT art. 71 (a break of at most 2 hours, required after 6 hours in a row) and art. 58 (8 hours a day).
+// Provisional until the CLT review of the journey rules (#65)
+export const MAX_LUNCH = 120
+export const MAX_CONTINUOUS_WORK = 360
+export const MAX_DAILY_JOURNEY = 480
 
 type TInterval = { start: number; end: number }
 
@@ -146,5 +158,30 @@ export const calculateDay = ({
     dayOff,
     lateness: Math.max(0, -balance),
     overtime60: Math.max(0, balance)
+  }
+}
+
+export const summarizeScheduleDay = (
+  scheduleDay?: ScheduleDay
+): TScheduleDaySummary => {
+  const scheduled = getScheduledIntervals(scheduleDay)
+  const lunch = scheduled
+    .slice(1)
+    .reduce(
+      (total, { start }, index) => total + start - scheduled[index].end,
+      0
+    )
+  const journey = sumIntervals(scheduled)
+  const alerts: TScheduleAlert[] = []
+  if (lunch > MAX_LUNCH) alerts.push('long-lunch')
+  if (journey > MAX_DAILY_JOURNEY) alerts.push('long-journey')
+  if (scheduled.some(({ start, end }) => end - start > MAX_CONTINUOUS_WORK)) {
+    alerts.push('long-continuous-work')
+  }
+  return {
+    pairs: scheduled.map(({ start, end }) => ({ entry: start, exit: end })),
+    lunch,
+    journey,
+    alerts
   }
 }

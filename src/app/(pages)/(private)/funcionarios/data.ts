@@ -1,27 +1,16 @@
+import type { TUsersFilterValues } from '@/app/components/blocks/users-filter'
+import { getStatusFromParameter, STATUS_PARAMS } from '@/app/utils/user-status'
 import { getAdminUser } from '@/entry/admin-user'
 import type { User } from '@/infra/database/types'
 import { userModel } from '@/models/user/model'
-import {
-  filterUsers,
-  getPositions,
-  type TUserFilters
-} from '@/models/user/utils'
-
-import { STATUS_PARAMS } from './_components/utils'
+import { filterUsers, getPositions } from '@/models/user/utils'
 
 type TUsersPageData = {
   hasCompany: boolean
   users: User[]
   total: number
   positions: string[]
-  filters: { name: string; position: string | null; status: string | null }
-}
-
-const parseStatus = (status?: string): TUserFilters['status'] => {
-  const entry = Object.entries(STATUS_PARAMS).find(
-    ([, parameter]) => parameter === status
-  )
-  return entry?.[0] as TUserFilters['status']
+  filters: TUsersFilterValues
 }
 
 export const getUsersPageData = async (searchParameters: {
@@ -35,7 +24,7 @@ export const getUsersPageData = async (searchParameters: {
     : []
   const name = searchParameters.name?.trim() ?? ''
   const position = searchParameters.position?.trim() || null
-  const status = parseStatus(searchParameters.status)
+  const status = getStatusFromParameter(searchParameters.status)
   return {
     hasCompany: !!companyId,
     users: filterUsers(allUsers, {

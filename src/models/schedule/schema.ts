@@ -106,3 +106,8 @@ export const findManyInPeriodParamsSchema = z.object({
   initialDate: z.iso.date(),
   finalDate: z.iso.date()
 })
+
+export const findManyInEffectByCompanyIdParamsSchema = z.object({
+  companyId: z.uuidv4(),
+  date: z.iso.date()
+})

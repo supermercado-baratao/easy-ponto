@@ -1,11 +1,14 @@
 import Link from 'next/link'
 
 import { Header } from '@/app/components/blocks/header'
+import {
+  type TUsersFilterValues,
+  UsersFilter
+} from '@/app/components/blocks/users-filter'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
 import type { User } from '@/infra/database/types'
 
-import { UsersFilter } from './users-filter'
 import { UsersTable } from './users-table'
 
 export const MainContent = ({
@@ -19,14 +22,18 @@ export const MainContent = ({
   users: User[]
   total: number
   positions: string[]
-  filters: { name: string; position: string | null; status: string | null }
+  filters: TUsersFilterValues
 }) => (
   <>
     <Header title="Funcionários" />
     <_MainContent className="flex flex-col gap-6">
       {hasCompany && total > 0 ? (
         <>
-          <UsersFilter positions={positions} filters={filters} />
+          <UsersFilter
+            path="/funcionarios"
+            positions={positions}
+            filters={filters}
+          />
           {users.length > 0 ? (
             <UsersTable users={users} />
           ) : (

@@ -3,13 +3,14 @@ import { describe, expect, test } from 'vitest'
 import type {
   Holiday,
   PunchRecord,
+  ScheduleDay,
   TJustificationWithType,
   TScheduleWithDays
 } from '@/infra/database/types'
 import { timeToMinutes } from '@/models/schedule/utils'
 
 import type { TJourney, TJourneyDayInput } from './types'
-import { buildPairs, calculateDay } from './utils'
+import { buildPairs, calculateDay, summarizeScheduleDay } from './utils'
 
 const MONDAY = '2026-11-09'
 const SUNDAY = '2026-11-08'
@@ -245,5 +246,93 @@ describe('calculateDay', () => {
       kind: 'future',
       absence: 0
     })
+  })
+})
+
+const scheduleDay = (...times: string[]): ScheduleDay =>
+  ({
+    weekday: 1,
+    entry1: null,
+    exit1: null,
+    entry2: null,
+    exit2: null,
+    entry3: null,
+    exit3: null,
+    ...Object.fromEntries(
+      ['entry1', 'exit1', 'entry2', 'exit2', 'entry3', 'exit3']
+        .slice(0, times.length)
+        .map((field, index) => [field, timeToMinutes(times[index])])
+    )
+  }) as ScheduleDay
+
+describe('summarizeScheduleDay', () => {
+  test('Sums the lunch and the journey of the day', () => {
+    expect(
+      summarizeScheduleDay(scheduleDay('07:00', '11:00', '13:00', '16:20'))
+    ).toEqual({
+      pairs: [
+        { entry: timeToMinutes('07:00'), exit: timeToMinutes('11:00') },
+        { entry: timeToMinutes('13:00'), exit: timeToMinutes('16:20') }
+      ],
+      lunch: 120,
+      journey: 440,
+      alerts: []
+    })
+  })
+
+  test('Sums every break of a day with three pairs as lunch', () => {
+    const summary = summarizeScheduleDay(
+      scheduleDay('07:00', '09:00', '09:30', '11:00', '13:00', '16:00')
+    )
+    expect(summary.lunch).toBe(150)
+    expect(summary.journey).toBe(390)
+  })
+
+  test('Returns no pairs for a day off', () => {
+    expect(summarizeScheduleDay(scheduleDay())).toEqual({
+      pairs: [],
+      lunch: 0,
+      journey: 0,
+      alerts: []
+    })
+    expect(summarizeScheduleDay().pairs).toEqual([])
+  })
+
+  test('Does not alert a day exactly at the limits', () => {
+    expect(
+      summarizeScheduleDay(scheduleDay('06:00', '12:00', '14:00', '16:00'))
+        .alerts
+    ).toEqual([])
+  })
+
+  test('Alerts a lunch longer than 2 hours', () => {
+    expect(
+      summarizeScheduleDay(scheduleDay('07:00', '11:00', '13:01', '16:00'))
+        .alerts
+    ).toEqual(['long-lunch'])
+  })
+
+  test('Alerts a journey longer than 8 hours', () => {
+    expect(
+      summarizeScheduleDay(scheduleDay('07:00', '11:00', '12:00', '16:01'))
+        .alerts
+    ).toEqual(['long-journey'])
+  })
+
+  test('Alerts more than 6 hours in a row without a break', () => {
+    expect(
+      summarizeScheduleDay(scheduleDay('06:00', '12:01', '14:00', '15:00'))
+        .alerts
+    ).toEqual(['long-continuous-work'])
+    expect(summarizeScheduleDay(scheduleDay('08:00', '15:00')).alerts).toEqual([
+      'long-continuous-work'
+    ])
+  })
+
+  test('Alerts every rule the day breaks', () => {
+    expect(
+      summarizeScheduleDay(scheduleDay('06:00', '13:00', '15:30', '17:30'))
+        .alerts
+    ).toEqual(['long-lunch', 'long-journey', 'long-continuous-work'])
   })
 })

@@ -8,6 +8,7 @@ import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
+import { WEEKDAY_LABELS } from '@/app/utils/weekday'
 import {
   getTimeFieldName,
   TIME_FIELDS,
@@ -16,7 +17,7 @@ import {
 
 import { save } from './actions'
 import type { TScheduleFormState, TScheduleFormValues } from './types'
-import { TIME_FIELD_LABELS, WEEKDAY_LABELS } from './utils'
+import { TIME_FIELD_LABELS } from './utils'
 
 export const ScheduleForm = ({
   userId,
