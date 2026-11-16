@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LucideIcon,
   Settings,
+  TreePalm,
   Users
 } from 'lucide-react'
 
@@ -51,6 +52,11 @@ export const navItems: TNavItem[] = [
             title: 'Calendário',
             path: '/calendario',
             icon: Calendar
+          },
+          {
+            title: 'Férias',
+            path: '/ferias',
+            icon: TreePalm
           }
         ]
       },

@@ -112,10 +112,12 @@ export const Select = ({
   id = name,
   defaultValue,
   onValueChange,
+  disabled,
   className,
   ...props
 }: {
   name: string
+  disabled?: boolean
   defaultValue?: string | null
   onValueChange?: (value: string | null) => void
   placeholder: string
@@ -132,6 +134,7 @@ export const Select = ({
         name={name}
         defaultValue={defaultValue}
         onValueChange={onValueChange}
+        disabled={disabled}
         items={options}
       >
         {/* Select.Label focuses the trigger without opening the popup, which a native <label> does (Base UI docs, "Labeling a select") */}

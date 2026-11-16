@@ -16,6 +16,7 @@ export type PunchRecord = Scalars<Models.public_PunchRecord>
 export type Schedule = Scalars<Models.public_Schedule>
 export type ScheduleDay = Scalars<Models.public_ScheduleDay>
 export type User = Scalars<Models.public_User>
+export type VacationPlan = Scalars<Models.public_VacationPlan>
 
 type TAutomaticFields = 'id' | 'createdAt' | 'updatedAt'
 
@@ -35,6 +36,10 @@ export type TScheduleWithDays = Schedule & {
 
 export type TJustificationWithType = Justification & {
   type: JustificationType
+}
+
+export type TVacationPlanWithJustification = VacationPlan & {
+  justification: TJustificationWithType | null
 }
 
 export type THoursBankClosingWithBalances = HoursBankClosing & {
