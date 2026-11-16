@@ -54,3 +54,14 @@ export const selectInEffectSince = (
     ? schedulesByStartDateDesc
     : schedulesByStartDateDesc.slice(0, firstInEffectIndex + 1)
 }
+
+export const hasEntryOrExitAt = (
+  schedule: TScheduleWithDays | null,
+  minutes: number
+): boolean =>
+  !!schedule?.days.some((day) => {
+    const times = TIME_FIELDS.map((field) => day[field]).filter(
+      (time) => time !== null
+    )
+    return times[0] === minutes || times.at(-1) === minutes
+  })

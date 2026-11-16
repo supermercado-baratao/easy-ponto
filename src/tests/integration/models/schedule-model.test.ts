@@ -28,7 +28,7 @@ beforeAll(async () => {
   })
   companyId = company.id
   await userModel.createMany(
-    mapDeviceUserToUser(deviceUsers.slice(0, 1), company.id)
+    mapDeviceUserToUser(deviceUsers.slice(0, 2), company.id)
   )
   ;[{ id: userId }] = await userModel.findManyByCompanyId(company.id)
 })
@@ -133,5 +133,29 @@ describe('Schedule Model', () => {
     expect(
       await scheduleModel.findInEffect({ userId, date: '2026-05-01' })
     ).toMatchObject({ startDate: '2026-03-01' })
+  })
+
+  test('Finds the schedule in effect of every employee of the company', async () => {
+    const userSchedules = await scheduleModel.findManyInEffectByCompanyId({
+      companyId,
+      date: '2026-02-15'
+    })
+
+    expect(
+      userSchedules.map(({ user, schedule }) => ({
+        userId: user.id,
+        startDate: schedule?.startDate ?? null
+      }))
+    ).toEqual([
+      { userId, startDate: '2026-01-01' },
+      { userId: userSchedules[1].user.id, startDate: null }
+    ])
+    expect(userSchedules[1].user.id).not.toBe(userId)
+    expect(
+      await scheduleModel.findManyInEffectByCompanyId({
+        companyId: faker.string.uuid(),
+        date: '2026-02-15'
+      })
+    ).toEqual([])
   })
 })

@@ -4,21 +4,10 @@ import {
   minutesToTime,
   TIME_FIELDS,
   type TScheduleTimeField,
-  type TWeekdayKey,
   WEEKDAYS
 } from '@/models/schedule/utils'
 
 import type { TScheduleFormValues } from './types'
-
-export const WEEKDAY_LABELS: Record<TWeekdayKey, string> = {
-  monday: 'Segunda',
-  tuesday: 'Terça',
-  wednesday: 'Quarta',
-  thursday: 'Quinta',
-  friday: 'Sexta',
-  saturday: 'Sábado',
-  sunday: 'Domingo'
-}
 
 export const TIME_FIELD_LABELS: Record<TScheduleTimeField, string> = {
   entry1: 'Entrada 1',

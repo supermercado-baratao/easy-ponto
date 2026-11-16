@@ -11,6 +11,16 @@ export type TJourneyPair = {
   exit: number | null
 }
 
+export type TScheduleAlert =
+  'long-lunch' | 'long-journey' | 'long-continuous-work'
+
+export type TScheduleDaySummary = {
+  pairs: { entry: number; exit: number }[]
+  lunch: number
+  journey: number
+  alerts: TScheduleAlert[]
+}
+
 export type TJourneyDayKind =
   'workday' | 'day-off' | 'holiday' | 'excused' | 'no-schedule' | 'future'
 

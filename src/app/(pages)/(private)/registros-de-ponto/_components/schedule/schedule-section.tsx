@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
+import { WEEKDAY_LABELS } from '@/app/utils/weekday'
 import type { TScheduleWithDays, User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { TIME_FIELDS, TIME_PAIRS, WEEKDAYS } from '@/models/schedule/utils'
@@ -14,8 +15,7 @@ import { ScheduleSheet } from './schedule-sheet'
 import {
   formatMinutes,
   getScheduleFormValues,
-  TIME_FIELD_LABELS,
-  WEEKDAY_LABELS
+  TIME_FIELD_LABELS
 } from './utils'
 
 // Two pairs (entry and exit before and after the break) are the usual day, so the columns never shrink below it

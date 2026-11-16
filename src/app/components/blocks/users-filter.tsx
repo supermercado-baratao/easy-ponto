@@ -1,16 +1,15 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { type FormEvent, useTransition } from 'react'
+import { type FormEvent, type ReactNode, useTransition } from 'react'
 
 import { Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
 import { Label } from '@/app/components/ui/shadcn/label'
+import { STATUS_LABELS, STATUS_PARAMS } from '@/app/utils/user-status'
 import { USER_STATUSES } from '@/models/user/utils'
-
-import { STATUS_LABELS, STATUS_PARAMS } from './utils'
 
 const STATUS_OPTIONS = [
   { value: null, label: 'Ativos' },
@@ -21,12 +20,22 @@ const STATUS_OPTIONS = [
   { value: STATUS_PARAMS.all, label: 'Todos' }
 ]
 
-export const UsersFilter = ({
+export type TUsersFilterValues = {
+  name: string
+  position: string | null
+  status: string | null
+}
+
+export const UsersFilter = <T extends TUsersFilterValues>({
+  path,
   positions,
-  filters
+  filters,
+  children
 }: {
+  path: string
   positions: string[]
-  filters: { name: string; position: string | null; status: string | null }
+  filters: T
+  children?: ReactNode
 }) => {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -43,7 +52,7 @@ export const UsersFilter = ({
     }
     const query = parameters.toString()
     startTransition(() => {
-      router.push(query ? `/funcionarios?${query}` : '/funcionarios')
+      router.push(query ? `${path}?${query}` : path)
     })
   }
 
@@ -51,8 +60,8 @@ export const UsersFilter = ({
     <>
       {/* The key resets the uncontrolled fields when the filters change through a link or the history */}
       <form
-        key={`${filters.name}|${filters.position}|${filters.status}`}
-        action="/funcionarios"
+        key={JSON.stringify(filters)}
+        action={path}
         role="search"
         aria-label="Filtros"
         onSubmit={handleSubmit}
@@ -92,6 +101,7 @@ export const UsersFilter = ({
           defaultValue={filters.status}
           className="w-44"
         />
+        {children}
         <Button type="submit" variant="outline">
           Filtrar
         </Button>

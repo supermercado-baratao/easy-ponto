@@ -20,3 +20,12 @@ export const STATUS_PARAMS: Record<
 
 export const getStatusLabel = (status: string): string =>
   STATUS_LABELS[status as TUserStatus] ?? status
+
+export const getStatusFromParameter = (
+  parameter?: string
+): TUserFilters['status'] => {
+  const entry = Object.entries(STATUS_PARAMS).find(
+    ([, value]) => value === parameter
+  )
+  return entry?.[0] as TUserFilters['status']
+}
