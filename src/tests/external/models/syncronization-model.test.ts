@@ -93,6 +93,7 @@ describe('Synchronization Model', () => {
       registration: expect.any(String),
       templatesCount: expect.any(Number),
       admissionDate: null,
+      status: 'registered',
       department: null,
       payrollNumber: null,
       position: null,
