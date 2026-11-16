@@ -1,5 +1,6 @@
 'use client'
 
+import { Select as SelectPrimitive } from '@base-ui/react/select'
 import { cn } from 'cn'
 import { ComponentProps, ReactNode } from 'react'
 
@@ -93,9 +94,11 @@ export const FormField = (props: TFormFieldProps) => {
           {description}
         </p>
       )}
-      <p id={errorId} className="relative bottom-3 text-destructive">
-        {error}
-      </p>
+      {error && (
+        <p id={errorId} className="relative bottom-3 text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
@@ -113,20 +116,17 @@ export const Select = ({
   ...props
 }: {
   name: string
-  defaultValue?: string
+  defaultValue?: string | null
   onValueChange?: (value: string | null) => void
   placeholder: string
   label?: string
-  options: { value: string; label: string }[]
+  options: { value: string | null; label: string }[]
   error?: string
-} & ComponentProps<'div'>) => {
+} & Omit<ComponentProps<'div'>, 'defaultValue'>) => {
   const errorId = `${id}-error`
 
   return (
     <div className={cn('grid gap-3', className)} {...props}>
-      <Label htmlFor={id} className={error ? 'text-destructive' : undefined}>
-        {label}
-      </Label>
       <_Select
         key={defaultValue}
         name={name}
@@ -134,6 +134,15 @@ export const Select = ({
         onValueChange={onValueChange}
         items={options}
       >
+        {/* Select.Label focuses the trigger without opening the popup, which a native <label> does (Base UI docs, "Labeling a select") */}
+        <SelectPrimitive.Label
+          className={cn(
+            'text-sm leading-none font-medium select-none',
+            error && 'text-destructive'
+          )}
+        >
+          {label}
+        </SelectPrimitive.Label>
         <SelectTrigger
           id={id}
           className="w-full"
@@ -146,16 +155,18 @@ export const Select = ({
           <SelectGroup>
             <SelectLabel>{placeholder}</SelectLabel>
             {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value ?? ''} value={option.value}>
                 {option.label}
               </SelectItem>
             ))}
           </SelectGroup>
         </SelectContent>
       </_Select>
-      <p id={errorId} className="relative bottom-3 text-destructive">
-        {error}
-      </p>
+      {error && (
+        <p id={errorId} className="relative bottom-3 text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   )
 }

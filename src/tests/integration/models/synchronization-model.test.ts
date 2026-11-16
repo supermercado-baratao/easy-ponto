@@ -191,7 +191,7 @@ describe('Synchronization Model', () => {
       )
     })
 
-    test('Updates device fields and preserves the imported data', async () => {
+    test('Updates device fields and preserves the imported data and the status', async () => {
       const data = await populate()
       const [{ id }] = await synchronize([deviceUser], data)
       const imported = {
@@ -199,7 +199,8 @@ describe('Synchronization Model', () => {
         admissionDate: new Date('2026-01-15T00:00:00.000Z'),
         department: 'Financeiro',
         payrollNumber: '42',
-        position: 'Analista'
+        position: 'Analista',
+        status: 'on-leave'
       }
       await userModel.updateMany([{ id, ...imported }])
 

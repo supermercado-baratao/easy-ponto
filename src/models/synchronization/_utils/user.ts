@@ -1,12 +1,18 @@
 import { CPF_LENGTH, PIS_LENGTH } from '@/constants/length'
 import type { TInputData, User } from '@/infra/database/types'
 import { TDeviceUser } from '@/models/device/types'
+import { DEFAULT_USER_STATUS } from '@/models/user/utils'
 
 import { normalizeLeftZeros } from './normalize'
 
 type TDeviceUserFields = Omit<
   TInputData<User>,
-  'adminUserId' | 'admissionDate' | 'department' | 'payrollNumber' | 'position'
+  | 'adminUserId'
+  | 'admissionDate'
+  | 'department'
+  | 'payrollNumber'
+  | 'position'
+  | 'status'
 >
 
 export const mapDeviceUserToUserFields = (
@@ -35,5 +41,6 @@ export const mapDeviceUserToUser = (
     admissionDate: null,
     department: null,
     payrollNumber: null,
-    position: null
+    position: null,
+    status: DEFAULT_USER_STATUS
   }))

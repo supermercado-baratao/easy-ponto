@@ -24,6 +24,21 @@ export const userRepository = {
   findManyByNames: async (names: string[]): Promise<User[]> =>
     await users.where((user) => user.name.in(names)).all(),
 
+  update: async ({
+    id,
+    companyId,
+    ...data
+  }: Pick<
+    User,
+    | 'id'
+    | 'companyId'
+    | 'status'
+    | 'position'
+    | 'department'
+    | 'payrollNumber'
+    | 'admissionDate'
+  >): Promise<User | null> => await users.where({ id, companyId }).update(data),
+
   updateMany: async (
     data: (Partial<TInputData<User>> & { id: string })[],
     transaction?: TTransaction

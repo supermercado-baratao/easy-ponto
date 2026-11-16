@@ -19,6 +19,7 @@ export const PeriodFilter = ({
   <Form
     key={`${period.initialDate}|${period.finalDate}`}
     action="/relatorio-de-horas"
+    role="search"
     aria-label="Período"
     className="flex flex-wrap items-end gap-4"
   >

@@ -44,7 +44,7 @@ describe('mapDeviceUserToUserFields', () => {
 })
 
 describe('mapDeviceUserToUser', () => {
-  test('Leaves empty the fields that only the file has', () => {
+  test('Leaves empty the fields that only the file has and sets the status to registered', () => {
     const [user] = mapDeviceUserToUser([deviceUser], 'company-id')
 
     expect(user).toMatchObject({
@@ -52,7 +52,8 @@ describe('mapDeviceUserToUser', () => {
       admissionDate: null,
       department: null,
       payrollNumber: null,
-      position: null
+      position: null,
+      status: 'registered'
     })
   })
 })

@@ -84,6 +84,7 @@ model User {
   admissionDate DateTime? @map("admission_date")
   position      String?
   department    String?
+  status        String    @default("registered")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
