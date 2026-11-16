@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 import type { User } from '@/infra/database/types'
 import { adminUserModel } from '@/models/admin-user/model'
 import { userModel } from '@/models/user/model'
+import { vacationPlanModel } from '@/models/vacation-plan/model'
 
 const PERIOD = { inicio: '2025-10-01', fim: '2025-10-31' }
 
@@ -165,5 +166,64 @@ test.describe('Justifications', () => {
       page.getByText('Justificativa removida com sucesso!')
     ).toBeVisible()
     await expect(getJustificationCell('06/10/2025')).toHaveText('')
+  })
+
+  test('Registers a planned vacation as a justification', async ({ page }) => {
+    await vacationPlanModel.save({
+      companyId: user.companyId,
+      userId: user.id,
+      year: 2030,
+      month: '7'
+    })
+    await page.goto('/ferias?ano=2030')
+    const row = page
+      .getByRole('table', { name: 'Planejamento das férias de 2030' })
+      .getByRole('row', { name: user.name })
+
+    await row
+      .getByRole('button', { name: `Registrar as férias de ${user.name}` })
+      .click()
+    const sheet = page.getByRole('dialog', { name: 'Registrar férias' })
+    await expect(sheet.getByLabel('Data inicial')).toHaveValue('2030-07-01')
+    await expect(sheet.getByLabel('Data final')).toHaveValue('2030-07-31')
+    await sheet.getByRole('combobox', { name: 'Tipo de justificativa' }).click()
+    await page.getByRole('option', { name: 'ATEST – Atestado médico' }).click()
+    await sheet.getByLabel('Data inicial').fill('2030-07-08')
+    await sheet.getByRole('button', { name: 'Registrar' }).click()
+    await expect(sheet).toBeHidden()
+    await expect(row.getByRole('cell').nth(2)).toHaveText(
+      'Registradas (ATEST): 08/07/2030 a 31/07/2030'
+    )
+    await expect(
+      row.getByRole('button', { name: `Registrar as férias de ${user.name}` })
+    ).toBeHidden()
+
+    await expect(
+      page.getByRole('button', { name: `Planejar as férias de ${user.name}` })
+    ).toBeFocused()
+
+    await page
+      .getByRole('button', { name: `Planejar as férias de ${user.name}` })
+      .click()
+    const planSheet = page.getByRole('dialog', { name: 'Planejar férias' })
+    await expect(planSheet).toContainText(
+      'Remova a justificativa nos registros de ponto para mudar o mês.'
+    )
+    await expect(
+      planSheet.getByRole('combobox', { name: 'Mês' })
+    ).toBeDisabled()
+    await planSheet.getByRole('button', { name: 'Cancelar' }).click()
+
+    await page.goto(
+      `/registros-de-ponto?${new URLSearchParams({ pis: user.pis, inicio: '2030-07-01', fim: '2030-07-31' })}`
+    )
+    await expect(
+      page
+        .getByRole('table', { name: 'Registros de ponto' })
+        .getByRole('row')
+        .filter({ hasText: '08/07/2030' })
+        .getByRole('cell')
+        .nth(-2)
+    ).toHaveAccessibleName('ATEST – Atestado médico, 08/07/2030 a 31/07/2030')
   })
 })

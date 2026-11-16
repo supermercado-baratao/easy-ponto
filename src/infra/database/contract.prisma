@@ -100,6 +100,7 @@ model User {
   justifications Justification[]
   hoursBankBalances    HoursBankBalance[]
   hoursBankAdjustments HoursBankAdjustment[]
+  vacationPlans        VacationPlan[]
 
   @@map("users")
 }
@@ -210,6 +211,8 @@ model Justification {
   typeId String            @map("type_id")
   type   JustificationType @relation(fields: [typeId], references: [id])
 
+  vacationPlan VacationPlan?
+
   @@map("justifications")
 }
 
@@ -268,4 +271,22 @@ model HoursBankAdjustment {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("hours_bank_adjustments")
+}
+
+model VacationPlan {
+  id    String @id @onCreate(uuid())
+  year  Int
+  month Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @onCreate(now()) @onUpdate(now()) @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  justificationId String?        @unique @map("justification_id")
+  justification   Justification? @relation(fields: [justificationId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, year])
+  @@map("vacation_plans")
 }
