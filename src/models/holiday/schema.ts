@@ -1,8 +1,10 @@
 import { z } from 'zod'
 
+import { MAX_YEAR, MIN_YEAR } from '@/constants/year'
+
 import { HOLIDAY_SCOPES } from './utils'
 
-export const yearSchema = z.coerce.number().int().min(2000).max(2100)
+export const yearSchema = z.coerce.number().int().min(MIN_YEAR).max(MAX_YEAR)
 
 const dataSchema = z
   .object({
