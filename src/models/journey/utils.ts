@@ -25,6 +25,13 @@ export const MAX_LUNCH = 120
 export const MAX_CONTINUOUS_WORK = 360
 export const MAX_DAILY_JOURNEY = 480
 
+// The store's planned workload: 7:20 in the middle of the month and 8:00 at its start and end, when
+// sales peak. Provisional until the CLT review of the journey rules (#65)
+export const STANDARD_WORKLOAD = 440
+export const PEAK_WORKLOAD = 480
+export const MID_MONTH_FIRST_DAY = 11
+export const MID_MONTH_LAST_DAY = 26
+
 type TInterval = { start: number; end: number }
 
 const toMinutes = (datetime: Date): number => {
