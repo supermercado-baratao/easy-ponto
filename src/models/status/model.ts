@@ -2,16 +2,13 @@ import { statusRepository } from '@/repositories/status-repository'
 
 import { TStatusCheckData } from './types'
 
-const getOpenedConnections = async (): Promise<number> =>
-  await statusRepository.getOpenedConnections()
-
 const check = async (): Promise<TStatusCheckData> => {
   const updatedAt = new Date()
   const [version, maxConnections] = await Promise.all([
     statusRepository.getDatabaseVersion(),
     statusRepository.getMaxConnections()
   ])
-  const count = await getOpenedConnections()
+  const count = await statusRepository.getOpenedConnections()
   return {
     updatedAt,
     dependencies: {
@@ -25,6 +22,5 @@ const check = async (): Promise<TStatusCheckData> => {
 }
 
 export const statusModel = {
-  check,
-  getOpenedConnections
+  check
 }
