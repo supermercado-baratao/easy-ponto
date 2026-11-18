@@ -1,15 +1,16 @@
-import postgres from '@prisma/orm-postgres/runtime'
-import { contractFromJson } from '@prisma/orm-postgres/static'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
 
-import type { Contract } from './contract.d'
-import contractJson from './contract.json' with { type: 'json' }
+import { relations } from './relations'
 
 const createClient = () =>
-  postgres({
-    contract: contractFromJson<Contract>(contractJson),
-    url: process.env.DATABASE_URL!,
-    // `pg` waits forever by default when the database is unreachable
-    poolOptions: { connectionTimeoutMillis: 5000 }
+  drizzle({
+    client: new Pool({
+      connectionString: process.env.DATABASE_URL!,
+      // `pg` waits forever by default when the database is unreachable
+      connectionTimeoutMillis: 5000
+    }),
+    relations
   })
 
 const globalForDatabase = globalThis as unknown as {

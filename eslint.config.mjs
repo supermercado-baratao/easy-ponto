@@ -92,7 +92,8 @@ const eslintConfig = defineConfig([
       'src/tests/**/*.ts',
       'src/app/hooks/*.ts',
       '**/route.ts',
-      'src/infra/database/client.ts'
+      'src/infra/database/client.ts',
+      'src/infra/database/schema.ts'
     ],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'error'
@@ -143,8 +144,6 @@ const eslintConfig = defineConfig([
     '.claude/**',
     'test-results/**',
     'playwright-report/**',
-    'src/infra/database/contract.json',
-    'src/infra/database/contract.d.ts',
     'src/infra/database/migrations/**'
   ])
 ])

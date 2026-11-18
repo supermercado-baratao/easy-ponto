@@ -1,25 +1,37 @@
+import { eq } from 'drizzle-orm'
+
 import { database } from '@/infra/database/client'
+import { adminUsers } from '@/infra/database/schema'
 import type {
   AdminUser,
   TAdminUserWithRelations,
   TInputData
 } from '@/infra/database/types'
 
-const adminUsers = database.orm.public.AdminUser
-
 export const adminUserRepository = {
-  findUniqueById: async (id: string): Promise<TAdminUserWithRelations> =>
-    await adminUsers
-      .whereUnique({ id })
-      .include('company')
-      .include('deviceCredentials')
-      .include('user')
-      .firstOrThrow(),
+  findUniqueById: async (id: string): Promise<TAdminUserWithRelations> => {
+    const adminUser = await database.query.adminUsers.findFirst({
+      where: { id },
+      with: { company: true, deviceCredentials: true, user: true }
+    })
+    if (!adminUser) throw new Error(`AdminUser ${id} not found`)
+    return adminUser
+  },
 
-  create: async (): Promise<AdminUser> => await adminUsers.create({}),
+  create: async (): Promise<AdminUser> => {
+    const [adminUser] = await database.insert(adminUsers).values({}).returning()
+    return adminUser
+  },
 
   update: async (
     id: string,
     data: Partial<TInputData<AdminUser>>
-  ): Promise<AdminUser | null> => await adminUsers.where({ id }).update(data)
+  ): Promise<AdminUser | null> => {
+    const [adminUser = null] = await database
+      .update(adminUsers)
+      .set(data)
+      .where(eq(adminUsers.id, id))
+      .returning()
+    return adminUser
+  }
 }

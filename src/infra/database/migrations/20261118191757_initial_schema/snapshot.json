@@ -1,0 +1,3713 @@
+{
+  "type": "base",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "a3f7bf59-894d-4d05-b8bd-ca2f335c69b4",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "admin_users"
+      ],
+      "writes": [
+        "s|tbl|public.admin_users",
+        "n|tbl|public.admin_users",
+        "e|tbl|public.admin_users",
+        "n|rel|public.admin_users",
+        "n|type|public.admin_users",
+        "n|rel|public.admin_users_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "companies"
+      ],
+      "writes": [
+        "s|tbl|public.companies",
+        "n|tbl|public.companies",
+        "e|tbl|public.companies",
+        "n|rel|public.companies",
+        "n|type|public.companies",
+        "n|rel|public.companies_pkey",
+        "n|rel|public.companies_cpf_cnpj_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "devices_credentials"
+      ],
+      "writes": [
+        "s|tbl|public.devices_credentials",
+        "n|tbl|public.devices_credentials",
+        "e|tbl|public.devices_credentials",
+        "n|rel|public.devices_credentials",
+        "n|type|public.devices_credentials",
+        "n|rel|public.devices_credentials_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "devices_sessions"
+      ],
+      "writes": [
+        "s|tbl|public.devices_sessions",
+        "n|tbl|public.devices_sessions",
+        "e|tbl|public.devices_sessions",
+        "n|rel|public.devices_sessions",
+        "n|type|public.devices_sessions",
+        "n|rel|public.devices_sessions_pkey",
+        "n|rel|public.devices_sessions_deviceCredentialsId_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "holidays"
+      ],
+      "writes": [
+        "s|tbl|public.holidays",
+        "n|tbl|public.holidays",
+        "e|tbl|public.holidays",
+        "n|rel|public.holidays",
+        "n|type|public.holidays",
+        "n|rel|public.holidays_pkey",
+        "n|rel|public.holidays_company_id_date_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_adjustments"
+      ],
+      "writes": [
+        "s|tbl|public.hours_bank_adjustments",
+        "n|tbl|public.hours_bank_adjustments",
+        "e|tbl|public.hours_bank_adjustments",
+        "n|rel|public.hours_bank_adjustments",
+        "n|type|public.hours_bank_adjustments",
+        "n|rel|public.hours_bank_adjustments_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_balances"
+      ],
+      "writes": [
+        "s|tbl|public.hours_bank_balances",
+        "n|tbl|public.hours_bank_balances",
+        "e|tbl|public.hours_bank_balances",
+        "n|rel|public.hours_bank_balances",
+        "n|type|public.hours_bank_balances",
+        "n|rel|public.hours_bank_balances_pkey",
+        "n|rel|public.hours_bank_balances_closing_id_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_closings"
+      ],
+      "writes": [
+        "s|tbl|public.hours_bank_closings",
+        "n|tbl|public.hours_bank_closings",
+        "e|tbl|public.hours_bank_closings",
+        "n|rel|public.hours_bank_closings",
+        "n|type|public.hours_bank_closings",
+        "n|rel|public.hours_bank_closings_pkey",
+        "n|rel|public.hours_bank_closings_company_id_end_date_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "justification_types"
+      ],
+      "writes": [
+        "s|tbl|public.justification_types",
+        "n|tbl|public.justification_types",
+        "e|tbl|public.justification_types",
+        "n|rel|public.justification_types",
+        "n|type|public.justification_types",
+        "n|rel|public.justification_types_pkey",
+        "n|rel|public.justification_types_company_id_code_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "justifications"
+      ],
+      "writes": [
+        "s|tbl|public.justifications",
+        "n|tbl|public.justifications",
+        "e|tbl|public.justifications",
+        "n|rel|public.justifications",
+        "n|type|public.justifications",
+        "n|rel|public.justifications_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "punch_records"
+      ],
+      "writes": [
+        "s|tbl|public.punch_records",
+        "n|tbl|public.punch_records",
+        "e|tbl|public.punch_records",
+        "n|rel|public.punch_records",
+        "n|type|public.punch_records",
+        "n|rel|public.punch_records_pkey",
+        "n|rel|public.punch_records_nsr_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules"
+      ],
+      "writes": [
+        "s|tbl|public.schedules",
+        "n|tbl|public.schedules",
+        "e|tbl|public.schedules",
+        "n|rel|public.schedules",
+        "n|type|public.schedules",
+        "n|rel|public.schedules_pkey",
+        "n|rel|public.schedules_user_id_start_date_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules_days"
+      ],
+      "writes": [
+        "s|tbl|public.schedules_days",
+        "n|tbl|public.schedules_days",
+        "e|tbl|public.schedules_days",
+        "n|rel|public.schedules_days",
+        "n|type|public.schedules_days",
+        "n|rel|public.schedules_days_pkey",
+        "n|rel|public.schedules_days_schedule_id_weekday_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|tbl|public.users",
+        "n|tbl|public.users",
+        "e|tbl|public.users",
+        "n|rel|public.users",
+        "n|type|public.users",
+        "n|rel|public.users_pkey",
+        "n|rel|public.users_pis_key",
+        "n|rel|public.users_admin_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "vacation_plans"
+      ],
+      "writes": [
+        "s|tbl|public.vacation_plans",
+        "n|tbl|public.vacation_plans",
+        "e|tbl|public.vacation_plans",
+        "n|rel|public.vacation_plans",
+        "n|type|public.vacation_plans",
+        "n|rel|public.vacation_plans_pkey",
+        "n|rel|public.vacation_plans_user_id_year_key",
+        "n|rel|public.vacation_plans_justification_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "admin_users",
+        "admin_users_companyId_idx_33acc5ed"
+      ],
+      "writes": [
+        "s|idx|public.admin_users_companyId_idx_33acc5ed",
+        "n|idx|public.admin_users_companyId_idx_33acc5ed",
+        "e|idx|public.admin_users_companyId_idx_33acc5ed",
+        "n|rel|public.admin_users_companyId_idx_33acc5ed"
+      ],
+      "reads": [
+        "n|tbl|public.admin_users",
+        "n|sch|public",
+        "n|col|public.admin_users.companyId"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "admin_users",
+        "admin_users_deviceCredentialsId_idx_c948dafc"
+      ],
+      "writes": [
+        "s|idx|public.admin_users_deviceCredentialsId_idx_c948dafc",
+        "n|idx|public.admin_users_deviceCredentialsId_idx_c948dafc",
+        "e|idx|public.admin_users_deviceCredentialsId_idx_c948dafc",
+        "n|rel|public.admin_users_deviceCredentialsId_idx_c948dafc"
+      ],
+      "reads": [
+        "n|tbl|public.admin_users",
+        "n|sch|public",
+        "n|col|public.admin_users.deviceCredentialsId"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "holidays",
+        "holidays_company_id_idx_1303a718"
+      ],
+      "writes": [
+        "s|idx|public.holidays_company_id_idx_1303a718",
+        "n|idx|public.holidays_company_id_idx_1303a718",
+        "e|idx|public.holidays_company_id_idx_1303a718",
+        "n|rel|public.holidays_company_id_idx_1303a718"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public",
+        "n|col|public.holidays.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "hours_bank_adjustments",
+        "hours_bank_adjustments_user_id_idx_6c952402"
+      ],
+      "writes": [
+        "s|idx|public.hours_bank_adjustments_user_id_idx_6c952402",
+        "n|idx|public.hours_bank_adjustments_user_id_idx_6c952402",
+        "e|idx|public.hours_bank_adjustments_user_id_idx_6c952402",
+        "n|rel|public.hours_bank_adjustments_user_id_idx_6c952402"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_adjustments",
+        "n|sch|public",
+        "n|col|public.hours_bank_adjustments.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "hours_bank_balances",
+        "hours_bank_balances_closing_id_idx_67d1d3e9"
+      ],
+      "writes": [
+        "s|idx|public.hours_bank_balances_closing_id_idx_67d1d3e9",
+        "n|idx|public.hours_bank_balances_closing_id_idx_67d1d3e9",
+        "e|idx|public.hours_bank_balances_closing_id_idx_67d1d3e9",
+        "n|rel|public.hours_bank_balances_closing_id_idx_67d1d3e9"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public",
+        "n|col|public.hours_bank_balances.closing_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "hours_bank_balances",
+        "hours_bank_balances_user_id_idx_6c952402"
+      ],
+      "writes": [
+        "s|idx|public.hours_bank_balances_user_id_idx_6c952402",
+        "n|idx|public.hours_bank_balances_user_id_idx_6c952402",
+        "e|idx|public.hours_bank_balances_user_id_idx_6c952402",
+        "n|rel|public.hours_bank_balances_user_id_idx_6c952402"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public",
+        "n|col|public.hours_bank_balances.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "hours_bank_closings",
+        "hours_bank_closings_company_id_idx_1303a718"
+      ],
+      "writes": [
+        "s|idx|public.hours_bank_closings_company_id_idx_1303a718",
+        "n|idx|public.hours_bank_closings_company_id_idx_1303a718",
+        "e|idx|public.hours_bank_closings_company_id_idx_1303a718",
+        "n|rel|public.hours_bank_closings_company_id_idx_1303a718"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_closings",
+        "n|sch|public",
+        "n|col|public.hours_bank_closings.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "justification_types",
+        "justification_types_company_id_idx_1303a718"
+      ],
+      "writes": [
+        "s|idx|public.justification_types_company_id_idx_1303a718",
+        "n|idx|public.justification_types_company_id_idx_1303a718",
+        "e|idx|public.justification_types_company_id_idx_1303a718",
+        "n|rel|public.justification_types_company_id_idx_1303a718"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public",
+        "n|col|public.justification_types.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "justifications",
+        "justifications_user_id_idx_6c952402"
+      ],
+      "writes": [
+        "s|idx|public.justifications_user_id_idx_6c952402",
+        "n|idx|public.justifications_user_id_idx_6c952402",
+        "e|idx|public.justifications_user_id_idx_6c952402",
+        "n|rel|public.justifications_user_id_idx_6c952402"
+      ],
+      "reads": [
+        "n|tbl|public.justifications",
+        "n|sch|public",
+        "n|col|public.justifications.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "justifications",
+        "justifications_type_id_idx_907568e1"
+      ],
+      "writes": [
+        "s|idx|public.justifications_type_id_idx_907568e1",
+        "n|idx|public.justifications_type_id_idx_907568e1",
+        "e|idx|public.justifications_type_id_idx_907568e1",
+        "n|rel|public.justifications_type_id_idx_907568e1"
+      ],
+      "reads": [
+        "n|tbl|public.justifications",
+        "n|sch|public",
+        "n|col|public.justifications.type_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "punch_records",
+        "punch_records_pis_idx_b1390a89"
+      ],
+      "writes": [
+        "s|idx|public.punch_records_pis_idx_b1390a89",
+        "n|idx|public.punch_records_pis_idx_b1390a89",
+        "e|idx|public.punch_records_pis_idx_b1390a89",
+        "n|rel|public.punch_records_pis_idx_b1390a89"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "n|col|public.punch_records.pis"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "schedules",
+        "schedules_user_id_idx_6c952402"
+      ],
+      "writes": [
+        "s|idx|public.schedules_user_id_idx_6c952402",
+        "n|idx|public.schedules_user_id_idx_6c952402",
+        "e|idx|public.schedules_user_id_idx_6c952402",
+        "n|rel|public.schedules_user_id_idx_6c952402"
+      ],
+      "reads": [
+        "n|tbl|public.schedules",
+        "n|sch|public",
+        "n|col|public.schedules.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "schedules_days",
+        "schedules_days_schedule_id_idx_83757f9e"
+      ],
+      "writes": [
+        "s|idx|public.schedules_days_schedule_id_idx_83757f9e",
+        "n|idx|public.schedules_days_schedule_id_idx_83757f9e",
+        "e|idx|public.schedules_days_schedule_id_idx_83757f9e",
+        "n|rel|public.schedules_days_schedule_id_idx_83757f9e"
+      ],
+      "reads": [
+        "n|tbl|public.schedules_days",
+        "n|sch|public",
+        "n|col|public.schedules_days.schedule_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "users",
+        "users_companyId_idx_33acc5ed"
+      ],
+      "writes": [
+        "s|idx|public.users_companyId_idx_33acc5ed",
+        "n|idx|public.users_companyId_idx_33acc5ed",
+        "e|idx|public.users_companyId_idx_33acc5ed",
+        "n|rel|public.users_companyId_idx_33acc5ed"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.users.companyId"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "vacation_plans",
+        "vacation_plans_user_id_idx_6c952402"
+      ],
+      "writes": [
+        "s|idx|public.vacation_plans_user_id_idx_6c952402",
+        "n|idx|public.vacation_plans_user_id_idx_6c952402",
+        "e|idx|public.vacation_plans_user_id_idx_6c952402",
+        "n|rel|public.vacation_plans_user_id_idx_6c952402"
+      ],
+      "reads": [
+        "n|tbl|public.vacation_plans",
+        "n|sch|public",
+        "n|col|public.vacation_plans.user_id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "admin_users"
+      ],
+      "writes": [
+        "s|fk|public.admin_users.admin_users_companyId_fkey",
+        "n|fk|public.admin_users.admin_users_companyId_fkey",
+        "e|fk|public.admin_users.admin_users_companyId_fkey",
+        "n|con|public.admin_users.admin_users_companyId_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.admin_users",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.admin_users.companyId",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "admin_users"
+      ],
+      "writes": [
+        "s|fk|public.admin_users.admin_users_deviceCredentialsId_fkey",
+        "n|fk|public.admin_users.admin_users_deviceCredentialsId_fkey",
+        "e|fk|public.admin_users.admin_users_deviceCredentialsId_fkey",
+        "n|con|public.admin_users.admin_users_deviceCredentialsId_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.admin_users",
+        "n|sch|public",
+        "n|tbl|public.devices_credentials",
+        "n|sch|public",
+        "n|col|public.admin_users.deviceCredentialsId",
+        "n|col|public.devices_credentials.id",
+        "e|uniqueness|public.devices_credentials.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "devices_sessions"
+      ],
+      "writes": [
+        "s|fk|public.devices_sessions.devices_sessions_deviceCredentialsId_fkey",
+        "n|fk|public.devices_sessions.devices_sessions_deviceCredentialsId_fkey",
+        "e|fk|public.devices_sessions.devices_sessions_deviceCredentialsId_fkey",
+        "n|con|public.devices_sessions.devices_sessions_deviceCredentialsId_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.devices_sessions",
+        "n|sch|public",
+        "n|tbl|public.devices_credentials",
+        "n|sch|public",
+        "n|col|public.devices_sessions.deviceCredentialsId",
+        "n|col|public.devices_credentials.id",
+        "e|uniqueness|public.devices_credentials.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "holidays"
+      ],
+      "writes": [
+        "s|fk|public.holidays.holidays_company_id_fkey",
+        "n|fk|public.holidays.holidays_company_id_fkey",
+        "e|fk|public.holidays.holidays_company_id_fkey",
+        "n|con|public.holidays.holidays_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.holidays.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_adjustments"
+      ],
+      "writes": [
+        "s|fk|public.hours_bank_adjustments.hours_bank_adjustments_user_id_fkey",
+        "n|fk|public.hours_bank_adjustments.hours_bank_adjustments_user_id_fkey",
+        "e|fk|public.hours_bank_adjustments.hours_bank_adjustments_user_id_fkey",
+        "n|con|public.hours_bank_adjustments.hours_bank_adjustments_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_adjustments",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.hours_bank_adjustments.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_balances"
+      ],
+      "writes": [
+        "s|fk|public.hours_bank_balances.hours_bank_balances_closing_id_fkey",
+        "n|fk|public.hours_bank_balances.hours_bank_balances_closing_id_fkey",
+        "e|fk|public.hours_bank_balances.hours_bank_balances_closing_id_fkey",
+        "n|con|public.hours_bank_balances.hours_bank_balances_closing_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public",
+        "n|tbl|public.hours_bank_closings",
+        "n|sch|public",
+        "n|col|public.hours_bank_balances.closing_id",
+        "n|col|public.hours_bank_closings.id",
+        "e|uniqueness|public.hours_bank_closings.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_balances"
+      ],
+      "writes": [
+        "s|fk|public.hours_bank_balances.hours_bank_balances_user_id_fkey",
+        "n|fk|public.hours_bank_balances.hours_bank_balances_user_id_fkey",
+        "e|fk|public.hours_bank_balances.hours_bank_balances_user_id_fkey",
+        "n|con|public.hours_bank_balances.hours_bank_balances_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.hours_bank_balances.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "hours_bank_closings"
+      ],
+      "writes": [
+        "s|fk|public.hours_bank_closings.hours_bank_closings_company_id_fkey",
+        "n|fk|public.hours_bank_closings.hours_bank_closings_company_id_fkey",
+        "e|fk|public.hours_bank_closings.hours_bank_closings_company_id_fkey",
+        "n|con|public.hours_bank_closings.hours_bank_closings_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_closings",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.hours_bank_closings.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "justification_types"
+      ],
+      "writes": [
+        "s|fk|public.justification_types.justification_types_company_id_fkey",
+        "n|fk|public.justification_types.justification_types_company_id_fkey",
+        "e|fk|public.justification_types.justification_types_company_id_fkey",
+        "n|con|public.justification_types.justification_types_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.justification_types.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "justifications"
+      ],
+      "writes": [
+        "s|fk|public.justifications.justifications_user_id_fkey",
+        "n|fk|public.justifications.justifications_user_id_fkey",
+        "e|fk|public.justifications.justifications_user_id_fkey",
+        "n|con|public.justifications.justifications_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.justifications",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.justifications.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "justifications"
+      ],
+      "writes": [
+        "s|fk|public.justifications.justifications_type_id_fkey",
+        "n|fk|public.justifications.justifications_type_id_fkey",
+        "e|fk|public.justifications.justifications_type_id_fkey",
+        "n|con|public.justifications.justifications_type_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.justifications",
+        "n|sch|public",
+        "n|tbl|public.justification_types",
+        "n|sch|public",
+        "n|col|public.justifications.type_id",
+        "n|col|public.justification_types.id",
+        "e|uniqueness|public.justification_types.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "punch_records"
+      ],
+      "writes": [
+        "s|fk|public.punch_records.punch_records_pis_fkey",
+        "n|fk|public.punch_records.punch_records_pis_fkey",
+        "e|fk|public.punch_records.punch_records_pis_fkey",
+        "n|con|public.punch_records.punch_records_pis_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.punch_records.pis",
+        "n|col|public.users.pis",
+        "e|uniqueness|public.users.pis"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules"
+      ],
+      "writes": [
+        "s|fk|public.schedules.schedules_user_id_fkey",
+        "n|fk|public.schedules.schedules_user_id_fkey",
+        "e|fk|public.schedules.schedules_user_id_fkey",
+        "n|con|public.schedules.schedules_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.schedules",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.schedules.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules_days"
+      ],
+      "writes": [
+        "s|fk|public.schedules_days.schedules_days_schedule_id_fkey",
+        "n|fk|public.schedules_days.schedules_days_schedule_id_fkey",
+        "e|fk|public.schedules_days.schedules_days_schedule_id_fkey",
+        "n|con|public.schedules_days.schedules_days_schedule_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.schedules_days",
+        "n|sch|public",
+        "n|tbl|public.schedules",
+        "n|sch|public",
+        "n|col|public.schedules_days.schedule_id",
+        "n|col|public.schedules.id",
+        "e|uniqueness|public.schedules.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|fk|public.users.users_companyId_fkey",
+        "n|fk|public.users.users_companyId_fkey",
+        "e|fk|public.users.users_companyId_fkey",
+        "n|con|public.users.users_companyId_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.users.companyId",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|fk|public.users.users_admin_user_id_fkey",
+        "n|fk|public.users.users_admin_user_id_fkey",
+        "e|fk|public.users.users_admin_user_id_fkey",
+        "n|con|public.users.users_admin_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|tbl|public.admin_users",
+        "n|sch|public",
+        "n|col|public.users.admin_user_id",
+        "n|col|public.admin_users.id",
+        "e|uniqueness|public.admin_users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "vacation_plans"
+      ],
+      "writes": [
+        "s|fk|public.vacation_plans.vacation_plans_user_id_fkey",
+        "n|fk|public.vacation_plans.vacation_plans_user_id_fkey",
+        "e|fk|public.vacation_plans.vacation_plans_user_id_fkey",
+        "n|con|public.vacation_plans.vacation_plans_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.vacation_plans",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.vacation_plans.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "vacation_plans"
+      ],
+      "writes": [
+        "s|fk|public.vacation_plans.vacation_plans_justification_id_fkey",
+        "n|fk|public.vacation_plans.vacation_plans_justification_id_fkey",
+        "e|fk|public.vacation_plans.vacation_plans_justification_id_fkey",
+        "n|con|public.vacation_plans.vacation_plans_justification_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.vacation_plans",
+        "n|sch|public",
+        "n|tbl|public.justifications",
+        "n|sch|public",
+        "n|col|public.vacation_plans.justification_id",
+        "n|col|public.justifications.id",
+        "e|uniqueness|public.justifications.id"
+      ]
+    }
+  ],
+  "ddl": [
+    {
+      "schema": "public",
+      "name": "admin_users",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "companies",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "devices_credentials",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "devices_sessions",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "holidays",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "hours_bank_adjustments",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "hours_bank_balances",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "hours_bank_closings",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "justification_types",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "justifications",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "punch_records",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "schedules",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "schedules_days",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "users",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "vacation_plans",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "companyId",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "deviceCredentialsId",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "name",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "address",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "cpf",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "tipo_doc",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "cpf_cnpj",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "cei",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "registration",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "ip",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "login",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "password",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "token",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "deviceCredentialsId",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "name",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "scope",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "recurring",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "company_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "minutes",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "reason",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "user_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "previous_balance",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "absence",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "lateness",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "day_off",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "overtime_60",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "overtime_100",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "adjustment",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "balance",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "closing_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "user_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "start_date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "end_date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "initial",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "company_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "code",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "description",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "effect",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "company_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "start_date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "end_date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "start_time",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "end_time",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "note",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "user_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "type_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "pis",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "datetime",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "afd_datetime",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "nsr",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "registration_type",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "hexadecimal_check_digit",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "start_date",
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "user_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "weekday",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "entry_1",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "exit_1",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "entry_2",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "exit_2",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "entry_3",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "exit_3",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "schedule_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "name",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "pis",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "cpf",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "code",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "templates_count",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "password",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "rfid",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "bars",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "registration",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "payroll_number",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "admission_date",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "position",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "department",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "status",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'registered'",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "companyId",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "admin_user_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "year",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "month",
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "user_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "justification_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "created_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "updated_at",
+      "type": "timestamp(3) with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "admin_users_companyId_idx_33acc5ed",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "companyId",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "admin_users_deviceCredentialsId_idx_c948dafc",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "deviceCredentialsId",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "holidays_company_id_idx_1303a718",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "company_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "hours_bank_adjustments_user_id_idx_6c952402",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "hours_bank_balances_closing_id_idx_67d1d3e9",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "closing_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "hours_bank_balances_user_id_idx_6c952402",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "hours_bank_closings_company_id_idx_1303a718",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "company_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "justification_types_company_id_idx_1303a718",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "company_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "justifications_user_id_idx_6c952402",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "justifications_type_id_idx_907568e1",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "type_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "punch_records_pis_idx_b1390a89",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "pis",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "schedules_user_id_idx_6c952402",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "schedules_days_schedule_id_idx_83757f9e",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "schedule_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "users_companyId_idx_33acc5ed",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "companyId",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "vacation_plans_user_id_idx_6c952402",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "admin_users_companyId_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "companyId"
+      ],
+      "schemaTo": "public",
+      "tableTo": "companies",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "admin_users_deviceCredentialsId_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "deviceCredentialsId"
+      ],
+      "schemaTo": "public",
+      "tableTo": "devices_credentials",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "devices_sessions_deviceCredentialsId_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "deviceCredentialsId"
+      ],
+      "schemaTo": "public",
+      "tableTo": "devices_credentials",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "holidays_company_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "company_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "companies",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "hours_bank_adjustments_user_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "hours_bank_balances_closing_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "closing_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "hours_bank_closings",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "hours_bank_balances_user_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "hours_bank_closings_company_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "company_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "companies",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "justification_types_company_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "company_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "companies",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "justifications_user_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "justifications_type_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "type_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "justification_types",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "punch_records_pis_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "pis"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "pis"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "schedules_user_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "schedules_days_schedule_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "schedule_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "schedules",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "users_companyId_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "companyId"
+      ],
+      "schemaTo": "public",
+      "tableTo": "companies",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "users_admin_user_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "admin_user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "admin_users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "vacation_plans_user_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "user_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "users",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "vacation_plans_justification_id_fkey",
+      "nameExplicit": true,
+      "columns": [
+        "justification_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "justifications",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "entityType": "fks"
+    },
+    {
+      "schema": "public",
+      "table": "admin_users",
+      "name": "admin_users_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "companies_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "devices_credentials",
+      "name": "devices_credentials_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "devices_sessions_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "holidays_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_adjustments",
+      "name": "hours_bank_adjustments_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "hours_bank_balances_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "hours_bank_closings_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "justification_types_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "justifications",
+      "name": "justifications_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "punch_records_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "schedules_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "schedules_days_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "users_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "vacation_plans_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    },
+    {
+      "schema": "public",
+      "table": "companies",
+      "name": "companies_cpf_cnpj_key",
+      "nameExplicit": true,
+      "columns": [
+        "cpf_cnpj"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "devices_sessions",
+      "name": "devices_sessions_deviceCredentialsId_key",
+      "nameExplicit": true,
+      "columns": [
+        "deviceCredentialsId"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "holidays",
+      "name": "holidays_company_id_date_key",
+      "nameExplicit": true,
+      "columns": [
+        "company_id",
+        "date"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_balances",
+      "name": "hours_bank_balances_closing_id_user_id_key",
+      "nameExplicit": true,
+      "columns": [
+        "closing_id",
+        "user_id"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "hours_bank_closings",
+      "name": "hours_bank_closings_company_id_end_date_key",
+      "nameExplicit": true,
+      "columns": [
+        "company_id",
+        "end_date"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "justification_types",
+      "name": "justification_types_company_id_code_key",
+      "nameExplicit": true,
+      "columns": [
+        "company_id",
+        "code"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "punch_records",
+      "name": "punch_records_nsr_key",
+      "nameExplicit": true,
+      "columns": [
+        "nsr"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "schedules",
+      "name": "schedules_user_id_start_date_key",
+      "nameExplicit": true,
+      "columns": [
+        "user_id",
+        "start_date"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "schedules_days",
+      "name": "schedules_days_schedule_id_weekday_key",
+      "nameExplicit": true,
+      "columns": [
+        "schedule_id",
+        "weekday"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "users_pis_key",
+      "nameExplicit": true,
+      "columns": [
+        "pis"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "users",
+      "name": "users_admin_user_id_key",
+      "nameExplicit": true,
+      "columns": [
+        "admin_user_id"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "vacation_plans_user_id_year_key",
+      "nameExplicit": true,
+      "columns": [
+        "user_id",
+        "year"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    },
+    {
+      "schema": "public",
+      "table": "vacation_plans",
+      "name": "vacation_plans_justification_id_key",
+      "nameExplicit": true,
+      "columns": [
+        "justification_id"
+      ],
+      "nullsNotDistinct": false,
+      "entityType": "uniques"
+    }
+  ]
+}
