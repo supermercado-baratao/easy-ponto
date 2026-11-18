@@ -1,0 +1,198 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - pnpm-lock.yaml
+      - next.config.ts
+      - src/instrumentation.ts
+      - src/infra/database/migrate.ts
+      - .github/workflows/release.yml
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          # Native arm64 runner: building under QEMU emulation would take far longer
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    services:
+      database:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: easy_ponto
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d easy_ponto"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check version
+        if: github.event_name == 'push'
+        run: |
+          version=$(jq -r .version package.json)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match the package.json version ($version)"
+            exit 1
+          fi
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          load: true
+          tags: easy-ponto:smoke
+
+      - name: Smoke test
+        # The status page reads the database, so it also checks that the migrations ran at startup
+        run: |
+          docker run --detach --name smoke --network host \
+            --env DATABASE_URL=postgres://postgres:postgres@localhost:5432/easy_ponto \
+            --env POSTGRES_DB=easy_ponto \
+            easy-ponto:smoke
+          curl --fail --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors \
+            --max-time 120 --output /dev/null http://localhost:3003/status
+
+      - name: Container logs
+        if: failure()
+        run: docker logs smoke
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push
+        id: push
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/${{ matrix.arch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export digest
+        if: github.event_name == 'push'
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+
+      - uses: actions/upload-artifact@v7
+        if: github.event_name == 'push'
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Create manifest list
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          mapfile -t options < <(jq -r '(.tags[] | "--tag=" + .), (.annotations[] | "--annotation=" + .)' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          sources=()
+          for digest in *; do sources+=("$IMAGE@sha256:$digest"); done
+          docker buildx imagetools create "${options[@]}" "${sources[@]}"
+
+      - name: Inspect
+        run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # A rerun of this job, or a release made by hand, already has one
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "::notice::Release $GITHUB_REF_NAME already exists"
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/release-notes.md" << 'EOF'
+          ## Instalação
+
+          Imagem Docker para `linux/amd64` e `linux/arm64`:
+
+          ```bash
+          docker pull ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
+          ```
+
+          Siga os guias para instalar e manter o app na loja:
+
+          - [Instalação](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/guias/instalacao.md)
+          - [Atualização](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/guias/atualizacao.md)
+          - [Backup e restauração](${{ github.server_url }}/${{ github.repository }}/blob/${{ github.ref_name }}/guias/backup.md)
+
+          EOF
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md" --generate-notes
