@@ -97,6 +97,12 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 - Postgres com Drizzle ORM. O schema fica em `src/infra/database/schema.ts`, e as migrations são geradas a partir dele em `src/infra/database/migrations`.
 - Os testes usam outro container (`database-test`, porta `5433`, em memória), com o `.env.test`, então nunca mexem nos dados de desenvolvimento.
 
+### Produção
+
+- O app roda no servidor da loja, na mesma rede do relógio de ponto, a partir da imagem `ghcr.io/supermercado-baratao/easy-ponto`, com o `compose.yaml` da raiz (app e Postgres, sem porta do banco publicada). Os guias de [instalação](./guias/instalacao.md), [atualização](./guias/atualizacao.md) e [backup](./guias/backup.md) estão em `guias/`.
+- Em produção, o app aplica as migrations pendentes ao iniciar (`src/instrumentation.ts`).
+- Para publicar uma versão, atualize a `version` do `package.json` e crie a tag `vX.Y.Z` correspondente. O `.github/workflows/release.yml` gera a imagem para `linux/amd64` e `linux/arm64`, testa a imagem com um Postgres, publica no GHCR e cria o release.
+
 ### Testes
 
 - Vitest e Playwright. Os testes unitários ficam junto do código que testam, os de integração ficam em `src/tests/integration` e chamam os models no banco de testes, os externos ficam em `src/tests/external` e usam o aparelho real, e os end-to-end ficam em `src/tests/e2e`.

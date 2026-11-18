@@ -59,6 +59,14 @@ There is no login yet: the `ADMIN_USER_ID` environment variable picks the `Admin
 - `src/infra/database/client.ts` creates one client per process (kept on `globalThis` outside production, so hot reload doesn't open new pools). Repositories import the tables from `schema.ts` and use `database.query.<table>` (the relational queries, with `with` for the relations) for reads, `database.insert`/`update`/`delete` with `.returning()` for writes, ``database.execute(sql`...`, 'objects')`` for raw queries and `database.transaction(async (tx) => ...)` for writes that must succeed or fail together. A transaction can't open another one, so a write that a larger transaction reuses takes an optional `tx` and runs through `runInTransaction(tx, ...)` (e.g. `scheduleRepository.save`, called by `synchronizationRepository.importFile`).
 - `punch_records.pis` references `users.pis`, and the PIS is stored with 12 digits, the size the AFD reserves for it (`PIS_LENGTH`).
 
+### Production & releases
+
+- The app runs at the store, on a server in the same network as the time clock, from the image `ghcr.io/supermercado-baratao/easy-ponto`. The `Dockerfile` builds the `standalone` output (`output: 'standalone'` in `next.config.ts`) and serves it on port `3003` as the `node` user.
+- The root `compose.yaml` is the production one (the app and Postgres, with no database port published and a `healthcheck` the app waits for), and `.env.example` is the template of its `.env`. The device credentials are not in it: they are saved in the database through `/configuracoes`. Its project name comes from the folder, and the dev compose is also named `easy-ponto`, so testing it on a development machine from a folder named `easy-ponto` takes over the development database: use another folder or `-p`.
+- In production, `src/instrumentation.ts` applies the pending migrations with the `drizzle-orm` migrator (`src/infra/database/migrate.ts`) before the server takes requests. Output file tracing doesn't pick up the migrations folder, so the `Dockerfile` copies it. Outside production, `pnpm dev` and the tests run `drizzle-kit migrate` themselves.
+- `.github/workflows/release.yml` builds the image for `linux/amd64` and `linux/arm64` on native runners, runs a smoke test against a Postgres service (`/status` reads the database, so it also checks the migrations) and, on a `vX.Y.Z` tag that matches the `package.json` version, pushes the image and creates the release. On pull requests it only builds and runs the smoke test, when the files the image depends on change.
+- The install, update and backup guides for the store are in `guias/`, in Portuguese, since the people who follow them are users.
+
 ### Time clock & synchronization
 
 - The device answers over HTTPS with a self-signed certificate and non-standard HTTP, so `createDeviceApiInstance` turns off `rejectUnauthorized` and enables `insecureHTTPParser`. Requests send `mode=671` (the AFD of Portaria 671).

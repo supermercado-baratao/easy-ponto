@@ -1,0 +1,28 @@
+services:
+  app:
+    image: ghcr.io/supermercado-baratao/easy-ponto:latest
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+    ports:
+      - '3003:3003'
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # No published port: the punch records are personal data (LGPD), reached only by the app
+  database:
+    image: postgres:18-alpine
+    env_file: .env
+    volumes:
+      - database:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  database:
