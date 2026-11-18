@@ -1,21 +1,27 @@
 import { database } from '@/infra/database/client'
+import { devicesSessions } from '@/infra/database/schema'
 import type { DeviceSession } from '@/infra/database/types'
-
-const deviceSessions = database.orm.public.DeviceSession
 
 export const deviceSessionRepository = {
   upsert: async (
     token: string,
     deviceCredentialsId: string
-  ): Promise<DeviceSession> =>
-    await deviceSessions.upsert({
-      create: { token, deviceCredentialsId },
-      update: { token },
-      conflictOn: { deviceCredentialsId }
-    }),
+  ): Promise<DeviceSession> => {
+    const [session] = await database
+      .insert(devicesSessions)
+      .values({ token, deviceCredentialsId })
+      .onConflictDoUpdate({
+        target: devicesSessions.deviceCredentialsId,
+        set: { token }
+      })
+      .returning()
+    return session
+  },
 
   findUniqueByDeviceCredentialsId: async (
     deviceCredentialsId: string
   ): Promise<DeviceSession | null> =>
-    await deviceSessions.whereUnique({ deviceCredentialsId }).first()
+    (await database.query.devicesSessions.findFirst({
+      where: { deviceCredentialsId }
+    })) ?? null
 }

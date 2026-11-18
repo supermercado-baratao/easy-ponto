@@ -49,9 +49,8 @@ As credenciais do aparelho real usadas pelos testes externos e pelo `pnpm test:m
 | `pnpm test:e2e` / `pnpm test:e2e:ui`        | Roda os testes end-to-end (ou na interface do Playwright)                      |
 | `pnpm test:mocks:create`                    | Gera os dados falsos de `src/tests/_mocks` a partir do aparelho real           |
 | `pnpm services:up` / `stop` / `down`        | Sobe, para ou remove os containers                                             |
-| `pnpm migrations:generate <nome>`           | Gera uma migration a partir de `src/infra/database/contract.prisma`            |
+| `pnpm migrations:generate <nome>`           | Gera uma migration a partir de `src/infra/database/schema.ts`                  |
 | `pnpm migrations:up`                        | Roda as migrations pendentes no banco local                                    |
-| `pnpm database:generate`                    | Gera os tipos do banco a partir do contrato (também roda no `postinstall`)     |
 | `pnpm eslint:check` / `pnpm eslint:fix`     | Verifica (e corrige) com ESLint                                                |
 | `pnpm prettier:check` / `pnpm prettier:fix` | Verifica (e reescreve) a formatação                                            |
 | `pnpm type-check`                           | Gera os tipos das rotas e roda o `tsc --noEmit`                                |
@@ -95,7 +94,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 
 ### Banco de dados
 
-- Postgres com Prisma Next. O schema é o contrato em `src/infra/database/contract.prisma`, e as migrations são geradas a partir dele em `src/infra/database/migrations`.
+- Postgres com Drizzle ORM. O schema fica em `src/infra/database/schema.ts`, e as migrations são geradas a partir dele em `src/infra/database/migrations`.
 - Os testes usam outro container (`database-test`, porta `5433`, em memória), com o `.env.test`, então nunca mexem nos dados de desenvolvimento.
 
 ### Testes

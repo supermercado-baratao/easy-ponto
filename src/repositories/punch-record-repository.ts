@@ -1,8 +1,11 @@
+import { and, asc, eq, gte, inArray, lte, type SQL } from 'drizzle-orm'
+
 import {
   database,
   runInTransaction,
   type TTransaction
 } from '@/infra/database/client'
+import { punchRecords } from '@/infra/database/schema'
 import type { PunchRecord, TInputData } from '@/infra/database/types'
 
 type TPunchRecordInsert = Pick<PunchRecord, 'pis' | 'datetime'> &
@@ -17,8 +20,6 @@ type TPunchRecordFilters = {
   pisList?: string[]
 }
 
-const punchRecords = database.orm.public.PunchRecord
-
 // Keeps each INSERT below the 65,535 parameters accepted by Postgres
 const INSERT_BATCH_SIZE = 5000
 
@@ -30,8 +31,13 @@ const toBatches = <T>(items: readonly T[]): T[][] =>
   )
 
 export const punchRecordRepository = {
-  create: async (data: TPunchRecordInsert): Promise<PunchRecord> =>
-    await punchRecords.create(data),
+  create: async (data: TPunchRecordInsert): Promise<PunchRecord> => {
+    const [record] = await database
+      .insert(punchRecords)
+      .values(data)
+      .returning()
+    return record
+  },
 
   createMany: async (
     data: TPunchRecordInsert[],
@@ -39,7 +45,7 @@ export const punchRecordRepository = {
   ): Promise<void> => {
     await runInTransaction(transaction, async (tx) => {
       for (const batch of toBatches(data)) {
-        await tx.orm.public.PunchRecord.createAndCount(batch)
+        await tx.insert(punchRecords).values(batch)
       }
     })
   },
@@ -49,16 +55,19 @@ export const punchRecordRepository = {
   ): Promise<void> => {
     await database.transaction(async (tx) => {
       for (const batch of toBatches(data)) {
-        await tx.orm.public.PunchRecord.createAndCount(batch, {
-          onConflict: 'skip',
-          conflictOn: ['nsr']
-        })
+        await tx
+          .insert(punchRecords)
+          .values(batch)
+          .onConflictDoNothing({ target: punchRecords.nsr })
       }
     })
   },
 
   findManyByPisList: async (pisList: string[]): Promise<PunchRecord[]> =>
-    await punchRecords.where((record) => record.pis.in(pisList)).all(),
+    await database
+      .select()
+      .from(punchRecords)
+      .where(inArray(punchRecords.pis, pisList)),
 
   findMany: async ({
     initialDate,
@@ -68,41 +77,54 @@ export const punchRecordRepository = {
     pis,
     pisList
   }: TPunchRecordFilters): Promise<PunchRecord[]> => {
-    let query = punchRecords.where({})
+    const conditions: SQL[] = []
 
-    if (initialDate) {
-      query = query.where((record) => record.datetime.gte(initialDate))
-    }
-    if (finalDate) {
-      query = query.where((record) => record.datetime.lte(finalDate))
-    }
-    if (initialNsr) query = query.where((record) => record.nsr.gte(initialNsr))
-    if (finalNsr) query = query.where((record) => record.nsr.lte(finalNsr))
-    if (pis) query = query.where({ pis })
-    if (pisList) query = query.where((record) => record.pis.in(pisList))
+    if (initialDate) conditions.push(gte(punchRecords.datetime, initialDate))
+    if (finalDate) conditions.push(lte(punchRecords.datetime, finalDate))
+    if (initialNsr) conditions.push(gte(punchRecords.nsr, initialNsr))
+    if (finalNsr) conditions.push(lte(punchRecords.nsr, finalNsr))
+    if (pis) conditions.push(eq(punchRecords.pis, pis))
+    if (pisList) conditions.push(inArray(punchRecords.pis, pisList))
 
-    return await query.orderBy((record) => record.datetime.asc()).all()
+    return await database
+      .select()
+      .from(punchRecords)
+      .where(and(...conditions))
+      .orderBy(asc(punchRecords.datetime))
   },
 
   update: async (
     id: string,
     data: Pick<PunchRecord, 'datetime'>
-  ): Promise<PunchRecord | null> =>
-    await punchRecords.where({ id }).update(data),
+  ): Promise<PunchRecord | null> => {
+    const [record = null] = await database
+      .update(punchRecords)
+      .set(data)
+      .where(eq(punchRecords.id, id))
+      .returning()
+    return record
+  },
 
   updateMany: async (
     data: Pick<PunchRecord, 'id' | 'datetime'>[]
   ): Promise<void> => {
     await database.transaction(async (tx) => {
       for (const { id, datetime } of data) {
-        const updated = await tx.orm.public.PunchRecord.where({ id }).update({
-          datetime
-        })
+        const [updated] = await tx
+          .update(punchRecords)
+          .set({ datetime })
+          .where(eq(punchRecords.id, id))
+          .returning({ id: punchRecords.id })
         if (!updated) throw new Error(`PunchRecord ${id} not found`)
       }
     })
   },
 
-  delete: async (id: string): Promise<PunchRecord | null> =>
-    await punchRecords.where({ id }).delete()
+  delete: async (id: string): Promise<PunchRecord | null> => {
+    const [record = null] = await database
+      .delete(punchRecords)
+      .where(eq(punchRecords.id, id))
+      .returning()
+    return record
+  }
 }

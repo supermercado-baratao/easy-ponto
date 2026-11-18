@@ -1,9 +1,11 @@
 import { faker } from '@faker-js/faker'
 import retry from 'async-retry'
+import { sql } from 'drizzle-orm'
 import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 
 import { database } from '@/infra/database/client'
+import { adminUsers } from '@/infra/database/schema'
 import { adminUserModel } from '@/models/admin-user/model'
 import { companyModel } from '@/models/company/model'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
@@ -31,12 +33,9 @@ const clearDatabase = async () => {
     throw new Error(`Refusing to clear the database ${databaseName}`)
   }
 
-  const plan = database.raw.sql`
+  await database.execute(sql`
     TRUNCATE admin_users, companies, devices_credentials, devices_sessions, punch_records, users CASCADE
-  `
-    .affectedCount()
-    .build()
-  await database.execute(plan)
+  `)
 }
 
 const populateDatabaseWithRealData = async () => {
@@ -61,9 +60,9 @@ const populateDatabaseWithRealData = async () => {
 const populateDatabaseWithMockedData = async ({
   adminUserId
 }: { adminUserId?: string } = {}) => {
-  let adminUser = adminUserId
-    ? await database.orm.public.AdminUser.create({ id: adminUserId })
-    : await adminUserModel.create()
+  let [adminUser] = adminUserId
+    ? await database.insert(adminUsers).values({ id: adminUserId }).returning()
+    : [await adminUserModel.create()]
   const deviceCredentials = await deviceCredentialsModel.upsert({
     adminUserId: adminUser.id,
     ip: faker.internet.ipv4(),

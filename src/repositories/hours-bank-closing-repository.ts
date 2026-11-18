@@ -1,4 +1,7 @@
+import { and, eq } from 'drizzle-orm'
+
 import { database } from '@/infra/database/client'
+import { hoursBankBalances, hoursBankClosings } from '@/infra/database/schema'
 import type {
   HoursBankBalance,
   HoursBankClosing,
@@ -10,14 +13,12 @@ type THoursBankClosingSaveData = TInputData<HoursBankClosing> & {
   balances: Omit<TInputData<HoursBankBalance>, 'closingId'>[]
 }
 
-const closings = database.orm.public.HoursBankClosing
-
 export const hoursBankClosingRepository = {
   findLast: async (companyId: string): Promise<HoursBankClosing | null> =>
-    await closings
-      .where({ companyId })
-      .orderBy((closing) => closing.endDate.desc())
-      .first(),
+    (await database.query.hoursBankClosings.findFirst({
+      where: { companyId },
+      orderBy: { endDate: 'desc' }
+    })) ?? null,
 
   findLastEndedBefore: async ({
     companyId,
@@ -26,12 +27,11 @@ export const hoursBankClosingRepository = {
     companyId: string
     date: string
   }): Promise<THoursBankClosingWithBalances | null> =>
-    await closings
-      .where({ companyId })
-      .where((closing) => closing.endDate.lt(date))
-      .include('balances', (balances) => balances.include('user'))
-      .orderBy((closing) => closing.endDate.desc())
-      .first(),
+    (await database.query.hoursBankClosings.findFirst({
+      where: { companyId, endDate: { lt: date } },
+      with: { balances: { with: { user: true } } },
+      orderBy: { endDate: 'desc' }
+    })) ?? null,
 
   findUniqueByPeriod: async ({
     companyId,
@@ -42,21 +42,26 @@ export const hoursBankClosingRepository = {
     startDate: string
     endDate: string
   }): Promise<THoursBankClosingWithBalances | null> =>
-    await closings
-      .where({ companyId, startDate, endDate })
-      .include('balances', (balances) => balances.include('user'))
-      .first(),
+    (await database.query.hoursBankClosings.findFirst({
+      where: { companyId, startDate, endDate },
+      with: { balances: { with: { user: true } } }
+    })) ?? null,
 
   create: async ({
     balances,
     ...closing
   }: THoursBankClosingSaveData): Promise<HoursBankClosing> =>
     await database.transaction(async (tx) => {
-      const created = await tx.orm.public.HoursBankClosing.create(closing)
+      const [created] = await tx
+        .insert(hoursBankClosings)
+        .values(closing)
+        .returning()
       if (balances.length > 0) {
-        await tx.orm.public.HoursBankBalance.createAndCount(
-          balances.map((balance) => ({ ...balance, closingId: created.id }))
-        )
+        await tx
+          .insert(hoursBankBalances)
+          .values(
+            balances.map((balance) => ({ ...balance, closingId: created.id }))
+          )
       }
       return created
     }),
@@ -67,6 +72,16 @@ export const hoursBankClosingRepository = {
   }: {
     id: string
     companyId: string
-  }): Promise<HoursBankClosing | null> =>
-    await closings.where({ id, companyId }).delete()
+  }): Promise<HoursBankClosing | null> => {
+    const [closing = null] = await database
+      .delete(hoursBankClosings)
+      .where(
+        and(
+          eq(hoursBankClosings.id, id),
+          eq(hoursBankClosings.companyId, companyId)
+        )
+      )
+      .returning()
+    return closing
+  }
 }

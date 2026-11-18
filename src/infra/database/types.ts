@@ -1,22 +1,21 @@
-import type { Scalars } from '@prisma/orm-postgres/family-contract/types'
+import type * as schema from './schema'
 
-import type { Models } from './contract.d'
-
-export type AdminUser = Scalars<Models.public_AdminUser>
-export type Company = Scalars<Models.public_Company>
-export type DeviceCredentials = Scalars<Models.public_DeviceCredentials>
-export type DeviceSession = Scalars<Models.public_DeviceSession>
-export type Holiday = Scalars<Models.public_Holiday>
-export type HoursBankAdjustment = Scalars<Models.public_HoursBankAdjustment>
-export type HoursBankBalance = Scalars<Models.public_HoursBankBalance>
-export type HoursBankClosing = Scalars<Models.public_HoursBankClosing>
-export type Justification = Scalars<Models.public_Justification>
-export type JustificationType = Scalars<Models.public_JustificationType>
-export type PunchRecord = Scalars<Models.public_PunchRecord>
-export type Schedule = Scalars<Models.public_Schedule>
-export type ScheduleDay = Scalars<Models.public_ScheduleDay>
-export type User = Scalars<Models.public_User>
-export type VacationPlan = Scalars<Models.public_VacationPlan>
+export type AdminUser = typeof schema.adminUsers.$inferSelect
+export type Company = typeof schema.companies.$inferSelect
+export type DeviceCredentials = typeof schema.devicesCredentials.$inferSelect
+export type DeviceSession = typeof schema.devicesSessions.$inferSelect
+export type Holiday = typeof schema.holidays.$inferSelect
+export type HoursBankAdjustment =
+  typeof schema.hoursBankAdjustments.$inferSelect
+export type HoursBankBalance = typeof schema.hoursBankBalances.$inferSelect
+export type HoursBankClosing = typeof schema.hoursBankClosings.$inferSelect
+export type Justification = typeof schema.justifications.$inferSelect
+export type JustificationType = typeof schema.justificationTypes.$inferSelect
+export type PunchRecord = typeof schema.punchRecords.$inferSelect
+export type Schedule = typeof schema.schedules.$inferSelect
+export type ScheduleDay = typeof schema.schedulesDays.$inferSelect
+export type User = typeof schema.users.$inferSelect
+export type VacationPlan = typeof schema.vacationPlans.$inferSelect
 
 type TAutomaticFields = 'id' | 'createdAt' | 'updatedAt'
 
