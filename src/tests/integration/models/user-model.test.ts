@@ -4,6 +4,7 @@ import { CPF } from 'validation-br/cpf'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { z } from 'zod'
 
+import { EMPLOYEE_ROLE } from '@/models/account/utils'
 import { companyModel } from '@/models/company/model'
 import { userModel } from '@/models/user/model'
 import orchestrator from '@/tests/orchestrator'
@@ -21,7 +22,10 @@ const createCompany = async (): Promise<string> => {
   return id
 }
 
-const createUser = async (companyId: string): Promise<string> => {
+const createUser = async (
+  companyId: string,
+  authUserId: string | null = null
+): Promise<string> => {
   const pis = faker.string.numeric(12)
   await userModel.createMany([
     {
@@ -40,7 +44,7 @@ const createUser = async (companyId: string): Promise<string> => {
       department: 'Frente de loja',
       status: 'registered',
       companyId,
-      authUserId: null
+      authUserId
     }
   ])
   const users = await userModel.findManyByCompanyId(companyId)
@@ -115,6 +119,26 @@ describe('User Model', () => {
 
       const [user] = await userModel.findManyByCompanyId(otherCompanyId)
       expect(user.status).toBe('registered')
+    })
+  })
+
+  describe('findByAuthUserId', () => {
+    test('Returns the employee linked to the account only in their company', async () => {
+      const authUserId = await orchestrator.createMember({
+        companyId,
+        role: EMPLOYEE_ROLE,
+        name: faker.person.fullName(),
+        email: faker.internet.email().toLowerCase(),
+        password: faker.internet.password({ length: 12 })
+      })
+      const id = await createUser(companyId, authUserId)
+
+      await expect(
+        userModel.findByAuthUserId({ companyId, authUserId })
+      ).resolves.toMatchObject({ id, authUserId })
+      await expect(
+        userModel.findByAuthUserId({ companyId: otherCompanyId, authUserId })
+      ).resolves.toBeNull()
     })
   })
 })

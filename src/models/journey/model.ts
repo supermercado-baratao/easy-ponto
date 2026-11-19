@@ -1,8 +1,17 @@
 import { wallClockNow } from '@/infra/dayjs'
+import { holidayModel } from '@/models/holiday/model'
 import { findHoliday } from '@/models/holiday/utils'
+import { justificationModel } from '@/models/justification/model'
 import { coversDate } from '@/models/justification/utils'
+import { punchRecordModel } from '@/models/punch-record/model'
+import { scheduleModel } from '@/models/schedule/model'
 
-import type { TJourneyCalculateDaysParams, TJourneyDay } from './types'
+import type {
+  TJourneyCalculateDaysParams,
+  TJourneyDay,
+  TJourneyFindUserDaysParams,
+  TJourneyUserDays
+} from './types'
 import { calculateDay } from './utils'
 
 const calculateDays = ({
@@ -31,4 +40,30 @@ const calculateDays = ({
   }))
 }
 
-export const journeyModel = { calculateDays }
+const findUserDays = async ({
+  companyId,
+  user,
+  initialDate,
+  finalDate
+}: TJourneyFindUserDaysParams): Promise<TJourneyUserDays> => {
+  const period = { initialDate, finalDate }
+  const [punchRecordDays, schedules, justifications, holidays] =
+    await Promise.all([
+      punchRecordModel.findManyByDay({ companyId, pis: user.pis, ...period }),
+      scheduleModel.findManyInPeriod({ userId: user.id, ...period }),
+      justificationModel.findManyInPeriod({ userId: user.id, ...period }),
+      holidayModel.findManyByCompanyId(companyId)
+    ])
+  return {
+    days: calculateDays({
+      days: punchRecordDays,
+      schedules,
+      holidays,
+      justifications
+    }),
+    schedules,
+    justifications
+  }
+}
+
+export const journeyModel = { calculateDays, findUserDays }

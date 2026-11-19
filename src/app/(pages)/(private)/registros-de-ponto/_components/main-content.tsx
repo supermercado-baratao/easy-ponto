@@ -1,4 +1,5 @@
 import { Header } from '@/app/components/blocks/header'
+import { PunchRecordsTable } from '@/app/components/blocks/punch-records-table'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
 import type {
@@ -10,9 +11,9 @@ import type {
 import type { TJourneyDay } from '@/models/journey/types'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 
+import { DayActionsMenu } from './justification/day-actions-menu'
 import { JustificationProvider } from './justification/justification-provider'
 import { PeriodFilter } from './period-filter/period-filter'
-import { PunchRecordsTable } from './punch-records-table/punch-records-table'
 import { ScheduleSection } from './schedule/schedule-section'
 import { SynchronizationButton } from './synchronization-button/synchronization-button'
 import { UserHeader } from './user-header/user-header'
@@ -62,7 +63,16 @@ export const MainContent = ({
             <PunchRecordsTable
               days={days}
               justifications={justifications}
-              canEdit={canEdit}
+              renderActions={
+                canEdit
+                  ? (date, dayJustifications) => (
+                      <DayActionsMenu
+                        date={date}
+                        justifications={dayJustifications}
+                      />
+                    )
+                  : undefined
+              }
             />
           </JustificationProvider>
         </>

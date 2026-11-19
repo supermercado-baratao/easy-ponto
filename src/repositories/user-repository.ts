@@ -19,6 +19,17 @@ export const userRepository = {
       orderBy: { name: 'asc' }
     }),
 
+  findUniqueByAuthUserId: async ({
+    companyId,
+    authUserId
+  }: {
+    companyId: string
+    authUserId: string
+  }): Promise<User | null> =>
+    (await database.query.users.findFirst({
+      where: { companyId, authUserId }
+    })) ?? null,
+
   findUniqueById: async (id: string): Promise<User | null> =>
     (await database.query.users.findFirst({ where: { id } })) ?? null,
 

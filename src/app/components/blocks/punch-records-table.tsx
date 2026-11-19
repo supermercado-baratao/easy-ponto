@@ -1,4 +1,5 @@
 import { TriangleAlert } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 import {
   Table,
@@ -9,20 +10,19 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
+import {
+  getJustificationLabel,
+  getJustificationShortLabel
+} from '@/app/utils/justification'
 import type {
   PunchRecord,
   TJustificationWithType
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import type { TJourney, TJourneyDay } from '@/models/journey/types'
+import { isCalculated } from '@/models/journey/utils'
 import { coversDate } from '@/models/justification/utils'
 import { minutesToTime } from '@/models/schedule/utils'
-
-import { DayActionsMenu } from '../justification/day-actions-menu'
-import {
-  getJustificationLabel,
-  getJustificationShortLabel
-} from '../justification/utils'
 
 // Four punches (two entries and two exits) are the usual day, so the columns never shrink below it
 const MIN_PUNCH_COLUMNS = 4
@@ -58,9 +58,6 @@ const ODD_PUNCHES_LABEL = 'Número ímpar de batidas'
 
 const formatMinutes = (minutes: number): string =>
   minutes === 0 ? '' : minutesToTime(minutes)
-
-const isCalculated = ({ kind }: TJourney): boolean =>
-  kind !== 'no-schedule' && kind !== 'future'
 
 const ExpectedCell = ({ journey }: { journey: TJourney }) => {
   switch (journey.kind) {
@@ -146,11 +143,16 @@ const JustificationsCell = ({
 export const PunchRecordsTable = ({
   days,
   justifications,
-  canEdit
+  labelledBy,
+  renderActions
 }: {
   days: TJourneyDay[]
   justifications: TJustificationWithType[]
-  canEdit: boolean
+  labelledBy?: string
+  renderActions?: (
+    date: string,
+    justifications: TJustificationWithType[]
+  ) => ReactNode
 }) => {
   const columns = Math.max(
     MIN_PUNCH_COLUMNS,
@@ -162,7 +164,11 @@ export const PunchRecordsTable = ({
   const hasOddPunchDays = days.some(({ journey }) => journey.hasOddPunches)
 
   return (
-    <Table aria-label="Registros de ponto">
+    <Table
+      {...(labelledBy
+        ? { 'aria-labelledby': labelledBy }
+        : { 'aria-label': 'Registros de ponto' })}
+    >
       {(hasManualRecords || hasOddPunchDays) && (
         <TableCaption className="text-left">
           <ul className="flex flex-col gap-1">
@@ -192,7 +198,7 @@ export const PunchRecordsTable = ({
             <TableHead key={key}>{label}</TableHead>
           ))}
           <TableHead>Justificativa</TableHead>
-          {canEdit && (
+          {renderActions && (
             <TableHead>
               <span className="sr-only">Ações</span>
             </TableHead>
@@ -222,13 +228,10 @@ export const PunchRecordsTable = ({
                 </TableCell>
               ))}
               <JustificationsCell justifications={dayJustifications} />
-              {canEdit && (
+              {renderActions && (
                 <TableCell>
                   <div className="flex justify-end">
-                    <DayActionsMenu
-                      date={date}
-                      justifications={dayJustifications}
-                    />
+                    {renderActions(date, dayJustifications)}
                   </div>
                 </TableCell>
               )}

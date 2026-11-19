@@ -9,8 +9,13 @@ import type {
 } from '@/infra/database/types'
 import { timeToMinutes } from '@/models/schedule/utils'
 
-import type { TJourney, TJourneyDayInput } from './types'
-import { buildPairs, calculateDay, summarizeScheduleDay } from './utils'
+import type { TJourney, TJourneyDay, TJourneyDayInput } from './types'
+import {
+  buildPairs,
+  calculateDay,
+  sumDays,
+  summarizeScheduleDay
+} from './utils'
 
 const MONDAY = '2026-11-09'
 const SUNDAY = '2026-11-08'
@@ -334,5 +339,35 @@ describe('summarizeScheduleDay', () => {
       summarizeScheduleDay(scheduleDay('06:00', '13:00', '15:30', '17:30'))
         .alerts
     ).toEqual(['long-lunch', 'long-journey', 'long-continuous-work'])
+  })
+})
+
+const journeyDay = (input: Partial<TJourneyDayInput>): TJourneyDay => ({
+  date: input.date ?? MONDAY,
+  punchRecords: input.punchRecords ?? [],
+  journey: calculate(input)
+})
+
+describe('sumDays', () => {
+  test('Sums the calculated days and leaves out the ones without a schedule', () => {
+    const days = [
+      journeyDay({
+        punchRecords: punches(MONDAY, '07:00', '11:00', '13:00', '18:00')
+      }),
+      journeyDay({ date: '2026-11-10' }),
+      journeyDay({
+        schedule: null,
+        punchRecords: punches(MONDAY, '07:00', '11:00')
+      })
+    ]
+    expect(sumDays(days)).toEqual({
+      expected: 960,
+      worked: 540,
+      absence: 480,
+      lateness: 0,
+      dayOff: 0,
+      overtime60: 60,
+      overtime100: 0
+    })
   })
 })
