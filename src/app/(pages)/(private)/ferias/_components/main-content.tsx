@@ -16,15 +16,17 @@ const EmptyState = ({
   description
 }: {
   title: string
-  description: string
+  description?: string
 }) => (
   <div>
     <Typography component="p" variant="h6">
       {title}
     </Typography>
-    <Typography component="p" variant="base">
-      {description}
-    </Typography>
+    {description && (
+      <Typography component="p" variant="base">
+        {description}
+      </Typography>
+    )}
   </div>
 )
 
@@ -32,12 +34,14 @@ export const MainContent = ({
   year,
   rows,
   months,
-  types
+  types,
+  canEdit
 }: {
   year: number
   rows: TVacationPlanRow[]
   months: TVacationMonth[]
   types: JustificationType[]
+  canEdit: boolean
 }) => (
   <>
     <Header title="Férias" />
@@ -46,12 +50,21 @@ export const MainContent = ({
       {rows.length > 0 ? (
         <>
           <MonthsOverview year={year} months={months} />
-          <VacationPlansTable year={year} rows={rows} types={types} />
+          <VacationPlansTable
+            year={year}
+            rows={rows}
+            types={types}
+            canEdit={canEdit}
+          />
         </>
       ) : (
         <EmptyState
           title="Nenhum funcionário encontrado"
-          description="Importe os funcionários em Configurações para planejar as férias"
+          description={
+            canEdit
+              ? 'Importe os funcionários em Configurações para planejar as férias'
+              : undefined
+          }
         />
       )}
     </_MainContent>

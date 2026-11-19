@@ -4,7 +4,7 @@ import { refresh } from 'next/cache'
 import { z } from 'zod'
 import { pt } from 'zod/locales'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 import type { TFileSynchronizationParams } from '@/models/synchronization/types'
@@ -40,7 +40,7 @@ export const importFile = async (
 ): Promise<TImportFileState> => {
   const {
     company: { deviceCredentials, ...company }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     if (!deviceCredentials) {
       throw new Error(`Company ${company.id} has no device`)

@@ -72,11 +72,13 @@ const ScheduleTable = ({ schedule }: { schedule: TScheduleWithDays }) => {
 export const ScheduleSection = ({
   user,
   schedule,
-  defaultStartDate
+  defaultStartDate,
+  canEdit
 }: {
   user: User
   schedule: TScheduleWithDays | null
   defaultStartDate: string
+  canEdit: boolean
 }) => (
   <section aria-labelledby="schedule-title" className="flex flex-col gap-3">
     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -90,12 +92,14 @@ export const ScheduleSection = ({
             : 'Nenhuma escala vigente no período'}
         </p>
       </div>
-      <ScheduleSheet
-        userId={user.id}
-        userName={user.name}
-        hasSchedule={!!schedule}
-        defaultValues={getScheduleFormValues(schedule, defaultStartDate)}
-      />
+      {canEdit && (
+        <ScheduleSheet
+          userId={user.id}
+          userName={user.name}
+          hasSchedule={!!schedule}
+          defaultValues={getScheduleFormValues(schedule, defaultStartDate)}
+        />
+      )}
     </div>
     {schedule && <ScheduleTable schedule={schedule} />}
   </section>

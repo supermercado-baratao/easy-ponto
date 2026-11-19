@@ -26,6 +26,7 @@ type TPunchRecordsPageData = {
   defaultScheduleStartDate: string
   justifications: TJustificationWithType[]
   justificationTypes: JustificationType[]
+  canEdit: boolean
 }
 
 export const getPunchRecordsPageData = async ({
@@ -37,7 +38,7 @@ export const getPunchRecordsPageData = async ({
   initialDate?: string
   finalDate?: string
 }): Promise<TPunchRecordsPageData> => {
-  const { company } = await requireCompany()
+  const { company, canEdit } = await requireCompany()
   const users = await userModel.findManyByCompanyId(company.id)
   const user = users.find((user) => user.pis === pis) ?? users[0] ?? null
   const period = punchRecordModel.resolvePeriod({ initialDate, finalDate })
@@ -76,6 +77,7 @@ export const getPunchRecordsPageData = async ({
     schedule: schedules[0] ?? null,
     defaultScheduleStartDate,
     justifications,
-    justificationTypes
+    justificationTypes,
+    canEdit
   }
 }

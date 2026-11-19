@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 
@@ -17,7 +17,7 @@ export const save = async (
   state: TAdjustmentFormState,
   formData: FormData
 ): Promise<TAdjustmentFormState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TAdjustmentFormValues
   formData.set('companyId', company.id)
   const { success, errors, fatalError } = formData.get('id')
@@ -34,7 +34,7 @@ export const removeAdjustment = async (
 ): Promise<TRemoveAdjustmentState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     await hoursBankModel.removeAdjustment({
       id: formData.get('id') as string,

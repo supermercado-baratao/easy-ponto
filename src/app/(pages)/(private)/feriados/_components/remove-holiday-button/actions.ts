@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { holidayModel } from '@/models/holiday/model'
 
 import type { TRemoveHolidayState } from './types'
@@ -13,7 +13,7 @@ export const removeHoliday = async (
 ): Promise<TRemoveHolidayState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     await holidayModel.remove({
       id: formData.get('id') as string,

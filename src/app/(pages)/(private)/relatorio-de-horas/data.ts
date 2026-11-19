@@ -6,6 +6,7 @@ import { ORDER_PARAM } from './_components/utils'
 
 type THoursReportPageData = {
   report: THoursBankReport
+  canEdit: boolean
 }
 
 export const getHoursReportPageData = async ({
@@ -18,7 +19,8 @@ export const getHoursReportPageData = async ({
   order?: string
 }): Promise<THoursReportPageData> => {
   const {
-    company: { id: companyId }
+    company: { id: companyId },
+    canEdit
   } = await requireCompany()
   const report = await hoursBankModel.generate({
     companyId,
@@ -26,5 +28,5 @@ export const getHoursReportPageData = async ({
     finalDate,
     order: order === ORDER_PARAM.name ? 'name' : 'balance'
   })
-  return { report }
+  return { report, canEdit }
 }

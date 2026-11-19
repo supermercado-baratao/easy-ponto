@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { holidayModel } from '@/models/holiday/model'
 
 import type { THolidayFormState, THolidayFormValues } from './types'
@@ -12,7 +12,7 @@ export const save = async (
   state: THolidayFormState,
   formData: FormData
 ): Promise<THolidayFormState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as THolidayFormValues
   formData.set('companyId', company.id)
   const { success, errors, fatalError } = formData.get('id')

@@ -31,11 +31,13 @@ const VacationStatus = ({ plan }: Pick<TVacationPlanRow, 'plan'>) => {
 export const VacationPlansTable = ({
   year,
   rows,
-  types
+  types,
+  canEdit
 }: {
   year: number
   rows: TVacationPlanRow[]
   types: JustificationType[]
+  canEdit: boolean
 }) => (
   <Table aria-label={`Planejamento das férias de ${year}`}>
     <TableHeader>
@@ -44,9 +46,11 @@ export const VacationPlansTable = ({
         <TableHead>Cargo</TableHead>
         <TableHead>Mês</TableHead>
         <TableHead>Férias</TableHead>
-        <TableHead>
-          <span className="sr-only">Ações</span>
-        </TableHead>
+        {canEdit && (
+          <TableHead>
+            <span className="sr-only">Ações</span>
+          </TableHead>
+        )}
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -62,34 +66,36 @@ export const VacationPlansTable = ({
             <TableCell>
               <VacationStatus plan={plan} />
             </TableCell>
-            <TableCell>
-              <div className="flex items-center justify-end gap-1">
-                {plan && (
-                  <RegisterSheet
-                    focusAfterRegisterId={planTriggerId}
-                    registered={!!plan.justification}
+            {canEdit && (
+              <TableCell>
+                <div className="flex items-center justify-end gap-1">
+                  {plan && (
+                    <RegisterSheet
+                      focusAfterRegisterId={planTriggerId}
+                      registered={!!plan.justification}
+                      userName={user.name}
+                      types={types}
+                      defaultValues={{
+                        userId: user.id,
+                        year: String(year),
+                        ...getMonthPeriod(year, plan.month)
+                      }}
+                    />
+                  )}
+                  <PlanSheet
+                    triggerId={planTriggerId}
                     userName={user.name}
-                    types={types}
+                    year={year}
+                    registered={!!plan?.justification}
                     defaultValues={{
                       userId: user.id,
                       year: String(year),
-                      ...getMonthPeriod(year, plan.month)
+                      month: plan ? String(plan.month) : undefined
                     }}
                   />
-                )}
-                <PlanSheet
-                  triggerId={planTriggerId}
-                  userName={user.name}
-                  year={year}
-                  registered={!!plan?.justification}
-                  defaultValues={{
-                    userId: user.id,
-                    year: String(year),
-                    month: plan ? String(plan.month) : undefined
-                  }}
-                />
-              </div>
-            </TableCell>
+                </div>
+              </TableCell>
+            )}
           </TableRow>
         )
       })}

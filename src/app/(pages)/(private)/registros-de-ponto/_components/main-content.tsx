@@ -26,7 +26,8 @@ export const MainContent = ({
   schedule,
   defaultScheduleStartDate,
   justifications,
-  justificationTypes
+  justificationTypes,
+  canEdit
 }: {
   hasDevice: boolean
   users: User[]
@@ -37,10 +38,11 @@ export const MainContent = ({
   defaultScheduleStartDate: string
   justifications: TJustificationWithType[]
   justificationTypes: JustificationType[]
+  canEdit: boolean
 }) => (
   <>
     <Header title="Registros de Ponto">
-      {hasDevice && <SynchronizationButton />}
+      {canEdit && hasDevice && <SynchronizationButton />}
     </Header>
     <_MainContent className="flex flex-col gap-6">
       {user ? (
@@ -50,13 +52,18 @@ export const MainContent = ({
             user={user}
             schedule={schedule}
             defaultStartDate={defaultScheduleStartDate}
+            canEdit={canEdit}
           />
           <PeriodFilter pis={user.pis} period={period} />
           <JustificationProvider
             user={{ id: user.id, name: user.name }}
             types={justificationTypes}
           >
-            <PunchRecordsTable days={days} justifications={justifications} />
+            <PunchRecordsTable
+              days={days}
+              justifications={justifications}
+              canEdit={canEdit}
+            />
           </JustificationProvider>
         </>
       ) : (
@@ -64,9 +71,11 @@ export const MainContent = ({
           <Typography component="p" variant="h6">
             Nenhum funcionário encontrado
           </Typography>
-          <Typography component="p" variant="base">
-            Cadastre ou importe funcionários do dispositivo para começar
-          </Typography>
+          {canEdit && (
+            <Typography component="p" variant="base">
+              Cadastre ou importe funcionários do dispositivo para começar
+            </Typography>
+          )}
         </div>
       )}
     </_MainContent>

@@ -17,7 +17,7 @@ import type {
   TEmailSignInData,
   TSignInCredentials
 } from '@/models/account/types'
-import { EMPLOYEE_ROLE } from '@/models/account/utils'
+import { canEdit, EMPLOYEE_ROLE } from '@/models/account/utils'
 
 export const SIGN_IN_PATH = '/entrar'
 export const SETUP_PATH = '/configuracao-inicial'
@@ -27,6 +27,8 @@ export const EMPLOYEE_HOME_PATH = '/meu-ponto'
 
 export type TCompanySession = {
   user: TAuthSession['user']
+  role: string
+  canEdit: boolean
   company: TCompanyWithDeviceCredentials
   companies: { id: string; name: string }[]
 }
@@ -87,11 +89,19 @@ export const requireCompany = async (): Promise<TCompanySession> => {
   const memberships = await getMemberships(session.user.id)
   return {
     user: session.user,
+    role: membership.role,
+    canEdit: canEdit(membership.role),
     company: membership.company,
     companies: memberships
       .filter(({ role }) => role !== EMPLOYEE_ROLE)
       .map(({ company: { id, name } }) => ({ id, name }))
   }
+}
+
+export const requireEditor = async (): Promise<TCompanySession> => {
+  const companySession = await requireCompany()
+  if (!companySession.canEdit) redirect(PRIVATE_HOME_PATH)
+  return companySession
 }
 
 const toFieldError = (field: string, message: string): z.ZodError =>

@@ -14,12 +14,14 @@ export const MainContent = ({
   rows,
   total,
   positions,
-  filters
+  filters,
+  canEdit
 }: {
   rows: TAgendaRow[]
   total: number
   positions: string[]
   filters: TAgendaFilters
+  canEdit: boolean
 }) => (
   <>
     <Header title="Expedientes" />
@@ -55,15 +57,17 @@ export const MainContent = ({
           <Typography component="p" variant="h6">
             Nenhum funcionário encontrado
           </Typography>
-          <Typography component="p" variant="base">
-            Importe os funcionários do dispositivo em{' '}
-            <Link
-              href="/registros-de-ponto"
-              className="underline underline-offset-4"
-            >
-              Registros de Ponto
-            </Link>
-          </Typography>
+          {canEdit && (
+            <Typography component="p" variant="base">
+              Importe os funcionários do dispositivo em{' '}
+              <Link
+                href="/registros-de-ponto"
+                className="underline underline-offset-4"
+              >
+                Registros de Ponto
+              </Link>
+            </Typography>
+          )}
         </div>
       )}
     </_MainContent>

@@ -9,22 +9,24 @@ import { NationalHolidaysButton } from './national-holidays-button/national-holi
 
 export const MainContent = ({
   year,
-  holidays
+  holidays,
+  canEdit
 }: {
   year: number
   holidays: THolidayInYear[]
+  canEdit: boolean
 }) => (
   <>
     <Header title="Feriados">
-      <HolidaySheet defaultValues={{ date: `${year}-01-01` }} />
+      {canEdit && <HolidaySheet defaultValues={{ date: `${year}-01-01` }} />}
     </Header>
     <_MainContent className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <YearNavigation year={year} path="/feriados" />
-        <NationalHolidaysButton year={year} />
+        {canEdit && <NationalHolidaysButton year={year} />}
       </div>
       {holidays.length > 0 ? (
-        <HolidaysTable year={year} holidays={holidays} />
+        <HolidaysTable year={year} holidays={holidays} canEdit={canEdit} />
       ) : (
         <p className="text-sm text-muted-foreground">
           Nenhum feriado cadastrado em {year}

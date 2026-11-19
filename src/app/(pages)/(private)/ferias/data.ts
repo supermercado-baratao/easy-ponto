@@ -13,13 +13,15 @@ type TVacationsPageData = {
   rows: TVacationPlanRow[]
   months: TVacationMonth[]
   types: JustificationType[]
+  canEdit: boolean
 }
 
 export const getVacationsPageData = async (searchParameters: {
   year?: string
 }): Promise<TVacationsPageData> => {
   const {
-    company: { id: companyId }
+    company: { id: companyId },
+    canEdit
   } = await requireCompany()
   const year = vacationPlanModel.resolveYear(searchParameters.year)
   const rows = await vacationPlanModel.findManyByYear({ companyId, year })
@@ -27,6 +29,7 @@ export const getVacationsPageData = async (searchParameters: {
     year,
     rows,
     months: groupByMonth(rows),
-    types: await justificationTypeModel.findManyByCompanyId(companyId)
+    types: await justificationTypeModel.findManyByCompanyId(companyId),
+    canEdit
   }
 }

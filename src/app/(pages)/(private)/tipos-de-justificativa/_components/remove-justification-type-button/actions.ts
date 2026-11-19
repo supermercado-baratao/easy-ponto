@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { justificationTypeModel } from '@/models/justification-type/model'
 
@@ -14,7 +14,7 @@ export const removeJustificationType = async (
 ): Promise<TRemoveJustificationTypeState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     await justificationTypeModel.remove({
       id: formData.get('id') as string,

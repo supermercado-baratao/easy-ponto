@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { synchronizationModel } from '@/models/synchronization/model'
 
 import { TSynchronizationState } from './types'
@@ -12,7 +12,7 @@ export const synchronize = async (
 ): Promise<TSynchronizationState> => {
   const {
     company: { id: companyId, deviceCredentials }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     if (!deviceCredentials) {
       throw new Error(`Company ${companyId} has no device`)

@@ -1,4 +1,5 @@
 import { AppSidebar } from '@/app/components/blocks/app-sidebar/app-sidebar'
+import { PermissionsProvider } from '@/app/components/providers/permissions-provider'
 import {
   SidebarInset,
   SidebarProvider
@@ -10,23 +11,25 @@ const Layout = async ({
 }: Readonly<{
   children: React.ReactNode
 }>) => {
-  const { company, companies } = await requireCompany()
+  const { company, companies, canEdit } = await requireCompany()
   return (
-    <SidebarProvider
-      style={
-        {
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
-          '--header-height': 'calc(var(--spacing) * 12)'
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar
-        variant="inset"
-        company={{ id: company.id, name: company.name }}
-        companies={companies}
-      />
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <PermissionsProvider canEdit={canEdit}>
+      <SidebarProvider
+        style={
+          {
+            '--sidebar-width': 'calc(var(--spacing) * 72)',
+            '--header-height': 'calc(var(--spacing) * 12)'
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar
+          variant="inset"
+          company={{ id: company.id, name: company.name }}
+          companies={companies}
+        />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    </PermissionsProvider>
   )
 }
 

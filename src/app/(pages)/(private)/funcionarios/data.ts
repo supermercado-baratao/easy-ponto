@@ -10,6 +10,7 @@ type TUsersPageData = {
   total: number
   positions: string[]
   filters: TUsersFilterValues
+  canEdit: boolean
 }
 
 export const getUsersPageData = async (searchParameters: {
@@ -18,7 +19,8 @@ export const getUsersPageData = async (searchParameters: {
   status?: string
 }): Promise<TUsersPageData> => {
   const {
-    company: { id: companyId }
+    company: { id: companyId },
+    canEdit
   } = await requireCompany()
   const allUsers = await userModel.findManyByCompanyId(companyId)
   const name = searchParameters.name?.trim() ?? ''
@@ -36,6 +38,7 @@ export const getUsersPageData = async (searchParameters: {
       name,
       position,
       status: status ? STATUS_PARAMS[status] : null
-    }
+    },
+    canEdit
   }
 }
