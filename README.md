@@ -23,7 +23,7 @@ O login usa o [better-auth](https://www.better-auth.com/), e cada conta pertence
 2. Em `/configuracoes`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa.
 3. Ao sincronizar, cada funcionário com um CPF válido ganha uma conta. Ele entra pela aba CPF de `/entrar` com a senha padrão: os cinco primeiros dígitos do CPF seguidos do último nome, em minúsculas e sem acentos (`Maria Aparecida Souza`, CPF `123.456.789-10` → `12345souza`). No primeiro acesso, o app pede uma senha nova. Se o funcionário esquecer a senha, o administrador a redefine para a senha padrão em `/funcionarios`.
 
-Cada conta tem um papel na empresa: o proprietário e o administrador editam tudo, o visualizador consulta todas as páginas sem editar nada e o funcionário só acessa `/meu-ponto`.
+Cada conta tem um papel na empresa: o proprietário e o administrador editam tudo, o visualizador consulta todas as páginas sem editar nada e o funcionário só acessa `/meu-ponto`. Em `/membros`, o proprietário e o administrador dão acesso a outras pessoas com uma senha temporária, que precisa ser trocada no primeiro acesso: o administrador gerencia os visualizadores, e só o proprietário gerencia os administradores e transfere a propriedade. Os funcionários são geridos em `/funcionarios`.
 
 O servidor lê a empresa ativa e as credenciais do relógio pela sessão, e a senha do relógio nunca vai para o navegador. O `.env.development` já traz um `BETTER_AUTH_SECRET` local. Como a migração deste login exige um banco vazio, recrie o banco de desenvolvimento (`pnpm services:down` e `pnpm dev`) se ele for de uma versão anterior.
 

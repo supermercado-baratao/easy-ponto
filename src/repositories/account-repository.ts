@@ -18,7 +18,10 @@ import type {
 // The provider better-auth gives to the email and password accounts
 const CREDENTIAL_PROVIDER_ID = 'credential'
 
-type TAuthUserInsert = Pick<AuthUser, 'name' | 'email' | 'mustChangePassword'>
+export type TAuthUserInsert = Pick<
+  AuthUser,
+  'name' | 'email' | 'mustChangePassword'
+>
 
 type TEmployeeAccountInsert = {
   employeeId: string
@@ -28,7 +31,7 @@ type TEmployeeAccountInsert = {
   passwordHash: string
 }
 
-const createAccount = async (
+export const createAccount = async (
   tx: TTransaction,
   user: TAuthUserInsert,
   passwordHash: string

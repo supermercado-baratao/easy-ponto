@@ -4,7 +4,7 @@ import { z } from 'zod'
 // better-auth's default minimum (`emailAndPassword.minPasswordLength`)
 const MIN_PASSWORD_LENGTH = 8
 
-const passwordSchema = z
+export const passwordSchema = z
   .string('Informe a senha')
   .min(
     MIN_PASSWORD_LENGTH,

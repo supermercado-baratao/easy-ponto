@@ -114,7 +114,8 @@ const findMockedCompanyId = async (): Promise<string> => {
   return companyId
 }
 
-// Writes the rows directly, since adding a member has no model of its own until #86
+// Writes the rows directly: the model would require a new password on the first access, and it never adds
+// an employee
 const createMember = async ({
   companyId,
   role,
