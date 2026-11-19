@@ -21,6 +21,9 @@ const EMPLOYEE_EMAIL_DOMAIN = 'funcionario.invalid'
 export const toCpfDigits = (cpf: string): string =>
   cpf.replaceAll(/\D/g, '').padStart(CPF_LENGTH, '0')
 
+export const isEmployeeEmail = (email: string): boolean =>
+  email.endsWith(`@${EMPLOYEE_EMAIL_DOMAIN}`)
+
 export const getEmployeeEmail = (cpf: string): string =>
   `${toCpfDigits(cpf)}@${EMPLOYEE_EMAIL_DOMAIN}`
 

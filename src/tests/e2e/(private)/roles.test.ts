@@ -81,9 +81,15 @@ test.describe('Viewer', () => {
     ).toHaveCount(0)
   })
 
-  test('Is sent from the settings to the punch records', async ({ page }) => {
-    await page.goto('/configuracoes')
+  test('Is sent from the settings and the members to the punch records', async ({
+    page
+  }) => {
+    await expect(page.getByRole('link', { name: 'Membros' })).toHaveCount(0)
 
+    await page.goto('/configuracoes')
+    await expect(page).toHaveURL('/registros-de-ponto')
+
+    await page.goto('/membros')
     await expect(page).toHaveURL('/registros-de-ponto')
   })
 })

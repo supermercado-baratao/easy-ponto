@@ -11,6 +11,7 @@ import {
   LucideIcon,
   Settings,
   TreePalm,
+  UserCog,
   Users
 } from 'lucide-react'
 
@@ -99,6 +100,12 @@ export const navItems: TNavItem[] = [
       {
         name: 'Sistema',
         items: [
+          {
+            title: 'Membros',
+            path: '/membros',
+            icon: UserCog,
+            editOnly: true
+          },
           {
             title: 'Configurações',
             path: '/configuracoes',

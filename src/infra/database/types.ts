@@ -32,6 +32,10 @@ export type TMemberWithCompany = Member & {
   company: TCompanyWithDeviceCredentials
 }
 
+export type TMemberWithUser = Member & {
+  user: AuthUser
+}
+
 export type TScheduleWithDays = Schedule & {
   days: ScheduleDay[]
 }
