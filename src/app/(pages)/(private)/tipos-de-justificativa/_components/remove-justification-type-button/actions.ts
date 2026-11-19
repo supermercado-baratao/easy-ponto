@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { justificationTypeModel } from '@/models/justification-type/model'
 
@@ -12,9 +12,10 @@ export const removeJustificationType = async (
   state: TRemoveJustificationTypeState,
   formData: FormData
 ): Promise<TRemoveJustificationTypeState> => {
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   try {
-    const { id, companyId } = await getAdminUser()
-    if (!companyId) throw new Error(`AdminUser ${id} has no company`)
     await justificationTypeModel.remove({
       id: formData.get('id') as string,
       companyId

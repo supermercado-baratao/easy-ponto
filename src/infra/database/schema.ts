@@ -30,22 +30,6 @@ const timestamps = () => ({
     .$onUpdate(() => new Date())
 })
 
-export const companies = pgTable(
-  'companies',
-  {
-    id: id(),
-    name: text('name').notNull(),
-    address: text('address').notNull(),
-    cpf: text('cpf').notNull(),
-    tipoDoc: integer('tipo_doc').notNull(),
-    cpfCnpj: text('cpf_cnpj').notNull(),
-    cei: text('cei').notNull(),
-    registration: text('registration'),
-    ...timestamps()
-  },
-  (table) => [unique('companies_cpf_cnpj_key').on(table.cpfCnpj)]
-)
-
 export const devicesCredentials = pgTable('devices_credentials', {
   id: id(),
   ip: text('ip').notNull(),
@@ -53,6 +37,37 @@ export const devicesCredentials = pgTable('devices_credentials', {
   password: text('password').notNull(),
   ...timestamps()
 })
+
+// better-auth's organization table: the fields read from the device stay empty until the first
+// synchronization, since the company is created before the device is set up
+export const companies = pgTable(
+  'companies',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    logo: text('logo'),
+    metadata: text('metadata'),
+    address: text('address'),
+    cpf: text('cpf'),
+    tipoDoc: integer('tipo_doc'),
+    cpfCnpj: text('cpf_cnpj'),
+    cei: text('cei'),
+    registration: text('registration'),
+    deviceCredentialsId: text('device_credentials_id'),
+    ...timestamps()
+  },
+  (table) => [
+    unique('companies_slug_key').on(table.slug),
+    unique('companies_cpf_cnpj_key').on(table.cpfCnpj),
+    unique('companies_device_credentials_id_key').on(table.deviceCredentialsId),
+    foreignKey({
+      name: 'companies_device_credentials_id_fkey',
+      columns: [table.deviceCredentialsId],
+      foreignColumns: [devicesCredentials.id]
+    }).onDelete('set null')
+  ]
+)
 
 export const devicesSessions = pgTable(
   'devices_sessions',
@@ -74,29 +89,140 @@ export const devicesSessions = pgTable(
   ]
 )
 
-export const adminUsers = pgTable(
-  'admin_users',
+export const authUsers = pgTable(
+  'auth_users',
   {
     id: id(),
-    companyId: text('companyId'),
-    deviceCredentialsId: text('deviceCredentialsId'),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    emailVerified: boolean('email_verified').notNull().default(false),
+    image: text('image'),
+    mustChangePassword: boolean('must_change_password')
+      .notNull()
+      .default(false),
+    ...timestamps()
+  },
+  (table) => [unique('auth_users_email_key').on(table.email)]
+)
+
+export const authSessions = pgTable(
+  'auth_sessions',
+  {
+    id: id(),
+    token: text('token').notNull(),
+    expiresAt: datetime('expires_at').notNull(),
+    ipAddress: text('ip_address'),
+    userAgent: text('user_agent'),
+    userId: text('user_id').notNull(),
+    activeOrganizationId: text('active_company_id'),
     ...timestamps()
   },
   (table) => [
-    index('admin_users_companyId_idx_33acc5ed').on(table.companyId),
-    index('admin_users_deviceCredentialsId_idx_c948dafc').on(
-      table.deviceCredentialsId
-    ),
+    unique('auth_sessions_token_key').on(table.token),
+    index('auth_sessions_user_id_idx').on(table.userId),
     foreignKey({
-      name: 'admin_users_companyId_fkey',
-      columns: [table.companyId],
+      name: 'auth_sessions_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [authUsers.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'auth_sessions_active_company_id_fkey',
+      columns: [table.activeOrganizationId],
       foreignColumns: [companies.id]
-    }),
+    }).onDelete('set null')
+  ]
+)
+
+export const authAccounts = pgTable(
+  'auth_accounts',
+  {
+    id: id(),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
+    userId: text('user_id').notNull(),
+    accessToken: text('access_token'),
+    refreshToken: text('refresh_token'),
+    idToken: text('id_token'),
+    accessTokenExpiresAt: datetime('access_token_expires_at'),
+    refreshTokenExpiresAt: datetime('refresh_token_expires_at'),
+    scope: text('scope'),
+    password: text('password'),
+    ...timestamps()
+  },
+  (table) => [
+    index('auth_accounts_user_id_idx').on(table.userId),
     foreignKey({
-      name: 'admin_users_deviceCredentialsId_fkey',
-      columns: [table.deviceCredentialsId],
-      foreignColumns: [devicesCredentials.id]
-    })
+      name: 'auth_accounts_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [authUsers.id]
+    }).onDelete('cascade')
+  ]
+)
+
+export const authVerifications = pgTable(
+  'auth_verifications',
+  {
+    id: id(),
+    identifier: text('identifier').notNull(),
+    value: text('value').notNull(),
+    expiresAt: datetime('expires_at').notNull(),
+    ...timestamps()
+  },
+  (table) => [index('auth_verifications_identifier_idx').on(table.identifier)]
+)
+
+export const members = pgTable(
+  'members',
+  {
+    id: id(),
+    role: text('role').notNull(),
+    organizationId: text('company_id').notNull(),
+    userId: text('auth_user_id').notNull(),
+    createdAt: datetime('created_at').notNull().defaultNow()
+  },
+  (table) => [
+    unique('members_company_id_auth_user_id_key').on(
+      table.organizationId,
+      table.userId
+    ),
+    index('members_auth_user_id_idx').on(table.userId),
+    foreignKey({
+      name: 'members_company_id_fkey',
+      columns: [table.organizationId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'members_auth_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [authUsers.id]
+    }).onDelete('cascade')
+  ]
+)
+
+export const invitations = pgTable(
+  'invitations',
+  {
+    id: id(),
+    email: text('email').notNull(),
+    role: text('role'),
+    status: text('status').notNull(),
+    expiresAt: datetime('expires_at').notNull(),
+    organizationId: text('company_id').notNull(),
+    inviterId: text('inviter_id').notNull(),
+    createdAt: datetime('created_at').notNull().defaultNow()
+  },
+  (table) => [
+    index('invitations_company_id_idx').on(table.organizationId),
+    foreignKey({
+      name: 'invitations_company_id_fkey',
+      columns: [table.organizationId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'invitations_inviter_id_fkey',
+      columns: [table.inviterId],
+      foreignColumns: [authUsers.id]
+    }).onDelete('cascade')
   ]
 )
 
@@ -119,12 +245,15 @@ export const users = pgTable(
     department: text('department'),
     status: text('status').notNull().default('registered'),
     companyId: text('companyId').notNull(),
-    adminUserId: text('admin_user_id'),
+    authUserId: text('auth_user_id'),
     ...timestamps()
   },
   (table) => [
-    unique('users_pis_key').on(table.pis),
-    unique('users_admin_user_id_key').on(table.adminUserId),
+    unique('users_companyId_pis_key').on(table.companyId, table.pis),
+    unique('users_companyId_auth_user_id_key').on(
+      table.companyId,
+      table.authUserId
+    ),
     index('users_companyId_idx_33acc5ed').on(table.companyId),
     foreignKey({
       name: 'users_companyId_fkey',
@@ -132,10 +261,10 @@ export const users = pgTable(
       foreignColumns: [companies.id]
     }),
     foreignKey({
-      name: 'users_admin_user_id_fkey',
-      columns: [table.adminUserId],
-      foreignColumns: [adminUsers.id]
-    })
+      name: 'users_auth_user_id_fkey',
+      columns: [table.authUserId],
+      foreignColumns: [authUsers.id]
+    }).onDelete('set null')
   ]
 )
 
@@ -149,16 +278,17 @@ export const punchRecords = pgTable(
     nsr: integer('nsr'),
     registrationType: text('registration_type'),
     hexadecimalCheckDigit: text('hexadecimal_check_digit'),
+    companyId: text('company_id').notNull(),
     ...timestamps()
   },
   (table) => [
-    unique('punch_records_nsr_key').on(table.nsr),
-    index('punch_records_pis_idx_b1390a89').on(table.pis),
+    unique('punch_records_company_id_nsr_key').on(table.companyId, table.nsr),
+    index('punch_records_company_id_pis_idx').on(table.companyId, table.pis),
     foreignKey({
-      name: 'punch_records_pis_fkey',
-      columns: [table.pis],
-      foreignColumns: [users.pis]
-    })
+      name: 'punch_records_company_id_pis_fkey',
+      columns: [table.companyId, table.pis],
+      foreignColumns: [users.companyId, users.pis]
+    }).onDelete('cascade')
   ]
 )
 

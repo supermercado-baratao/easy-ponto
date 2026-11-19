@@ -2,20 +2,31 @@ import { eq } from 'drizzle-orm'
 
 import { database } from '@/infra/database/client'
 import { companies } from '@/infra/database/schema'
-import type { Company, TInputData } from '@/infra/database/types'
+import type {
+  Company,
+  TCompanyWithDeviceCredentials,
+  TInputData
+} from '@/infra/database/types'
 
-type TCompanyUpsert = Omit<TInputData<Company>, 'registration'> &
-  Partial<Pick<Company, 'registration'>>
+type TCompanyInsert = Pick<Company, 'name' | 'slug'> &
+  Partial<TInputData<Company>>
 
 export const companyRepository = {
-  upsert: async (company: TCompanyUpsert): Promise<Company> => {
-    const [upserted] = await database
+  create: async (company: TCompanyInsert): Promise<Company> => {
+    const [created] = await database
       .insert(companies)
       .values(company)
-      .onConflictDoUpdate({ target: companies.cpfCnpj, set: company })
       .returning()
-    return upserted
+    return created
   },
+
+  findUniqueById: async (
+    id: string
+  ): Promise<TCompanyWithDeviceCredentials | null> =>
+    (await database.query.companies.findFirst({
+      where: { id },
+      with: { deviceCredentials: true }
+    })) ?? null,
 
   update: async (
     id: string,

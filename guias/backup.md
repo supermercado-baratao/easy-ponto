@@ -44,4 +44,4 @@ A restauração **apaga os dados atuais do banco** e coloca no lugar os do backu
 
 3. Abra o app no navegador e confira se os funcionários e as batidas voltaram.
 
-Para restaurar num servidor novo, siga a [instalação](./instalacao.md) até o passo 3 (iniciar o app), copie o arquivo do backup para a pasta `easy-ponto` e siga os passos acima. O administrador e o relógio de ponto vêm do backup: coloque no `ADMIN_USER_ID` do `.env` o mesmo `id` do servidor antigo. Se o backup veio de uma versão mais nova que a do `compose.yaml`, ajuste a tag da imagem antes de restaurar (veja [Escolhendo a versão](./atualizacao.md#escolhendo-a-versão)).
+Para restaurar num servidor novo, siga a [instalação](./instalacao.md) até o passo 3 (iniciar o app), copie o arquivo do backup para a pasta `easy-ponto` e siga os passos acima. As contas e o relógio de ponto vêm do backup: coloque no `BETTER_AUTH_SECRET` do `.env` a mesma chave do servidor antigo, para as sessões continuarem válidas. Se o backup veio de uma versão mais nova que a do `compose.yaml`, ajuste a tag da imagem antes de restaurar (veja [Escolhendo a versão](./atualizacao.md#escolhendo-a-versão)).

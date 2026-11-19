@@ -1,7 +1,6 @@
-import { LogOut } from 'lucide-react'
-
+import { SignOutButton } from '@/app/components/blocks/sign-out/sign-out-button'
 import { ToggleTheme } from '@/app/components/blocks/toggle-theme'
-import { GitLab } from '@/app/components/ui/icons/gitlab'
+import { GitHub } from '@/app/components/ui/icons/github'
 import {
   SidebarFooter as _SidebarFooter,
   SidebarMenu,
@@ -17,24 +16,19 @@ const Wrapper = ({ children }: { children: React.ReactNode }) => (
 
 export const items = [
   () => <ToggleTheme variant="sidebar" />,
-  () => (
-    <SidebarMenuButton render={<div />}>
-      <LogOut />
-      <span>Sair</span>
-    </SidebarMenuButton>
-  ),
+  () => <SignOutButton variant="sidebar" />,
   () => (
     <SidebarMenuButton
       render={
         <a
-          href="https://github.com/diasjoaovitor"
+          href="https://github.com/supermercado-baratao/easy-ponto"
           target="_blank"
           rel="noopener noreferrer"
         />
       }
     >
-      <GitLab />
-      <span>GitLab</span>
+      <GitHub />
+      <span>GitHub</span>
     </SidebarMenuButton>
   )
 ]

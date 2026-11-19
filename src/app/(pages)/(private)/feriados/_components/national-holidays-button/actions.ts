@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { holidayModel } from '@/models/holiday/model'
 
 import type { TNationalHolidaysState } from './types'
@@ -11,9 +11,10 @@ export const addNationalHolidays = async (
   state: TNationalHolidaysState,
   formData: FormData
 ): Promise<TNationalHolidaysState> => {
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   try {
-    const { id, companyId } = await getAdminUser()
-    if (!companyId) throw new Error(`AdminUser ${id} has no company`)
     const data = await holidayModel.addNationalHolidays({
       companyId,
       year: formData.get('year') as string

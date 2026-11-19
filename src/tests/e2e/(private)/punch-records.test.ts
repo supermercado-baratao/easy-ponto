@@ -2,10 +2,10 @@ import { expect, type Page, test } from '@playwright/test'
 
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
-import { adminUserModel } from '@/models/admin-user/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
+import orchestrator from '@/tests/orchestrator'
 
 const PERIOD = { initialDate: '2025-10-01', finalDate: '2025-10-31' }
 const MANUAL_PUNCH_DATETIME = '2025-10-15T23:00:00.000Z'
@@ -29,19 +29,22 @@ const expectSelectedUser = async (page: Page, user: User): Promise<void> => {
 }
 
 test.beforeAll(async () => {
-  const adminUser = await adminUserModel.findUniqueById(
-    process.env.ADMIN_USER_ID!
-  )
-  users = await userModel.findManyByCompanyId(adminUser.companyId!)
+  const companyId = await orchestrator.findMockedCompanyId()
+  users = await userModel.findManyByCompanyId(companyId)
   await punchRecordModel.createManyNonExistentInAfd([
-    { pis: users[0].pis, datetime: new Date(MANUAL_PUNCH_DATETIME) },
+    {
+      companyId,
+      pis: users[0].pis,
+      datetime: new Date(MANUAL_PUNCH_DATETIME)
+    },
     ...JOURNEY_PUNCH_TIMES.map((time) => ({
+      companyId,
       pis: users[5].pis,
       datetime: new Date(`2024-01-08T${time}:00.000Z`)
     }))
   ])
   await scheduleModel.save({
-    companyId: adminUser.companyId!,
+    companyId,
     userId: users[5].id,
     startDate: '2024-01-01',
     mondayEntry1: '07:00',
@@ -103,6 +106,7 @@ test.describe('Punch Records Page', () => {
 
     await expect(page).toHaveURL(getHref(user.pis, period))
     const days = await punchRecordModel.findManyByDay({
+      companyId: await orchestrator.findMockedCompanyId(),
       pis: user.pis,
       ...period
     })

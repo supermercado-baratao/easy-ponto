@@ -8,6 +8,6 @@ export type TDeviceCredentialsUpsertData = Omit<
   TDeviceCredentialsFormData,
   'id' | 'password'
 > & {
-  adminUserId: string
+  companyId: string
   password?: string
 }

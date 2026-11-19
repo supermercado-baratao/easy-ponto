@@ -11,10 +11,6 @@ const createMany = async (data: TInputData<User>[]): Promise<void> => {
 const findManyByCompanyId = async (companyId: string): Promise<User[]> =>
   await userRepository.findManyByCompanyId(companyId)
 
-const findManyByNames = async (names: string[]): Promise<User[]> => {
-  return names.length === 0 ? [] : await userRepository.findManyByNames(names)
-}
-
 const updateMany = async (
   data: (Partial<TInputData<User>> & { id: string })[]
 ): Promise<void> => {
@@ -35,7 +31,6 @@ const update = async (data: TUserUpdateData): Promise<User> => {
 export const userModel = {
   createMany,
   findManyByCompanyId,
-  findManyByNames,
   update,
   updateMany
 }

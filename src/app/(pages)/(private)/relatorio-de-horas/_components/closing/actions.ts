@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 
@@ -11,9 +11,10 @@ import type { TClosingState } from './types'
 const runClosingAction = async (
   action: (companyId: string) => Promise<unknown>
 ): Promise<TClosingState> => {
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   try {
-    const { id, companyId } = await getAdminUser()
-    if (!companyId) throw new Error(`AdminUser ${id} has no company`)
     await action(companyId)
     refresh()
     return { success: true, fatalError: false }

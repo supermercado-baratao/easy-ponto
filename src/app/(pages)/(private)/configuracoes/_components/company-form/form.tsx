@@ -14,25 +14,25 @@ import { SubmitButton } from './submit-button'
 import type { TCompanyFormValues, TCompanyState } from './types'
 
 type TCompanyFormProps = {
-  company: Company | null
+  company: Company
   hasDevice: boolean
 }
 
-const toFormValues = (company: Company | null): TCompanyFormValues => ({
-  name: company?.name,
-  address: company?.address,
-  cpf: company?.cpf,
-  tipoDoc: company?.tipoDoc.toString(),
-  cpfCnpj: company?.cpfCnpj,
-  cei: company?.cei,
-  registration: company?.registration ?? ''
+const toFormValues = (company: Company): TCompanyFormValues => ({
+  name: company.name,
+  address: company.address ?? undefined,
+  cpf: company.cpf ?? undefined,
+  tipoDoc: company.tipoDoc?.toString(),
+  cpfCnpj: company.cpfCnpj ?? undefined,
+  cei: company.cei ?? undefined,
+  registration: company.registration ?? ''
 })
 
 export const CompanyForm = ({ company, hasDevice }: TCompanyFormProps) => {
   const initialState: TCompanyState = {}
   const [state, formAction, pending] = useActionState(save, initialState)
   const formReference = useRef<HTMLFormElement>(null)
-  const updatedAt = company?.updatedAt.toISOString()
+  const updatedAt = company.updatedAt.toISOString()
   // An import replaces the company, so what was typed for the previous one no longer applies (#56)
   const isSameCompany = state.values?.updatedAt === updatedAt
   const values = (isSameCompany && state.values) || toFormValues(company)

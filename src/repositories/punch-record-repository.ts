@@ -8,10 +8,11 @@ import {
 import { punchRecords } from '@/infra/database/schema'
 import type { PunchRecord, TInputData } from '@/infra/database/types'
 
-type TPunchRecordInsert = Pick<PunchRecord, 'pis' | 'datetime'> &
+type TPunchRecordInsert = Pick<PunchRecord, 'companyId' | 'pis' | 'datetime'> &
   Partial<TInputData<PunchRecord>>
 
 type TPunchRecordFilters = {
+  companyId: string
   initialDate?: Date
   finalDate?: Date
   initialNsr?: number | null
@@ -58,18 +59,32 @@ export const punchRecordRepository = {
         await tx
           .insert(punchRecords)
           .values(batch)
-          .onConflictDoNothing({ target: punchRecords.nsr })
+          .onConflictDoNothing({
+            target: [punchRecords.companyId, punchRecords.nsr]
+          })
       }
     })
   },
 
-  findManyByPisList: async (pisList: string[]): Promise<PunchRecord[]> =>
+  findManyByPisList: async ({
+    companyIds,
+    pisList
+  }: {
+    companyIds: string[]
+    pisList: string[]
+  }): Promise<PunchRecord[]> =>
     await database
       .select()
       .from(punchRecords)
-      .where(inArray(punchRecords.pis, pisList)),
+      .where(
+        and(
+          inArray(punchRecords.companyId, companyIds),
+          inArray(punchRecords.pis, pisList)
+        )
+      ),
 
   findMany: async ({
+    companyId,
     initialDate,
     finalDate,
     initialNsr,
@@ -77,7 +92,7 @@ export const punchRecordRepository = {
     pis,
     pisList
   }: TPunchRecordFilters): Promise<PunchRecord[]> => {
-    const conditions: SQL[] = []
+    const conditions: SQL[] = [eq(punchRecords.companyId, companyId)]
 
     if (initialDate) conditions.push(gte(punchRecords.datetime, initialDate))
     if (finalDate) conditions.push(lte(punchRecords.datetime, finalDate))

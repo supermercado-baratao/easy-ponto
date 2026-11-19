@@ -7,6 +7,7 @@ import type {
   TInputData,
   User
 } from '@/infra/database/types'
+import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
 import { updateSchema as companyUpdateSchema } from '@/models/company/schema'
 import { createDeviceApiInstance } from '@/models/device/device-api'
@@ -55,15 +56,15 @@ import {
 } from './types'
 
 const synchronizeCompany = async ({
-  adminUserId,
+  companyId,
   credentials
 }: TCompanySynchronizationParams): Promise<Company> => {
   const api = createDeviceApiInstance(credentials.ip)
   const session = await getSession(api, credentials)
   const deviceCompany = await deviceModel.loadCompany(api, session)
-  return await companyModel.upsertForAdminUser({
+  return await companyModel.save({
     ...mapDeviceCompanyToCompany(deviceCompany),
-    adminUserId
+    id: companyId
   })
 }
 
@@ -100,9 +101,9 @@ const synchronizeUsers = async ({
     usersToUpdate.length > 0 && userModel.updateMany(usersToUpdate)
   ])
 
-  const allUsers = await userModel.findManyByCompanyId(companyId)
+  await accountModel.createEmployeeAccounts(companyId)
 
-  return allUsers
+  return await userModel.findManyByCompanyId(companyId)
 }
 
 const synchronizeAfd = async ({
@@ -123,7 +124,7 @@ const synchronizeAfd = async ({
     parseAfd(afd),
     users
   )
-  const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd)
+  const punchRecords = mapParsedAfdToPunchRecordCreateMany(parsedAfd, companyId)
   if (punchRecords.length > 0) {
     await punchRecordModel.createManyExistentsInAfd(punchRecords)
   }
@@ -306,6 +307,8 @@ const importFile = async ({
     justificationTypes: typesToCreate,
     justifications: justificationsToCreate
   })
+  // The report may fill the CPF of an employee the device saved without one
+  await accountModel.createEmployeeAccounts(company.id)
 
   return {
     status: 'imported',

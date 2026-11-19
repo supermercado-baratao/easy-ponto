@@ -1,17 +1,15 @@
 import { expect, test } from '@playwright/test'
 
 import type { Holiday } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
 import { holidayModel } from '@/models/holiday/model'
+import orchestrator from '@/tests/orchestrator'
 
 let holiday: Holiday
 
 test.beforeAll(async () => {
-  const { companyId } = await adminUserModel.findUniqueById(
-    process.env.ADMIN_USER_ID!
-  )
+  const companyId = await orchestrator.findMockedCompanyId()
   holiday = await holidayModel.create({
-    companyId: companyId!,
+    companyId,
     date: '2035-08-15',
     name: 'Feriado do calendário',
     scope: 'municipal'

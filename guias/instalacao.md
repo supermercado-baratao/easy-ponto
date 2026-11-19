@@ -23,9 +23,15 @@ curl -fsSL -o .env https://raw.githubusercontent.com/supermercado-baratao/easy-p
 > [!IMPORTANT]
 > Rode todos os comandos do Docker de dentro dessa pasta e não mude o nome dela. O Docker guarda o banco num volume com o nome da pasta (`easy-ponto_database`): numa pasta com outro nome, o app abre vazio, como se fosse a primeira vez.
 
-## 2. Defina a senha do banco
+## 2. Preencha o `.env`
 
-Abra o `.env` e preencha o `POSTGRES_PASSWORD` com uma senha forte. Depois, deixe o arquivo legível só pelo seu usuário:
+Abra o `.env` e preencha:
+
+- `POSTGRES_PASSWORD`: uma senha forte para o banco.
+- `BETTER_AUTH_SECRET`: a chave que protege as sessões de login. Gere uma com `openssl rand -base64 32` e cole o resultado. Sem ela, o app não deixa ninguém entrar.
+- `BETTER_AUTH_URL`: o endereço que os computadores da loja abrem, por exemplo `http://192.168.0.10:3003`.
+
+Depois, deixe o arquivo legível só pelo seu usuário:
 
 ```bash
 chmod 600 .env
@@ -43,26 +49,18 @@ Na primeira vez, o Docker baixa as imagens do app e do Postgres, o que pode leva
 
 Abra `http://<IP do servidor>:3003/status` no navegador: a página mostra o estado do banco.
 
-## 4. Crie o administrador
+## 4. Crie a conta do administrador
 
-Ainda não há login: as páginas privadas carregam o administrador cujo `id` está na variável `ADMIN_USER_ID`. Crie o administrador no banco, trocando `postgres` e `easy_ponto` pelo `POSTGRES_USER` e pelo `POSTGRES_DB` do `.env`, se você os mudou:
-
-```bash
-docker compose exec database psql -U postgres -d easy_ponto -c "INSERT INTO admin_users (id, updated_at) VALUES (gen_random_uuid(), now()) RETURNING id"
-```
-
-Copie o `id` que o comando mostrou para a linha `ADMIN_USER_ID=` do `.env` e recrie o app para ele ler o valor novo:
-
-```bash
-docker compose up -d
-```
+Abra `http://<IP do servidor>:3003/entrar`. Na primeira vez, o app mostra a configuração inicial: informe o nome da empresa, o seu nome, o seu e-mail e uma senha. Essa página só aparece enquanto não existe nenhuma conta, e é com esse e-mail e essa senha que você entra depois.
 
 ## 5. Configure o relógio de ponto
 
-Abra `http://<IP do servidor>:3003/configuracoes`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa. Para o endereço do relógio e o do servidor não mudarem, reserve um IP fixo para os dois no roteador.
+Em `Configurações`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa. Para o endereço do relógio e o do servidor não mudarem, reserve um IP fixo para os dois no roteador.
+
+Ao sincronizar os registros de ponto, cada funcionário com um CPF válido cadastrado no relógio ganha uma conta. Ele entra pela aba CPF da página de entrada com a senha padrão: os cinco primeiros dígitos do CPF seguidos do último nome, em minúsculas e sem acentos. No primeiro acesso, o app pede uma senha nova. Se ele esquecer a senha, redefina-a em `Funcionários`.
 
 > [!WARNING]
-> Os dados de ponto são dados pessoais dos funcionários (LGPD), e o app ainda não tem login: qualquer pessoa que acesse o endereço pode usá-lo. Nunca libere a porta 3003 para a internet no roteador.
+> Os dados de ponto são dados pessoais dos funcionários (LGPD). Nunca libere a porta 3003 para a internet no roteador.
 
 Para parar o app, use `docker compose stop`. Para iniciá-lo de novo, `docker compose up -d`.
 

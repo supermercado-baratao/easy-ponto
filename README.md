@@ -15,23 +15,15 @@ pnpm dev
 
 O `pnpm dev` sobe o Postgres, roda as migrations e inicia o servidor em [http://localhost:3000](http://localhost:3000). Os containers continuam rodando depois de encerrar o servidor: use `pnpm services:stop` para pará-los ou `pnpm services:down` para removê-los.
 
-### Administrador
+### Primeiro acesso
 
-Ainda não há login: as páginas privadas (`/configuracoes`, `/registros-de-ponto`) carregam o administrador cujo `id` está na variável `ADMIN_USER_ID`. Sem ele, essas páginas dão erro. O servidor lê esse administrador e as credenciais do relógio sozinho, e a senha do relógio nunca vai para o navegador.
+O login usa o [better-auth](https://www.better-auth.com/), e cada conta pertence a uma ou mais empresas. Não há cadastro público:
 
-1. Com o `pnpm dev` rodando, crie o administrador no banco local:
+1. Com o `pnpm dev` rodando, abra [http://localhost:3000/entrar](http://localhost:3000/entrar). Enquanto não existe nenhuma conta, o app leva para `/configuracao-inicial`, onde você cadastra a empresa e a conta de quem a administra (e-mail e senha).
+2. Em `/configuracoes`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa.
+3. Ao sincronizar, cada funcionário com um CPF válido ganha uma conta. Ele entra pela aba CPF de `/entrar` com a senha padrão: os cinco primeiros dígitos do CPF seguidos do último nome, em minúsculas e sem acentos (`Maria Aparecida Souza`, CPF `123.456.789-10` → `12345souza`). No primeiro acesso, o app pede uma senha nova. Se o funcionário esquecer a senha, o administrador a redefine para a senha padrão em `/funcionarios`.
 
-   ```bash
-   docker compose -f src/infra/compose.yml exec database psql -U postgres -d easy_ponto -c "INSERT INTO admin_users (id, updated_at) VALUES (gen_random_uuid(), now()) RETURNING id"
-   ```
-
-2. Coloque o `id` retornado no `.env.local`, que é ignorado pelo git:
-
-   ```bash
-   ADMIN_USER_ID=<id>
-   ```
-
-3. Reinicie o `pnpm dev`. Em `/configuracoes`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa.
+O servidor lê a empresa ativa e as credenciais do relógio pela sessão, e a senha do relógio nunca vai para o navegador. O `.env.development` já traz um `BETTER_AUTH_SECRET` local. Como a migração deste login exige um banco vazio, recrie o banco de desenvolvimento (`pnpm services:down` e `pnpm dev`) se ele for de uma versão anterior.
 
 ### Relógio de ponto
 
@@ -106,7 +98,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 ### Testes
 
 - Vitest e Playwright. Os testes unitários ficam junto do código que testam, os de integração ficam em `src/tests/integration` e chamam os models no banco de testes, os externos ficam em `src/tests/external` e usam o aparelho real, e os end-to-end ficam em `src/tests/e2e`.
-- Os testes end-to-end sobem um servidor próprio na porta `3001`, ligado ao banco de testes, com um administrador fixo (o `ADMIN_USER_ID` do `.env.test`). Dá para rodá-los com o `pnpm dev` aberto, mas não ao mesmo tempo que os de integração, que usam o mesmo banco.
+- Os testes end-to-end sobem um servidor próprio na porta `3001`, ligado ao banco de testes. O projeto `setup` do Playwright entra com o administrador criado pelo `global-setup.ts` e guarda a sessão em `playwright/.auth/`, que os outros testes reaproveitam. Dá para rodá-los com o `pnpm dev` aberto, mas não ao mesmo tempo que os de integração, que usam o mesmo banco.
 - Os testes externos não rodam no CI nem nos hooks. Rode `pnpm test:external` só quando nada mais puder verificar a mudança.
 - Só testamos a lógica que escrevemos, não o comportamento de bibliotecas ou do framework.
 

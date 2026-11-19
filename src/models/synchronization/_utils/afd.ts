@@ -14,9 +14,11 @@ const toDatetime = (date: string, time: string): Date => {
 }
 
 export const mapParsedAfdToPunchRecordCreateMany = (
-  parsedAfd: TParsedAfdRecord[]
+  parsedAfd: TParsedAfdRecord[],
+  companyId: string
 ): TPunchRecordCreateManyExistentsInAfdData =>
   parsedAfd.map((record) => ({
+    companyId,
     pis: record.pis,
     datetime: toDatetime(record.date, record.time),
     afdDatetime: toDatetime(record.date, record.time),

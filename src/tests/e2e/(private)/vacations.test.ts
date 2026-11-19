@@ -1,17 +1,15 @@
 import { expect, test } from '@playwright/test'
 
 import type { User } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
 import { userModel } from '@/models/user/model'
+import orchestrator from '@/tests/orchestrator'
 
 let first: User
 let second: User
 
 test.beforeAll(async () => {
-  const adminUser = await adminUserModel.findUniqueById(
-    process.env.ADMIN_USER_ID!
-  )
-  const users = await userModel.findManyByCompanyId(adminUser.companyId!)
+  const companyId = await orchestrator.findMockedCompanyId()
+  const users = await userModel.findManyByCompanyId(companyId)
   ;[first, second] = users.slice(6, 8)
 })
 

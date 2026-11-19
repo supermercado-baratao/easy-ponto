@@ -22,9 +22,6 @@ export const userRepository = {
   findUniqueById: async (id: string): Promise<User | null> =>
     (await database.query.users.findFirst({ where: { id } })) ?? null,
 
-  findManyByNames: async (names: string[]): Promise<User[]> =>
-    await database.query.users.findMany({ where: { name: { in: names } } }),
-
   update: async ({
     id,
     companyId,

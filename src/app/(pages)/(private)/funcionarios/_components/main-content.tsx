@@ -12,13 +12,11 @@ import type { User } from '@/infra/database/types'
 import { UsersTable } from './users-table'
 
 export const MainContent = ({
-  hasCompany,
   users,
   total,
   positions,
   filters
 }: {
-  hasCompany: boolean
   users: User[]
   total: number
   positions: string[]
@@ -27,7 +25,7 @@ export const MainContent = ({
   <>
     <Header title="Funcionários" />
     <_MainContent className="flex flex-col gap-6">
-      {hasCompany && total > 0 ? (
+      {total > 0 ? (
         <>
           <UsersFilter
             path="/funcionarios"

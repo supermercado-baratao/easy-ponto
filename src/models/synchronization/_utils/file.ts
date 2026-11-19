@@ -223,6 +223,7 @@ export const getPunchRecordsToCreate = (
     )
     if (!foundUser || punchRecordInJson.afdDatetime) continue
     punchRecordsToCreate.push({
+      companyId: foundUser.companyId,
       pis: foundUser.pis,
       datetime: punchRecordInJson.datetime
     })

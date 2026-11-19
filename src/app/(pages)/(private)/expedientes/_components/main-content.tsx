@@ -11,13 +11,11 @@ import { AgendaTable } from './agenda-table'
 import type { TAgendaFilters, TAgendaRow } from './types'
 
 export const MainContent = ({
-  hasCompany,
   rows,
   total,
   positions,
   filters
 }: {
-  hasCompany: boolean
   rows: TAgendaRow[]
   total: number
   positions: string[]
@@ -26,7 +24,7 @@ export const MainContent = ({
   <>
     <Header title="Expedientes" />
     <_MainContent className="flex flex-col gap-6">
-      {hasCompany && total > 0 ? (
+      {total > 0 ? (
         <>
           <UsersFilter
             path="/expedientes"

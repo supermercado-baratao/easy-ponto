@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { synchronizationModel } from '@/models/synchronization/model'
 
 import { TSynchronizationState } from './types'
@@ -10,10 +10,12 @@ import { TSynchronizationState } from './types'
 export const synchronize = async (
   state: TSynchronizationState
 ): Promise<TSynchronizationState> => {
+  const {
+    company: { id: companyId, deviceCredentials }
+  } = await requireCompany()
   try {
-    const { id, companyId, deviceCredentials } = await getAdminUser()
-    if (!companyId || !deviceCredentials) {
-      throw new Error(`AdminUser ${id} has no company or device`)
+    if (!deviceCredentials) {
+      throw new Error(`Company ${companyId} has no device`)
     }
     await synchronizationModel.synchronizeAfd({
       companyId,

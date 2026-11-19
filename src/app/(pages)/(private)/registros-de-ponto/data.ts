@@ -1,7 +1,6 @@
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import type {
   JustificationType,
-  TAdminUserWithRelations,
   TJustificationWithType,
   TScheduleWithDays,
   User
@@ -18,7 +17,7 @@ import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
 
 type TPunchRecordsPageData = {
-  adminUser: TAdminUserWithRelations
+  hasDevice: boolean
   users: User[]
   user: User | null
   period: TPunchRecordPeriod
@@ -38,14 +37,16 @@ export const getPunchRecordsPageData = async ({
   initialDate?: string
   finalDate?: string
 }): Promise<TPunchRecordsPageData> => {
-  const adminUser = await getAdminUser()
-  const users = adminUser.companyId
-    ? await userModel.findManyByCompanyId(adminUser.companyId)
-    : []
+  const { company } = await requireCompany()
+  const users = await userModel.findManyByCompanyId(company.id)
   const user = users.find((user) => user.pis === pis) ?? users[0] ?? null
   const period = punchRecordModel.resolvePeriod({ initialDate, finalDate })
   const punchRecordDays = user
-    ? await punchRecordModel.findManyByDay({ pis: user.pis, ...period })
+    ? await punchRecordModel.findManyByDay({
+        companyId: company.id,
+        pis: user.pis,
+        ...period
+      })
     : []
   const schedules = user
     ? await scheduleModel.findManyInPeriod({ userId: user.id, ...period })
@@ -53,23 +54,21 @@ export const getPunchRecordsPageData = async ({
   const justifications = user
     ? await justificationModel.findManyInPeriod({ userId: user.id, ...period })
     : []
-  const holidays = adminUser.companyId
-    ? await holidayModel.findManyByCompanyId(adminUser.companyId)
-    : []
+  const holidays = await holidayModel.findManyByCompanyId(company.id)
   const days = journeyModel.calculateDays({
     days: punchRecordDays,
     schedules,
     holidays,
     justifications
   })
-  const justificationTypes = adminUser.companyId
-    ? await justificationTypeModel.findManyByCompanyId(adminUser.companyId)
-    : []
+  const justificationTypes = await justificationTypeModel.findManyByCompanyId(
+    company.id
+  )
   const defaultScheduleStartDate = user?.admissionDate
     ? dayjs(user.admissionDate).format('YYYY-MM-DD')
     : period.initialDate
   return {
-    adminUser,
+    hasDevice: !!company.deviceCredentials,
     users,
     user,
     period,

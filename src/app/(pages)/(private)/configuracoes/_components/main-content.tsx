@@ -1,19 +1,19 @@
 import { Header } from '@/app/components/blocks/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
-import type { TAdminUserWithRelations } from '@/infra/database/types'
+import type { TCompanyWithDeviceCredentials } from '@/infra/database/types'
 
 import { CompanyForm } from './company-form/form'
 import { DeviceForm } from './device-form/device-form'
 import { ImportFileButton } from './import-file-button/import-file-button'
 
 export const MainContent = ({
-  adminUser: { company, deviceCredentials }
+  company: { deviceCredentials, ...company }
 }: {
-  adminUser: TAdminUserWithRelations
+  company: TCompanyWithDeviceCredentials
 }) => (
   <>
     <Header title="Configurações">
-      {company && deviceCredentials && <ImportFileButton />}
+      {deviceCredentials && <ImportFileButton />}
     </Header>
 
     <_MainContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">

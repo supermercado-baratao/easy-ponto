@@ -24,7 +24,7 @@ import { userRepository } from './user-repository'
 type TFileImportData = {
   company: { id: string; registration: string | null } | null
   users: (Partial<TInputData<User>> & { id: string })[]
-  punchRecords: Pick<PunchRecord, 'pis' | 'datetime'>[]
+  punchRecords: Pick<PunchRecord, 'companyId' | 'pis' | 'datetime'>[]
   schedules: (TInputData<Schedule> & {
     days: Omit<TInputData<ScheduleDay>, 'scheduleId'>[]
   })[]

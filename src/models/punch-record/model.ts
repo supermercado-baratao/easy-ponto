@@ -20,12 +20,14 @@ import {
 import { groupByDay, resolvePeriod } from './utils'
 
 const getRecordKey = ({
+  companyId,
   pis,
   datetime
 }: {
+  companyId: string
   pis: string
   datetime: Date
-}): string => `${pis}|${datetime.getTime()}`
+}): string => `${companyId}|${pis}|${datetime.getTime()}`
 
 const createNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData
@@ -36,11 +38,13 @@ const createNonExistentInAfd = async (
 
 const findNewNonExistentInAfd = async (
   data: TPunchRecordCreateNonExistentInAfdData[]
-): Promise<Pick<PunchRecord, 'pis' | 'datetime'>[]> => {
+): Promise<Pick<PunchRecord, 'companyId' | 'pis' | 'datetime'>[]> => {
   if (data.length === 0) return []
   const validData = await createManyNonExistentsInAfdSchema.parseAsync(data)
-  const pisList = [...new Set(validData.map(({ pis }) => pis))]
-  const savedRecords = await punchRecordRepository.findManyByPisList(pisList)
+  const savedRecords = await punchRecordRepository.findManyByPisList({
+    companyIds: [...new Set(validData.map(({ companyId }) => companyId))],
+    pisList: [...new Set(validData.map(({ pis }) => pis))]
+  })
   const seenRecords = new Set(
     savedRecords.map((record) => getRecordKey(record))
   )
@@ -66,9 +70,9 @@ const createManyExistentsInAfd = async (
 }
 
 const findMany = async (
-  params: TPunchRecordFindManyParams = {}
+  params: TPunchRecordFindManyParams
 ): Promise<PunchRecord[]> => {
-  const { initialDate, finalDate, initialNsr, finalNsr, pis } =
+  const { companyId, initialDate, finalDate, initialNsr, finalNsr, pis } =
     await findManyParamsSchema.parseAsync(params)
 
   const startOfInitialDay = initialDate ? new Date(initialDate) : undefined
@@ -77,6 +81,7 @@ const findMany = async (
   endOfFinalDay?.setUTCHours(23, 59, 59, 999)
 
   return await punchRecordRepository.findMany({
+    companyId,
     initialDate: startOfInitialDay,
     finalDate: endOfFinalDay,
     initialNsr,
@@ -88,8 +93,9 @@ const findMany = async (
 const findManyByDay = async (
   params: TPunchRecordFindManyByDayParams
 ): Promise<TPunchRecordDay[]> => {
-  const { pis, ...period } = await findManyByDayParamsSchema.parseAsync(params)
-  const punchRecords = await findMany({ pis, ...period })
+  const { companyId, pis, ...period } =
+    await findManyByDayParamsSchema.parseAsync(params)
+  const punchRecords = await findMany({ companyId, pis, ...period })
   return groupByDay(punchRecords, period)
 }
 

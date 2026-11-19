@@ -34,7 +34,7 @@ let firstClosingId: string
 let secondClosingId: string
 
 const createCompany = async (): Promise<string> => {
-  const { id } = await companyModel.upsert({
+  const { id } = await companyModel.create({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     cpf: CPF.fake().value,
@@ -49,6 +49,7 @@ const createCompany = async (): Promise<string> => {
 const punch = async (pis: string, date: string, ...times: string[]) => {
   for (const time of times) {
     await punchRecordModel.createNonExistentInAfd({
+      companyId,
       pis,
       datetime: new Date(`${date}T${time}:00.000Z`)
     })

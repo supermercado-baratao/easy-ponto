@@ -1,17 +1,17 @@
 import { eq } from 'drizzle-orm'
 
 import { database } from '@/infra/database/client'
-import { adminUsers, devicesCredentials } from '@/infra/database/schema'
+import { companies, devicesCredentials } from '@/infra/database/schema'
 import type { DeviceCredentials, TInputData } from '@/infra/database/types'
 
 export const deviceCredentialsRepository = {
-  upsertForAdminUser: async ({
+  upsertForCompany: async ({
     id,
-    adminUserId,
+    companyId,
     data
   }: {
     id?: string
-    adminUserId: string
+    companyId: string
     data: TInputData<DeviceCredentials>
   }): Promise<DeviceCredentials> =>
     await database.transaction(async (tx) => {
@@ -26,12 +26,12 @@ export const deviceCredentialsRepository = {
         ? [updated]
         : await tx.insert(devicesCredentials).values(data).returning()
 
-      const [adminUser] = await tx
-        .update(adminUsers)
+      const [company] = await tx
+        .update(companies)
         .set({ deviceCredentialsId: credentials.id })
-        .where(eq(adminUsers.id, adminUserId))
-        .returning()
-      if (!adminUser) throw new Error(`AdminUser ${adminUserId} not found`)
+        .where(eq(companies.id, companyId))
+        .returning({ id: companies.id })
+      if (!company) throw new Error(`Company ${companyId} not found`)
 
       return credentials
     })

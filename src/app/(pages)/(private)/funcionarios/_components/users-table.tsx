@@ -12,6 +12,7 @@ import { getStatusLabel } from '@/app/utils/user-status'
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 
+import { ResetPasswordButton } from './reset-password-button/reset-password-button'
 import { UserSheet } from './user-sheet/user-sheet'
 
 export const UsersTable = ({ users }: { users: User[] }) => (
@@ -50,6 +51,9 @@ export const UsersTable = ({ users }: { users: User[] }) => (
           <TableCell>{getStatusLabel(user.status)}</TableCell>
           <TableCell>
             <div className="flex justify-end">
+              {user.authUserId && (
+                <ResetPasswordButton id={user.id} name={user.name} />
+              )}
               <UserSheet
                 name={user.name}
                 defaultValues={{

@@ -29,13 +29,11 @@ const EmptyState = ({
 )
 
 export const MainContent = ({
-  hasCompany,
   year,
   rows,
   months,
   types
 }: {
-  hasCompany: boolean
   year: number
   rows: TVacationPlanRow[]
   months: TVacationMonth[]
@@ -44,27 +42,17 @@ export const MainContent = ({
   <>
     <Header title="Férias" />
     <_MainContent className="flex flex-col gap-6">
-      {!hasCompany && (
-        <EmptyState
-          title="Nenhuma empresa encontrada"
-          description="Importe a empresa em Configurações para planejar as férias"
-        />
-      )}
-      {hasCompany && (
+      <YearNavigation year={year} path="/ferias" />
+      {rows.length > 0 ? (
         <>
-          <YearNavigation year={year} path="/ferias" />
-          {rows.length > 0 ? (
-            <>
-              <MonthsOverview year={year} months={months} />
-              <VacationPlansTable year={year} rows={rows} types={types} />
-            </>
-          ) : (
-            <EmptyState
-              title="Nenhum funcionário encontrado"
-              description="Importe os funcionários em Configurações para planejar as férias"
-            />
-          )}
+          <MonthsOverview year={year} months={months} />
+          <VacationPlansTable year={year} rows={rows} types={types} />
         </>
+      ) : (
+        <EmptyState
+          title="Nenhum funcionário encontrado"
+          description="Importe os funcionários em Configurações para planejar as férias"
+        />
       )}
     </_MainContent>
   </>

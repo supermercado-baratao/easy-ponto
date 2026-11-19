@@ -1,4 +1,4 @@
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import type { JustificationType } from '@/infra/database/types'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { vacationPlanModel } from '@/models/vacation-plan/model'
@@ -9,7 +9,6 @@ import type {
 import { groupByMonth } from '@/models/vacation-plan/utils'
 
 type TVacationsPageData = {
-  hasCompany: boolean
   year: number
   rows: TVacationPlanRow[]
   months: TVacationMonth[]
@@ -19,15 +18,12 @@ type TVacationsPageData = {
 export const getVacationsPageData = async (searchParameters: {
   year?: string
 }): Promise<TVacationsPageData> => {
-  const { companyId } = await getAdminUser()
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   const year = vacationPlanModel.resolveYear(searchParameters.year)
-  if (!companyId) {
-    return { hasCompany: false, year, rows: [], months: [], types: [] }
-  }
-
   const rows = await vacationPlanModel.findManyByYear({ companyId, year })
   return {
-    hasCompany: true,
     year,
     rows,
     months: groupByMonth(rows),

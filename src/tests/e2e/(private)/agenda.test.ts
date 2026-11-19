@@ -1,20 +1,18 @@
 import { expect, test } from '@playwright/test'
 
 import type { User } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
 import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
+import orchestrator from '@/tests/orchestrator'
 
 let user: User
 
 test.beforeAll(async () => {
-  const { companyId } = await adminUserModel.findUniqueById(
-    process.env.ADMIN_USER_ID!
-  )
-  const users = await userModel.findManyByCompanyId(companyId!)
+  const companyId = await orchestrator.findMockedCompanyId()
+  const users = await userModel.findManyByCompanyId(companyId)
   user = users[5]
   await scheduleModel.save({
-    companyId: companyId!,
+    companyId,
     userId: user.id,
     startDate: '2025-10-01',
     mondayEntry1: '06:10',

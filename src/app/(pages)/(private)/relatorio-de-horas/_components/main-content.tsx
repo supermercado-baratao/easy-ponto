@@ -34,61 +34,48 @@ const EmptyState = ({
   </div>
 )
 
-export const MainContent = ({
-  report
-}: {
-  report: THoursBankReport | null
-}) => (
+export const MainContent = ({ report }: { report: THoursBankReport }) => (
   <>
     <Header title="Relatório de Horas" />
     <_MainContent className="flex flex-col gap-6">
-      {report ? (
-        <>
-          <PeriodFilter period={report.period} order={report.order} />
-          <ClosingSection report={report} />
-          {report.rows.length > 0 ? (
-            <section aria-label={`Saldos de ${formatPeriod(report.period)}`}>
-              <nav
-                aria-label="Ordenar por"
-                className="mb-2 flex items-center gap-2 text-sm"
+      <PeriodFilter period={report.period} order={report.order} />
+      <ClosingSection report={report} />
+      {report.rows.length > 0 ? (
+        <section aria-label={`Saldos de ${formatPeriod(report.period)}`}>
+          <nav
+            aria-label="Ordenar por"
+            className="mb-2 flex items-center gap-2 text-sm"
+          >
+            <span aria-hidden="true" className="text-muted-foreground">
+              Ordenar por:
+            </span>
+            {ORDER_LINKS.map(({ order, label }) => (
+              <Link
+                key={order}
+                href={getHoursReportHref({ ...report.period, order })}
+                aria-current={order === report.order ? 'page' : undefined}
+                className={buttonVariants({
+                  variant: order === report.order ? 'secondary' : 'ghost',
+                  size: 'sm'
+                })}
               >
-                <span aria-hidden="true" className="text-muted-foreground">
-                  Ordenar por:
-                </span>
-                {ORDER_LINKS.map(({ order, label }) => (
-                  <Link
-                    key={order}
-                    href={getHoursReportHref({ ...report.period, order })}
-                    aria-current={order === report.order ? 'page' : undefined}
-                    className={buttonVariants({
-                      variant: order === report.order ? 'secondary' : 'ghost',
-                      size: 'sm'
-                    })}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </nav>
-              <AdjustmentProvider defaultDate={report.period.finalDate}>
-                <HoursReportTable
-                  rows={report.rows}
-                  period={report.period}
-                  adjustments={report.adjustments}
-                  editable={report.closing === null}
-                />
-              </AdjustmentProvider>
-            </section>
-          ) : (
-            <EmptyState
-              title="Nenhum funcionário encontrado"
-              description="Cadastre ou importe funcionários do dispositivo para começar"
+                {label}
+              </Link>
+            ))}
+          </nav>
+          <AdjustmentProvider defaultDate={report.period.finalDate}>
+            <HoursReportTable
+              rows={report.rows}
+              period={report.period}
+              adjustments={report.adjustments}
+              editable={report.closing === null}
             />
-          )}
-        </>
+          </AdjustmentProvider>
+        </section>
       ) : (
         <EmptyState
-          title="Nenhuma empresa cadastrada"
-          description="Cadastre a empresa em Configurações para gerar o relatório"
+          title="Nenhum funcionário encontrado"
+          description="Cadastre ou importe funcionários do dispositivo para começar"
         />
       )}
     </_MainContent>

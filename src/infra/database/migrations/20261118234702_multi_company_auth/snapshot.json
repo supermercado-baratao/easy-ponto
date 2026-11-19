@@ -1,0 +1,2536 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "bfc5bc62-8205-459c-a300-464cb0203429",
+  "prevIds": [
+    "a3f7bf59-894d-4d05-b8bd-ca2f335c69b4"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_accounts"
+      ],
+      "writes": [
+        "s|tbl|public.auth_accounts",
+        "n|tbl|public.auth_accounts",
+        "e|tbl|public.auth_accounts",
+        "n|rel|public.auth_accounts",
+        "n|type|public.auth_accounts",
+        "n|rel|public.auth_accounts_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_sessions"
+      ],
+      "writes": [
+        "s|tbl|public.auth_sessions",
+        "n|tbl|public.auth_sessions",
+        "e|tbl|public.auth_sessions",
+        "n|rel|public.auth_sessions",
+        "n|type|public.auth_sessions",
+        "n|rel|public.auth_sessions_pkey",
+        "n|rel|public.auth_sessions_token_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_users"
+      ],
+      "writes": [
+        "s|tbl|public.auth_users",
+        "n|tbl|public.auth_users",
+        "e|tbl|public.auth_users",
+        "n|rel|public.auth_users",
+        "n|type|public.auth_users",
+        "n|rel|public.auth_users_pkey",
+        "n|rel|public.auth_users_email_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_verifications"
+      ],
+      "writes": [
+        "s|tbl|public.auth_verifications",
+        "n|tbl|public.auth_verifications",
+        "e|tbl|public.auth_verifications",
+        "n|rel|public.auth_verifications",
+        "n|type|public.auth_verifications",
+        "n|rel|public.auth_verifications_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "invitations"
+      ],
+      "writes": [
+        "s|tbl|public.invitations",
+        "n|tbl|public.invitations",
+        "e|tbl|public.invitations",
+        "n|rel|public.invitations",
+        "n|type|public.invitations",
+        "n|rel|public.invitations_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "members"
+      ],
+      "writes": [
+        "s|tbl|public.members",
+        "n|tbl|public.members",
+        "e|tbl|public.members",
+        "n|rel|public.members",
+        "n|type|public.members",
+        "n|rel|public.members_pkey",
+        "n|rel|public.members_company_id_auth_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "punch_records"
+      ],
+      "writes": [
+        "s|fk|public.punch_records.punch_records_pis_fkey",
+        "n|fk|public.punch_records.punch_records_pis_fkey",
+        "e|fk|public.punch_records.punch_records_pis_fkey",
+        "n|con|public.punch_records.punch_records_pis_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "e|col|public.punch_records.pis"
+      ]
+    },
+    {
+      "statementType": "drop_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|fk|public.users.users_admin_user_id_fkey",
+        "n|fk|public.users.users_admin_user_id_fkey",
+        "e|fk|public.users.users_admin_user_id_fkey",
+        "n|con|public.users.users_admin_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "e|col|public.users.admin_user_id"
+      ]
+    },
+    {
+      "statementType": "drop_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "admin_users"
+      ],
+      "writes": [
+        "s|tbl|public.admin_users",
+        "n|tbl|public.admin_users",
+        "e|tbl|public.admin_users",
+        "n|rel|public.admin_users",
+        "n|type|public.admin_users"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "punch_records"
+      ],
+      "writes": [
+        "s|uq|public.punch_records.punch_records_nsr_key",
+        "n|uq|public.punch_records.punch_records_nsr_key",
+        "e|uq|public.punch_records.punch_records_nsr_key",
+        "n|con|public.punch_records.punch_records_nsr_key",
+        "n|rel|public.punch_records_nsr_key"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "e|col|public.punch_records.nsr"
+      ],
+      "sharedWrites": [
+        "e|uniqueness|public.punch_records.nsr"
+      ]
+    },
+    {
+      "statementType": "drop_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|uq|public.users.users_pis_key",
+        "n|uq|public.users.users_pis_key",
+        "e|uq|public.users.users_pis_key",
+        "n|con|public.users.users_pis_key",
+        "n|rel|public.users_pis_key"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "e|col|public.users.pis"
+      ],
+      "sharedWrites": [
+        "e|uniqueness|public.users.pis"
+      ]
+    },
+    {
+      "statementType": "drop_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|uq|public.users.users_admin_user_id_key",
+        "n|uq|public.users.users_admin_user_id_key",
+        "e|uq|public.users.users_admin_user_id_key",
+        "n|con|public.users.users_admin_user_id_key",
+        "n|rel|public.users_admin_user_id_key"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "e|col|public.users.admin_user_id"
+      ],
+      "sharedWrites": [
+        "e|uniqueness|public.users.admin_user_id"
+      ]
+    },
+    {
+      "statementType": "drop_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "punch_records",
+        "punch_records_pis_idx_b1390a89"
+      ],
+      "writes": [
+        "s|idx|public.punch_records_pis_idx_b1390a89",
+        "n|idx|public.punch_records_pis_idx_b1390a89",
+        "e|idx|public.punch_records_pis_idx_b1390a89",
+        "n|rel|public.punch_records_pis_idx_b1390a89"
+      ],
+      "reads": [
+        "e|tbl|public.punch_records",
+        "n|sch|public",
+        "e|col|public.punch_records.pis"
+      ],
+      "sharedWrites": []
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "slug"
+      ],
+      "writes": [
+        "s|col|public.companies.slug",
+        "n|col|public.companies.slug",
+        "e|col|public.companies.slug"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "logo"
+      ],
+      "writes": [
+        "s|col|public.companies.logo",
+        "n|col|public.companies.logo",
+        "e|col|public.companies.logo"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "metadata"
+      ],
+      "writes": [
+        "s|col|public.companies.metadata",
+        "n|col|public.companies.metadata",
+        "e|col|public.companies.metadata"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "device_credentials_id"
+      ],
+      "writes": [
+        "s|col|public.companies.device_credentials_id",
+        "n|col|public.companies.device_credentials_id",
+        "e|col|public.companies.device_credentials_id"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "punch_records",
+        "company_id"
+      ],
+      "writes": [
+        "s|col|public.punch_records.company_id",
+        "n|col|public.punch_records.company_id",
+        "e|col|public.punch_records.company_id"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "users",
+        "auth_user_id"
+      ],
+      "writes": [
+        "s|col|public.users.auth_user_id",
+        "n|col|public.users.auth_user_id",
+        "e|col|public.users.auth_user_id"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "users",
+        "admin_user_id"
+      ],
+      "writes": [
+        "s|col|public.users.admin_user_id",
+        "n|col|public.users.admin_user_id",
+        "e|col|public.users.admin_user_id"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "address"
+      ],
+      "writes": [
+        "s|colprop|public.companies.address.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.address"
+      ],
+      "sqlHash": "a051101dfed3bf5f"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "cpf"
+      ],
+      "writes": [
+        "s|colprop|public.companies.cpf.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.cpf"
+      ],
+      "sqlHash": "f5b04396c0c0baa9"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "tipo_doc"
+      ],
+      "writes": [
+        "s|colprop|public.companies.tipo_doc.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.tipo_doc"
+      ],
+      "sqlHash": "433c48845816e768"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "cpf_cnpj"
+      ],
+      "writes": [
+        "s|colprop|public.companies.cpf_cnpj.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.cpf_cnpj"
+      ],
+      "sqlHash": "f866dea1ae0d7b1c"
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "companies",
+        "cei"
+      ],
+      "writes": [
+        "s|colprop|public.companies.cei.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.cei"
+      ],
+      "sqlHash": "0f6528a4e8120cf9"
+    },
+    {
+      "statementType": "add_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "companies"
+      ],
+      "writes": [
+        "s|uq|public.companies.companies_slug_key",
+        "n|uq|public.companies.companies_slug_key",
+        "e|uq|public.companies.companies_slug_key",
+        "n|con|public.companies.companies_slug_key",
+        "n|rel|public.companies_slug_key"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.slug"
+      ]
+    },
+    {
+      "statementType": "add_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "companies"
+      ],
+      "writes": [
+        "s|uq|public.companies.companies_device_credentials_id_key",
+        "n|uq|public.companies.companies_device_credentials_id_key",
+        "e|uq|public.companies.companies_device_credentials_id_key",
+        "n|con|public.companies.companies_device_credentials_id_key",
+        "n|rel|public.companies_device_credentials_id_key"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.companies.device_credentials_id"
+      ]
+    },
+    {
+      "statementType": "add_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "punch_records"
+      ],
+      "writes": [
+        "s|uq|public.punch_records.punch_records_company_id_nsr_key",
+        "n|uq|public.punch_records.punch_records_company_id_nsr_key",
+        "e|uq|public.punch_records.punch_records_company_id_nsr_key",
+        "n|con|public.punch_records.punch_records_company_id_nsr_key",
+        "n|rel|public.punch_records_company_id_nsr_key"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "n|col|public.punch_records.company_id",
+        "n|col|public.punch_records.nsr"
+      ]
+    },
+    {
+      "statementType": "add_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|uq|public.users.users_companyId_pis_key",
+        "n|uq|public.users.users_companyId_pis_key",
+        "e|uq|public.users.users_companyId_pis_key",
+        "n|con|public.users.users_companyId_pis_key",
+        "n|rel|public.users_companyId_pis_key"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.users.companyId",
+        "n|col|public.users.pis"
+      ]
+    },
+    {
+      "statementType": "add_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|uq|public.users.users_companyId_auth_user_id_key",
+        "n|uq|public.users.users_companyId_auth_user_id_key",
+        "e|uq|public.users.users_companyId_auth_user_id_key",
+        "n|con|public.users.users_companyId_auth_user_id_key",
+        "n|rel|public.users_companyId_auth_user_id_key"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.users.companyId",
+        "n|col|public.users.auth_user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "auth_accounts",
+        "auth_accounts_user_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.auth_accounts_user_id_idx",
+        "n|idx|public.auth_accounts_user_id_idx",
+        "e|idx|public.auth_accounts_user_id_idx",
+        "n|rel|public.auth_accounts_user_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.auth_accounts",
+        "n|sch|public",
+        "n|col|public.auth_accounts.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "auth_sessions",
+        "auth_sessions_user_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.auth_sessions_user_id_idx",
+        "n|idx|public.auth_sessions_user_id_idx",
+        "e|idx|public.auth_sessions_user_id_idx",
+        "n|rel|public.auth_sessions_user_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.auth_sessions",
+        "n|sch|public",
+        "n|col|public.auth_sessions.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "auth_verifications",
+        "auth_verifications_identifier_idx"
+      ],
+      "writes": [
+        "s|idx|public.auth_verifications_identifier_idx",
+        "n|idx|public.auth_verifications_identifier_idx",
+        "e|idx|public.auth_verifications_identifier_idx",
+        "n|rel|public.auth_verifications_identifier_idx"
+      ],
+      "reads": [
+        "n|tbl|public.auth_verifications",
+        "n|sch|public",
+        "n|col|public.auth_verifications.identifier"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "invitations",
+        "invitations_company_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.invitations_company_id_idx",
+        "n|idx|public.invitations_company_id_idx",
+        "e|idx|public.invitations_company_id_idx",
+        "n|rel|public.invitations_company_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.invitations",
+        "n|sch|public",
+        "n|col|public.invitations.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "members",
+        "members_auth_user_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.members_auth_user_id_idx",
+        "n|idx|public.members_auth_user_id_idx",
+        "e|idx|public.members_auth_user_id_idx",
+        "n|rel|public.members_auth_user_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.members",
+        "n|sch|public",
+        "n|col|public.members.auth_user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "punch_records",
+        "punch_records_company_id_pis_idx"
+      ],
+      "writes": [
+        "s|idx|public.punch_records_company_id_pis_idx",
+        "n|idx|public.punch_records_company_id_pis_idx",
+        "e|idx|public.punch_records_company_id_pis_idx",
+        "n|rel|public.punch_records_company_id_pis_idx"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "n|col|public.punch_records.company_id",
+        "n|col|public.punch_records.pis"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_accounts"
+      ],
+      "writes": [
+        "s|fk|public.auth_accounts.auth_accounts_user_id_fkey",
+        "n|fk|public.auth_accounts.auth_accounts_user_id_fkey",
+        "e|fk|public.auth_accounts.auth_accounts_user_id_fkey",
+        "n|con|public.auth_accounts.auth_accounts_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.auth_accounts",
+        "n|sch|public",
+        "n|tbl|public.auth_users",
+        "n|sch|public",
+        "n|col|public.auth_accounts.user_id",
+        "n|col|public.auth_users.id",
+        "e|uniqueness|public.auth_users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_sessions"
+      ],
+      "writes": [
+        "s|fk|public.auth_sessions.auth_sessions_user_id_fkey",
+        "n|fk|public.auth_sessions.auth_sessions_user_id_fkey",
+        "e|fk|public.auth_sessions.auth_sessions_user_id_fkey",
+        "n|con|public.auth_sessions.auth_sessions_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.auth_sessions",
+        "n|sch|public",
+        "n|tbl|public.auth_users",
+        "n|sch|public",
+        "n|col|public.auth_sessions.user_id",
+        "n|col|public.auth_users.id",
+        "e|uniqueness|public.auth_users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "auth_sessions"
+      ],
+      "writes": [
+        "s|fk|public.auth_sessions.auth_sessions_active_company_id_fkey",
+        "n|fk|public.auth_sessions.auth_sessions_active_company_id_fkey",
+        "e|fk|public.auth_sessions.auth_sessions_active_company_id_fkey",
+        "n|con|public.auth_sessions.auth_sessions_active_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.auth_sessions",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.auth_sessions.active_company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "companies"
+      ],
+      "writes": [
+        "s|fk|public.companies.companies_device_credentials_id_fkey",
+        "n|fk|public.companies.companies_device_credentials_id_fkey",
+        "e|fk|public.companies.companies_device_credentials_id_fkey",
+        "n|con|public.companies.companies_device_credentials_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|tbl|public.devices_credentials",
+        "n|sch|public",
+        "n|col|public.companies.device_credentials_id",
+        "n|col|public.devices_credentials.id",
+        "e|uniqueness|public.devices_credentials.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "invitations"
+      ],
+      "writes": [
+        "s|fk|public.invitations.invitations_company_id_fkey",
+        "n|fk|public.invitations.invitations_company_id_fkey",
+        "e|fk|public.invitations.invitations_company_id_fkey",
+        "n|con|public.invitations.invitations_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.invitations",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.invitations.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "invitations"
+      ],
+      "writes": [
+        "s|fk|public.invitations.invitations_inviter_id_fkey",
+        "n|fk|public.invitations.invitations_inviter_id_fkey",
+        "e|fk|public.invitations.invitations_inviter_id_fkey",
+        "n|con|public.invitations.invitations_inviter_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.invitations",
+        "n|sch|public",
+        "n|tbl|public.auth_users",
+        "n|sch|public",
+        "n|col|public.invitations.inviter_id",
+        "n|col|public.auth_users.id",
+        "e|uniqueness|public.auth_users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "members"
+      ],
+      "writes": [
+        "s|fk|public.members.members_company_id_fkey",
+        "n|fk|public.members.members_company_id_fkey",
+        "e|fk|public.members.members_company_id_fkey",
+        "n|con|public.members.members_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.members",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.members.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "members"
+      ],
+      "writes": [
+        "s|fk|public.members.members_auth_user_id_fkey",
+        "n|fk|public.members.members_auth_user_id_fkey",
+        "e|fk|public.members.members_auth_user_id_fkey",
+        "n|con|public.members.members_auth_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.members",
+        "n|sch|public",
+        "n|tbl|public.auth_users",
+        "n|sch|public",
+        "n|col|public.members.auth_user_id",
+        "n|col|public.auth_users.id",
+        "e|uniqueness|public.auth_users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "punch_records"
+      ],
+      "writes": [
+        "s|fk|public.punch_records.punch_records_company_id_pis_fkey",
+        "n|fk|public.punch_records.punch_records_company_id_pis_fkey",
+        "e|fk|public.punch_records.punch_records_company_id_pis_fkey",
+        "n|con|public.punch_records.punch_records_company_id_pis_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.punch_records",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.punch_records.company_id",
+        "n|col|public.punch_records.pis",
+        "n|col|public.users.companyId",
+        "n|col|public.users.pis",
+        "e|uniqueness|public.users.companyId.pis"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "users"
+      ],
+      "writes": [
+        "s|fk|public.users.users_auth_user_id_fkey",
+        "n|fk|public.users.users_auth_user_id_fkey",
+        "e|fk|public.users.users_auth_user_id_fkey",
+        "n|con|public.users.users_auth_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|tbl|public.auth_users",
+        "n|sch|public",
+        "n|col|public.users.auth_user_id",
+        "n|col|public.auth_users.id",
+        "e|uniqueness|public.auth_users.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "auth_accounts",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "auth_sessions",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "auth_users",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "auth_verifications",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "invitations",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "members",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "account_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "provider_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "access_token",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "refresh_token",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "id_token",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "access_token_expires_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "refresh_token_expires_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "scope",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "password",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "token",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "expires_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "ip_address",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "user_agent",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "active_company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "name",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "email",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "email_verified",
+        "type": "boolean",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "false",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "image",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "must_change_password",
+        "type": "boolean",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "false",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "identifier",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "value",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "expires_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "slug",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "logo",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "metadata",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "device_credentials_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "email",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "role",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "status",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "expires_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "inviter_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "role",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "auth_user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "punch_records",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "users",
+        "name": "auth_user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "auth_accounts_user_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "user_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "auth_sessions_user_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "user_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "auth_verifications_identifier_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "identifier",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "invitations_company_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "members_auth_user_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "auth_user_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "punch_records",
+        "name": "punch_records_company_id_pis_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "pis",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "auth_accounts_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "auth_users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "auth_sessions_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "auth_users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "auth_sessions_active_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "active_company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "SET NULL",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "companies_device_credentials_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "device_credentials_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "devices_credentials",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "SET NULL",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "invitations_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "invitations_inviter_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "inviter_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "auth_users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "members_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "members_auth_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "auth_user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "auth_users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "punch_records",
+        "name": "punch_records_company_id_pis_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id",
+          "pis"
+        ],
+        "schemaTo": "public",
+        "tableTo": "users",
+        "columnsTo": [
+          "companyId",
+          "pis"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "users",
+        "name": "users_auth_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "auth_user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "auth_users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "SET NULL",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_accounts",
+        "name": "auth_accounts_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "auth_sessions_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "auth_users_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_verifications",
+        "name": "auth_verifications_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "invitations",
+        "name": "invitations_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "members_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_sessions",
+        "name": "auth_sessions_token_key",
+        "nameExplicit": true,
+        "columns": [
+          "token"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "auth_users",
+        "name": "auth_users_email_key",
+        "nameExplicit": true,
+        "columns": [
+          "email"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "companies_slug_key",
+        "nameExplicit": true,
+        "columns": [
+          "slug"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "companies",
+        "name": "companies_device_credentials_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "device_credentials_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "members",
+        "name": "members_company_id_auth_user_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "company_id",
+          "auth_user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "punch_records",
+        "name": "punch_records_company_id_nsr_key",
+        "nameExplicit": true,
+        "columns": [
+          "company_id",
+          "nsr"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "users",
+        "name": "users_companyId_pis_key",
+        "nameExplicit": true,
+        "columns": [
+          "companyId",
+          "pis"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "users",
+        "name": "users_companyId_auth_user_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "companyId",
+          "auth_user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "tables\u0000[\"public\",\"admin_users\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"admin_users\",\"id\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"admin_users\",\"companyId\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"admin_users\",\"deviceCredentialsId\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"admin_users\",\"created_at\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"admin_users\",\"updated_at\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"users\",\"admin_user_id\"]"
+    },
+    {
+      "op": "drop",
+      "key": "indexes\u0000[\"public\",\"admin_users_companyId_idx_33acc5ed\"]"
+    },
+    {
+      "op": "drop",
+      "key": "indexes\u0000[\"public\",\"admin_users_deviceCredentialsId_idx_c948dafc\"]"
+    },
+    {
+      "op": "drop",
+      "key": "indexes\u0000[\"public\",\"punch_records_pis_idx_b1390a89\"]"
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"admin_users\",\"admin_users_companyId_fkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"admin_users\",\"admin_users_deviceCredentialsId_fkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"punch_records\",\"punch_records_pis_fkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"users\",\"users_admin_user_id_fkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "pks\u0000[\"public\",\"admin_users\",\"admin_users_pkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"punch_records\",\"punch_records_nsr_key\"]"
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"users\",\"users_pis_key\"]"
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"users\",\"users_admin_user_id_key\"]"
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"companies\",\"address\"]",
+      "set": {
+        "notNull": false
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"companies\",\"cpf\"]",
+      "set": {
+        "notNull": false
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"companies\",\"tipo_doc\"]",
+      "set": {
+        "notNull": false
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"companies\",\"cpf_cnpj\"]",
+      "set": {
+        "notNull": false
+      }
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"companies\",\"cei\"]",
+      "set": {
+        "notNull": false
+      }
+    }
+  ]
+}

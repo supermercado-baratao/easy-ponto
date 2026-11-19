@@ -9,7 +9,7 @@ import { holidayModel } from '@/models/holiday/model'
 import orchestrator from '@/tests/orchestrator'
 
 const createCompany = async (): Promise<string> => {
-  const { id } = await companyModel.upsert({
+  const { id } = await companyModel.create({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     cpf: CPF.fake().value,

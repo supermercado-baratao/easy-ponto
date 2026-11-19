@@ -53,9 +53,15 @@ describe('mapParsedAfdToPunchRecordCreateMany', () => {
   test('Converts the date and time to a UTC datetime', () => {
     const [record] = parseAfd(createLine({ date: '31122025', time: '2359' }))
 
-    const [punchRecord] = mapParsedAfdToPunchRecordCreateMany([record])
+    const companyId = crypto.randomUUID()
+
+    const [punchRecord] = mapParsedAfdToPunchRecordCreateMany(
+      [record],
+      companyId
+    )
 
     expect(punchRecord).toEqual({
+      companyId,
       pis: '012345678901',
       datetime: new Date('2025-12-31T23:59:00.000Z'),
       afdDatetime: new Date('2025-12-31T23:59:00.000Z'),

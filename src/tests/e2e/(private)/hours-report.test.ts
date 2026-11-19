@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test'
 
 import type { User } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
 import { userModel } from '@/models/user/model'
 import {
   createEmployee,
   createReportFile,
   createReportRows
 } from '@/tests/_utils/secullum-report'
+import orchestrator from '@/tests/orchestrator'
 
 // After the last mocked punch (2026-03-25): with hundreds of punches in the period, `next dev` takes
 // longer than the test timeout to render the report after each action
@@ -18,10 +18,8 @@ const BALANCE_COLUMN = 8
 let user: User
 
 test.beforeAll(async () => {
-  const adminUser = await adminUserModel.findUniqueById(
-    process.env.ADMIN_USER_ID!
-  )
-  const users = await userModel.findManyByCompanyId(adminUser.companyId!)
+  const companyId = await orchestrator.findMockedCompanyId()
+  const users = await userModel.findManyByCompanyId(companyId)
   user = users[7]
 })
 

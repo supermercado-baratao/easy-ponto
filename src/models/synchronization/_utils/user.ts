@@ -7,7 +7,7 @@ import { normalizeLeftZeros } from './normalize'
 
 type TDeviceUserFields = Omit<
   TInputData<User>,
-  | 'adminUserId'
+  | 'authUserId'
   | 'admissionDate'
   | 'department'
   | 'payrollNumber'
@@ -37,7 +37,7 @@ export const mapDeviceUserToUser = (
 ): TInputData<User>[] =>
   deviceUsers.map((deviceUser): TInputData<User> => ({
     ...mapDeviceUserToUserFields(deviceUser, companyId),
-    adminUserId: null,
+    authUserId: null,
     admissionDate: null,
     department: null,
     payrollNumber: null,
