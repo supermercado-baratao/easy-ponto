@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 
 import { TDeviceFormState } from './types'
@@ -12,7 +12,7 @@ export const save = async (
   state: TDeviceFormState,
   formData: FormData
 ): Promise<TDeviceFormState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const ip = formData.get('ip')?.toString()
   const login = formData.get('login')?.toString()
   formData.set('companyId', company.id)

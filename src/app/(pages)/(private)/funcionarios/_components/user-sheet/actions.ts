@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { userModel } from '@/models/user/model'
 
 import type { TUserFormState, TUserFormValues } from './types'
@@ -12,7 +12,7 @@ export const save = async (
   state: TUserFormState,
   formData: FormData
 ): Promise<TUserFormState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TUserFormValues
   formData.set('companyId', company.id)
   const { success, errors, fatalError } = await handleFormAction(

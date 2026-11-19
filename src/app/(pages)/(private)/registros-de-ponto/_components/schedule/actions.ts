@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { scheduleModel } from '@/models/schedule/model'
 
 import type { TScheduleFormState, TScheduleFormValues } from './types'
@@ -12,7 +12,7 @@ export const save = async (
   state: TScheduleFormState,
   formData: FormData
 ): Promise<TScheduleFormState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TScheduleFormValues
   formData.set('companyId', company.id)
   const { success, errors, fatalError } = await handleFormAction(

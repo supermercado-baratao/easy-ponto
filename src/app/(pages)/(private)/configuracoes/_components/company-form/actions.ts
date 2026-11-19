@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { companyModel } from '@/models/company/model'
 import { synchronizationModel } from '@/models/synchronization/model'
 
@@ -13,7 +13,7 @@ export const save = async (
   state: TCompanyState,
   formData: FormData
 ): Promise<TCompanyState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TCompanyFormValues
   formData.delete('updatedAt')
   formData.set('id', company.id)
@@ -31,7 +31,7 @@ export const importFromDevice = async (
 ): Promise<TCompanyState> => {
   const {
     company: { id: companyId, deviceCredentials }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     if (!deviceCredentials) {
       throw new Error(`Company ${companyId} has no device`)

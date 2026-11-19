@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'vitest'
 
-import { getDefaultPassword, getEmployeeEmail } from './utils'
+import {
+  ADMIN_ROLE,
+  canEdit,
+  EMPLOYEE_ROLE,
+  getDefaultPassword,
+  getEmployeeEmail,
+  OWNER_ROLE,
+  VIEWER_ROLE
+} from './utils'
 
 describe('getDefaultPassword', () => {
   test('Joins the first five CPF digits and the last name in lowercase', () => {
@@ -40,5 +48,18 @@ describe('getEmployeeEmail', () => {
     expect(getEmployeeEmail('123.456.789-10')).toBe(
       getEmployeeEmail('12345678910')
     )
+  })
+})
+
+describe('canEdit', () => {
+  test('Lets the owner and the admin edit', () => {
+    expect(canEdit(OWNER_ROLE)).toBe(true)
+    expect(canEdit(ADMIN_ROLE)).toBe(true)
+  })
+
+  test('Keeps the viewer, the employee and an unknown role from editing', () => {
+    expect(canEdit(VIEWER_ROLE)).toBe(false)
+    expect(canEdit(EMPLOYEE_ROLE)).toBe(false)
+    expect(canEdit('member')).toBe(false)
   })
 })

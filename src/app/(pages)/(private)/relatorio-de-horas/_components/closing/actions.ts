@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 
@@ -13,7 +13,7 @@ const runClosingAction = async (
 ): Promise<TClosingState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     await action(companyId)
     refresh()

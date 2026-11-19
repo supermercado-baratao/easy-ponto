@@ -22,6 +22,7 @@ type TNavItem = {
       title: string
       path: string
       icon: LucideIcon
+      editOnly?: boolean
     }[]
   }[]
 }
@@ -101,7 +102,8 @@ export const navItems: TNavItem[] = [
           {
             title: 'Configurações',
             path: '/configuracoes',
-            icon: Settings
+            icon: Settings,
+            editOnly: true
           },
           {
             title: 'Ajuda',

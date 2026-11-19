@@ -15,12 +15,14 @@ export const MainContent = ({
   users,
   total,
   positions,
-  filters
+  filters,
+  canEdit
 }: {
   users: User[]
   total: number
   positions: string[]
   filters: TUsersFilterValues
+  canEdit: boolean
 }) => (
   <>
     <Header title="Funcionários" />
@@ -33,7 +35,7 @@ export const MainContent = ({
             filters={filters}
           />
           {users.length > 0 ? (
-            <UsersTable users={users} />
+            <UsersTable users={users} canEdit={canEdit} />
           ) : (
             <p className="text-sm text-muted-foreground">
               Nenhum funcionário encontrado com esses filtros
@@ -45,15 +47,17 @@ export const MainContent = ({
           <Typography component="p" variant="h6">
             Nenhum funcionário encontrado
           </Typography>
-          <Typography component="p" variant="base">
-            Importe os funcionários do dispositivo em{' '}
-            <Link
-              href="/registros-de-ponto"
-              className="underline underline-offset-4"
-            >
-              Registros de Ponto
-            </Link>
-          </Typography>
+          {canEdit && (
+            <Typography component="p" variant="base">
+              Importe os funcionários do dispositivo em{' '}
+              <Link
+                href="/registros-de-ponto"
+                className="underline underline-offset-4"
+              >
+                Registros de Ponto
+              </Link>
+            </Typography>
+          )}
         </div>
       )}
     </_MainContent>

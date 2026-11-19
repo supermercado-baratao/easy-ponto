@@ -3,7 +3,7 @@
 import { refresh } from 'next/cache'
 
 import { handleFormAction } from '@/entry/form-action'
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { justificationModel } from '@/models/justification/model'
 
 import type {
@@ -16,7 +16,7 @@ export const save = async (
   state: TJustificationFormState,
   formData: FormData
 ): Promise<TJustificationFormState> => {
-  const { company } = await requireCompany()
+  const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TJustificationFormValues
   formData.set('companyId', company.id)
   const { success, errors, fatalError } = formData.get('id')
@@ -33,7 +33,7 @@ export const removeJustification = async (
 ): Promise<TRemoveJustificationState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     await justificationModel.remove({
       id: formData.get('id') as string,

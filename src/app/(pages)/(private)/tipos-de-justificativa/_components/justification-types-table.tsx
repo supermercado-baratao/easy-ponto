@@ -13,9 +13,11 @@ import { JustificationTypeSheet } from './justification-type-sheet/justification
 import { RemoveJustificationTypeButton } from './remove-justification-type-button/remove-justification-type-button'
 
 export const JustificationTypesTable = ({
-  types
+  types,
+  canEdit
 }: {
   types: JustificationType[]
+  canEdit: boolean
 }) => (
   <Table aria-label="Tipos de justificativa">
     <TableHeader>
@@ -23,9 +25,11 @@ export const JustificationTypesTable = ({
         <TableHead>Código</TableHead>
         <TableHead>Descrição</TableHead>
         <TableHead>Efeito</TableHead>
-        <TableHead>
-          <span className="sr-only">Ações</span>
-        </TableHead>
+        {canEdit && (
+          <TableHead>
+            <span className="sr-only">Ações</span>
+          </TableHead>
+        )}
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -36,20 +40,22 @@ export const JustificationTypesTable = ({
           </TableHead>
           <TableCell>{type.description}</TableCell>
           <TableCell>{getEffectLabel(type.effect)}</TableCell>
-          <TableCell>
-            <div className="flex justify-end gap-1">
-              <JustificationTypeSheet
-                type={type}
-                defaultValues={{
-                  id: type.id,
-                  code: type.code,
-                  description: type.description,
-                  effect: type.effect
-                }}
-              />
-              <RemoveJustificationTypeButton type={type} />
-            </div>
-          </TableCell>
+          {canEdit && (
+            <TableCell>
+              <div className="flex justify-end gap-1">
+                <JustificationTypeSheet
+                  type={type}
+                  defaultValues={{
+                    id: type.id,
+                    code: type.code,
+                    description: type.description,
+                    effect: type.effect
+                  }}
+                />
+                <RemoveJustificationTypeButton type={type} />
+              </div>
+            </TableCell>
+          )}
         </TableRow>
       ))}
     </TableBody>

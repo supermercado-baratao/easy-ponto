@@ -110,12 +110,14 @@ const ClosingDialog = ({
 }
 
 export const ClosingSection = ({
-  report
+  report,
+  canEdit
 }: {
   report: Pick<
     THoursBankReport,
     'period' | 'order' | 'closing' | 'lastClosing' | 'closeIssue'
   >
+  canEdit: boolean
 }) => {
   const router = useRouter()
   const issueId = useId()
@@ -132,7 +134,8 @@ export const ClosingSection = ({
             ? `Saldo inicial até ${formatDate(closing.endDate)}, importado do relatório do Secullum.`
             : 'Período fechado. Os valores abaixo são os salvos no fechamento.'}
         </p>
-        {closing.id === lastClosing?.id &&
+        {canEdit &&
+          closing.id === lastClosing?.id &&
           (closing.initial ? (
             <ClosingDialog
               trigger="Descartar saldo inicial"
@@ -158,28 +161,32 @@ export const ClosingSection = ({
     )
   }
 
+  if (!canEdit && !lastClosing) return null
+
   return (
     <section
       aria-label="Fechamento"
       className="flex flex-wrap items-center gap-4"
     >
-      <ClosingDialog
-        trigger="Fechar período"
-        title="Fechar período?"
-        description={`Os saldos de ${formatPeriod(period)} serão salvos e passam a ser o saldo anterior do próximo período.`}
-        confirmLabel="Fechar"
-        successMessage="Período fechado com sucesso!"
-        fields={period}
-        action={closePeriod}
-        onSuccess={() =>
-          router.replace(getHoursReportHref({ ...period, order }))
-        }
-        disabled={closeIssue !== null}
-        describedBy={closeIssue ? issueId : undefined}
-      />
-      {!lastClosing && <ImportInitialBalanceButton order={order} />}
+      {canEdit && (
+        <ClosingDialog
+          trigger="Fechar período"
+          title="Fechar período?"
+          description={`Os saldos de ${formatPeriod(period)} serão salvos e passam a ser o saldo anterior do próximo período.`}
+          confirmLabel="Fechar"
+          successMessage="Período fechado com sucesso!"
+          fields={period}
+          action={closePeriod}
+          onSuccess={() =>
+            router.replace(getHoursReportHref({ ...period, order }))
+          }
+          disabled={closeIssue !== null}
+          describedBy={closeIssue ? issueId : undefined}
+        />
+      )}
+      {canEdit && !lastClosing && <ImportInitialBalanceButton order={order} />}
       <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-        {closeIssue && <p id={issueId}>{closeIssue}</p>}
+        {canEdit && closeIssue && <p id={issueId}>{closeIssue}</p>}
         {lastClosing && (
           <p>
             {lastClosing.initial

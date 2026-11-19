@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { holidayModel } from '@/models/holiday/model'
 
 import type { TNationalHolidaysState } from './types'
@@ -13,7 +13,7 @@ export const addNationalHolidays = async (
 ): Promise<TNationalHolidaysState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     const data = await holidayModel.addNationalHolidays({
       companyId,

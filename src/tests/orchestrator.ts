@@ -1,10 +1,12 @@
 import { faker } from '@faker-js/faker'
 import retry from 'async-retry'
+import { hashPassword } from 'better-auth/crypto'
 import { sql } from 'drizzle-orm'
 import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 
 import { database } from '@/infra/database/client'
+import { authAccounts, authUsers, members } from '@/infra/database/schema'
 import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
@@ -112,13 +114,43 @@ const findMockedCompanyId = async (): Promise<string> => {
   return companyId
 }
 
+// Writes the rows directly, since adding a member has no model of its own until #86
+const createMember = async ({
+  companyId,
+  role,
+  name,
+  email,
+  password
+}: {
+  companyId: string
+  role: string
+  name: string
+  email: string
+  password: string
+}) => {
+  const [user] = await database
+    .insert(authUsers)
+    .values({ name, email })
+    .returning()
+  await database.insert(authAccounts).values({
+    accountId: user.id,
+    providerId: 'credential',
+    userId: user.id,
+    password: await hashPassword(password)
+  })
+  await database
+    .insert(members)
+    .values({ organizationId: companyId, userId: user.id, role })
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   createCompanyData,
   populateDatabaseWithRealData,
   populateDatabaseWithMockedData,
-  findMockedCompanyId
+  findMockedCompanyId,
+  createMember
 }
 
 export default orchestrator

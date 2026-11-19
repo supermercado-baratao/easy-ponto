@@ -145,10 +145,12 @@ const JustificationsCell = ({
 
 export const PunchRecordsTable = ({
   days,
-  justifications
+  justifications,
+  canEdit
 }: {
   days: TJourneyDay[]
   justifications: TJustificationWithType[]
+  canEdit: boolean
 }) => {
   const columns = Math.max(
     MIN_PUNCH_COLUMNS,
@@ -190,9 +192,11 @@ export const PunchRecordsTable = ({
             <TableHead key={key}>{label}</TableHead>
           ))}
           <TableHead>Justificativa</TableHead>
-          <TableHead>
-            <span className="sr-only">Ações</span>
-          </TableHead>
+          {canEdit && (
+            <TableHead>
+              <span className="sr-only">Ações</span>
+            </TableHead>
+          )}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -218,14 +222,16 @@ export const PunchRecordsTable = ({
                 </TableCell>
               ))}
               <JustificationsCell justifications={dayJustifications} />
-              <TableCell>
-                <div className="flex justify-end">
-                  <DayActionsMenu
-                    date={date}
-                    justifications={dayJustifications}
-                  />
-                </div>
-              </TableCell>
+              {canEdit && (
+                <TableCell>
+                  <div className="flex justify-end">
+                    <DayActionsMenu
+                      date={date}
+                      justifications={dayJustifications}
+                    />
+                  </div>
+                </TableCell>
+              )}
             </TableRow>
           )
         })}

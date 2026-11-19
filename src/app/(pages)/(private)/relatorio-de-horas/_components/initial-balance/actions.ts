@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { requireCompany } from '@/entry/session'
+import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 
@@ -14,7 +14,7 @@ export const importInitialBalance = async (
 ): Promise<TInitialBalanceState> => {
   const {
     company: { id: companyId }
-  } = await requireCompany()
+  } = await requireEditor()
   try {
     const { closing, unmatchedNames } =
       await synchronizationModel.importInitialBalance({

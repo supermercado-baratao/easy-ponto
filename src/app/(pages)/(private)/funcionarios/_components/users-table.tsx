@@ -15,7 +15,13 @@ import { dayjs } from '@/infra/dayjs'
 import { ResetPasswordButton } from './reset-password-button/reset-password-button'
 import { UserSheet } from './user-sheet/user-sheet'
 
-export const UsersTable = ({ users }: { users: User[] }) => (
+export const UsersTable = ({
+  users,
+  canEdit
+}: {
+  users: User[]
+  canEdit: boolean
+}) => (
   <Table aria-label="Funcionários">
     <TableHeader>
       <TableRow>
@@ -24,9 +30,11 @@ export const UsersTable = ({ users }: { users: User[] }) => (
         <TableHead>Departamento</TableHead>
         <TableHead>Admissão</TableHead>
         <TableHead>Situação</TableHead>
-        <TableHead>
-          <span className="sr-only">Ações</span>
-        </TableHead>
+        {canEdit && (
+          <TableHead>
+            <span className="sr-only">Ações</span>
+          </TableHead>
+        )}
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -49,26 +57,28 @@ export const UsersTable = ({ users }: { users: User[] }) => (
               : '—'}
           </TableCell>
           <TableCell>{getStatusLabel(user.status)}</TableCell>
-          <TableCell>
-            <div className="flex justify-end">
-              {user.authUserId && (
-                <ResetPasswordButton id={user.id} name={user.name} />
-              )}
-              <UserSheet
-                name={user.name}
-                defaultValues={{
-                  id: user.id,
-                  status: user.status,
-                  position: user.position ?? '',
-                  department: user.department ?? '',
-                  payrollNumber: user.payrollNumber ?? '',
-                  admissionDate: user.admissionDate
-                    ? dayjs(user.admissionDate).format('YYYY-MM-DD')
-                    : ''
-                }}
-              />
-            </div>
-          </TableCell>
+          {canEdit && (
+            <TableCell>
+              <div className="flex justify-end">
+                {user.authUserId && (
+                  <ResetPasswordButton id={user.id} name={user.name} />
+                )}
+                <UserSheet
+                  name={user.name}
+                  defaultValues={{
+                    id: user.id,
+                    status: user.status,
+                    position: user.position ?? '',
+                    department: user.department ?? '',
+                    payrollNumber: user.payrollNumber ?? '',
+                    admissionDate: user.admissionDate
+                      ? dayjs(user.admissionDate).format('YYYY-MM-DD')
+                      : ''
+                  }}
+                />
+              </div>
+            </TableCell>
+          )}
         </TableRow>
       ))}
     </TableBody>

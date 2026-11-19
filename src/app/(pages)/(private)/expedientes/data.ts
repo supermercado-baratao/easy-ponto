@@ -14,6 +14,7 @@ type TAgendaPageData = {
   total: number
   positions: string[]
   filters: TAgendaFilters
+  canEdit: boolean
 }
 
 export const getAgendaPageData = async (searchParameters: {
@@ -23,7 +24,8 @@ export const getAgendaPageData = async (searchParameters: {
   time?: string
 }): Promise<TAgendaPageData> => {
   const {
-    company: { id: companyId }
+    company: { id: companyId },
+    canEdit
   } = await requireCompany()
   const userSchedules = await scheduleModel.findManyInEffectByCompanyId({
     companyId,
@@ -52,6 +54,7 @@ export const getAgendaPageData = async (searchParameters: {
       position,
       status: status ? STATUS_PARAMS[status] : null,
       time
-    }
+    },
+    canEdit
   }
 }

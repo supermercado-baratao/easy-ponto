@@ -22,24 +22,32 @@ const EmptyState = ({
   description
 }: {
   title: string
-  description: string
+  description?: string
 }) => (
   <div>
     <Typography component="p" variant="h6">
       {title}
     </Typography>
-    <Typography component="p" variant="base">
-      {description}
-    </Typography>
+    {description && (
+      <Typography component="p" variant="base">
+        {description}
+      </Typography>
+    )}
   </div>
 )
 
-export const MainContent = ({ report }: { report: THoursBankReport }) => (
+export const MainContent = ({
+  report,
+  canEdit
+}: {
+  report: THoursBankReport
+  canEdit: boolean
+}) => (
   <>
     <Header title="Relatório de Horas" />
     <_MainContent className="flex flex-col gap-6">
       <PeriodFilter period={report.period} order={report.order} />
-      <ClosingSection report={report} />
+      <ClosingSection report={report} canEdit={canEdit} />
       {report.rows.length > 0 ? (
         <section aria-label={`Saldos de ${formatPeriod(report.period)}`}>
           <nav
@@ -68,14 +76,18 @@ export const MainContent = ({ report }: { report: THoursBankReport }) => (
               rows={report.rows}
               period={report.period}
               adjustments={report.adjustments}
-              editable={report.closing === null}
+              editable={canEdit && report.closing === null}
             />
           </AdjustmentProvider>
         </section>
       ) : (
         <EmptyState
           title="Nenhum funcionário encontrado"
-          description="Cadastre ou importe funcionários do dispositivo para começar"
+          description={
+            canEdit
+              ? 'Cadastre ou importe funcionários do dispositivo para começar'
+              : undefined
+          }
         />
       )}
     </_MainContent>

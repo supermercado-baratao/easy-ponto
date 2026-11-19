@@ -15,10 +15,12 @@ import { getScopeLabel } from './utils'
 
 export const HolidaysTable = ({
   year,
-  holidays
+  holidays,
+  canEdit
 }: {
   year: number
   holidays: THolidayInYear[]
+  canEdit: boolean
 }) => (
   <Table aria-label={`Feriados de ${year}`}>
     <TableHeader>
@@ -28,9 +30,11 @@ export const HolidaysTable = ({
         <TableHead>Nome</TableHead>
         <TableHead>Abrangência</TableHead>
         <TableHead>Repetição</TableHead>
-        <TableHead>
-          <span className="sr-only">Ações</span>
-        </TableHead>
+        {canEdit && (
+          <TableHead>
+            <span className="sr-only">Ações</span>
+          </TableHead>
+        )}
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -49,21 +53,23 @@ export const HolidaysTable = ({
             <TableCell>
               {holiday.recurring ? 'Todo ano' : 'Só neste ano'}
             </TableCell>
-            <TableCell>
-              <div className="flex justify-end gap-1">
-                <HolidaySheet
-                  holiday={holiday}
-                  defaultValues={{
-                    id: holiday.id,
-                    date: holiday.dateInYear,
-                    name: holiday.name,
-                    scope: holiday.scope,
-                    recurring: holiday.recurring ? 'on' : undefined
-                  }}
-                />
-                <RemoveHolidayButton holiday={holiday} />
-              </div>
-            </TableCell>
+            {canEdit && (
+              <TableCell>
+                <div className="flex justify-end gap-1">
+                  <HolidaySheet
+                    holiday={holiday}
+                    defaultValues={{
+                      id: holiday.id,
+                      date: holiday.dateInYear,
+                      name: holiday.name,
+                      scope: holiday.scope,
+                      recurring: holiday.recurring ? 'on' : undefined
+                    }}
+                  />
+                  <RemoveHolidayButton holiday={holiday} />
+                </div>
+              </TableCell>
+            )}
           </TableRow>
         )
       })}
