@@ -17,7 +17,7 @@ beforeAll(async () => {
   await orchestrator.waitForAllServices()
   await orchestrator.clearDatabase()
 
-  const company = await companyModel.upsert({
+  const company = await companyModel.create({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     cpf: CPF.fake().value,

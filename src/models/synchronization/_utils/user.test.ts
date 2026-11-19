@@ -48,7 +48,7 @@ describe('mapDeviceUserToUser', () => {
     const [user] = mapDeviceUserToUser([deviceUser], 'company-id')
 
     expect(user).toMatchObject({
-      adminUserId: null,
+      authUserId: null,
       admissionDate: null,
       department: null,
       payrollNumber: null,

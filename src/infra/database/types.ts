@@ -1,6 +1,6 @@
 import type * as schema from './schema'
 
-export type AdminUser = typeof schema.adminUsers.$inferSelect
+export type AuthUser = typeof schema.authUsers.$inferSelect
 export type Company = typeof schema.companies.$inferSelect
 export type DeviceCredentials = typeof schema.devicesCredentials.$inferSelect
 export type DeviceSession = typeof schema.devicesSessions.$inferSelect
@@ -11,6 +11,7 @@ export type HoursBankBalance = typeof schema.hoursBankBalances.$inferSelect
 export type HoursBankClosing = typeof schema.hoursBankClosings.$inferSelect
 export type Justification = typeof schema.justifications.$inferSelect
 export type JustificationType = typeof schema.justificationTypes.$inferSelect
+export type Member = typeof schema.members.$inferSelect
 export type PunchRecord = typeof schema.punchRecords.$inferSelect
 export type Schedule = typeof schema.schedules.$inferSelect
 export type ScheduleDay = typeof schema.schedulesDays.$inferSelect
@@ -23,10 +24,12 @@ export type TInputData<T> = T extends readonly (infer U)[]
   ? Omit<U, TAutomaticFields>[]
   : Omit<T, TAutomaticFields>
 
-export type TAdminUserWithRelations = AdminUser & {
-  company: Company | null
+export type TCompanyWithDeviceCredentials = Company & {
   deviceCredentials: DeviceCredentials | null
-  user: User | null
+}
+
+export type TMemberWithCompany = Member & {
+  company: TCompanyWithDeviceCredentials
 }
 
 export type TScheduleWithDays = Schedule & {

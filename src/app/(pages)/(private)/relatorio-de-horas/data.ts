@@ -1,11 +1,11 @@
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { hoursBankModel } from '@/models/hours-bank/model'
 import type { THoursBankReport } from '@/models/hours-bank/types'
 
 import { ORDER_PARAM } from './_components/utils'
 
 type THoursReportPageData = {
-  report: THoursBankReport | null
+  report: THoursBankReport
 }
 
 export const getHoursReportPageData = async ({
@@ -17,14 +17,14 @@ export const getHoursReportPageData = async ({
   finalDate?: string
   order?: string
 }): Promise<THoursReportPageData> => {
-  const { companyId } = await getAdminUser()
-  const report = companyId
-    ? await hoursBankModel.generate({
-        companyId,
-        initialDate,
-        finalDate,
-        order: order === ORDER_PARAM.name ? 'name' : 'balance'
-      })
-    : null
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
+  const report = await hoursBankModel.generate({
+    companyId,
+    initialDate,
+    finalDate,
+    order: order === ORDER_PARAM.name ? 'name' : 'balance'
+  })
   return { report }
 }

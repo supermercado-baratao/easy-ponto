@@ -3,14 +3,9 @@
 import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import type {
-  Company,
-  PunchRecord,
-  TAdminUserWithRelations,
-  User
-} from '@/infra/database/types'
+import type { Company, PunchRecord, User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
-import { adminUserModel } from '@/models/admin-user/model'
+import { companyModel } from '@/models/company/model'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { normalizePis } from '@/models/synchronization/_utils/normalize'
@@ -19,36 +14,36 @@ import { TSynchronizationCredentials } from '@/models/synchronization/types'
 import { userModel } from '@/models/user/model'
 import orchestrator from '@/tests/orchestrator'
 
-let adminUser: TAdminUserWithRelations
+let companyId: string
 let credentials: TSynchronizationCredentials
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
   await orchestrator.clearDatabase()
-  const { id: adminUserId } = await adminUserModel.create()
-  const { id: deviceCredentialsId } = await deviceCredentialsModel.upsert({
+  ;({ id: companyId } = await companyModel.create(
+    orchestrator.createCompanyData()
+  ))
+  credentials = await deviceCredentialsModel.upsert({
     ip: process.env.DEVICE_IP!,
     login: process.env.DEVICE_LOGIN!,
     password: process.env.DEVICE_PASSWORD!,
-    adminUserId
+    companyId
   })
-  await adminUserModel.update({
-    id: adminUserId,
-    deviceCredentialsId
-  })
-  adminUser = await adminUserModel.findUniqueById(adminUserId)
-  credentials = adminUser.deviceCredentials!
 })
 
 describe('Synchronization Model', () => {
   test('Synchronize company', async () => {
     const data = await synchronizationModel.synchronizeCompany({
-      adminUserId: adminUser.id,
+      companyId,
       credentials
     })
     const expectedData: Company = {
-      id: expect.any(String),
+      id: companyId,
       name: expect.any(String),
+      slug: expect.any(String),
+      logo: null,
+      metadata: null,
+      deviceCredentialsId: credentials.id,
       address: expect.any(String),
       cpf: expect.any(String),
       cpfCnpj: expect.any(String),
@@ -59,24 +54,17 @@ describe('Synchronization Model', () => {
       updatedAt: expect.any(Date)
     }
     expect(data).toEqual(expectedData)
-
-    const adminUserAfterSync = await adminUserModel.findUniqueById(adminUser.id)
-    expect(adminUserAfterSync.companyId).toBe(data.id)
-    expect(adminUserAfterSync.company).toEqual(data)
-    adminUser = adminUserAfterSync
   })
 
   test('Synchronize users', async () => {
-    const users = await userModel.findManyByCompanyId(adminUser.companyId!)
+    const users = await userModel.findManyByCompanyId(companyId)
     expect(users).toEqual([])
     await synchronizationModel.synchronizeUsers({
-      companyId: adminUser.companyId!,
+      companyId: companyId,
       credentials
     })
 
-    const usersAfterSync = await userModel.findManyByCompanyId(
-      adminUser.companyId!
-    )
+    const usersAfterSync = await userModel.findManyByCompanyId(companyId)
     expect(usersAfterSync.length).toBeGreaterThan(0)
 
     const expectedData: User = {
@@ -86,8 +74,8 @@ describe('Synchronization Model', () => {
       password: expect.any(String),
       pis: expect.any(String),
       code: expect.any(String),
-      companyId: adminUser.companyId!,
-      adminUserId: null,
+      companyId: companyId,
+      authUserId: usersAfterSync[0].authUserId,
       bars: expect.any(String),
       rfid: expect.any(String),
       registration: expect.any(String),
@@ -110,12 +98,12 @@ describe('Synchronization Model', () => {
   test('Synchronize AFD', async () => {
     // A full week guarantees punch records on any day the test runs
     const initialDate = dayjs().subtract(7, 'day')
-    const punchRecords = await punchRecordModel.findMany()
+    const punchRecords = await punchRecordModel.findMany({ companyId })
     expect(punchRecords).toEqual([])
 
     await synchronizationModel.synchronizeAfd({
       credentials,
-      companyId: adminUser.companyId!,
+      companyId: companyId,
       params: {
         initialDate: {
           day: initialDate.date(),
@@ -125,12 +113,15 @@ describe('Synchronization Model', () => {
       }
     })
 
-    const punchRecordsAfterSync = await punchRecordModel.findMany()
+    const punchRecordsAfterSync = await punchRecordModel.findMany({
+      companyId
+    })
     expect(punchRecordsAfterSync.length).toBeGreaterThan(0)
 
     const data = punchRecordsAfterSync[0]
     const expectedData: PunchRecord = {
       id: expect.any(String),
+      companyId,
       pis: expect.any(String),
       datetime: expect.any(Date),
       afdDatetime: expect.any(Date),

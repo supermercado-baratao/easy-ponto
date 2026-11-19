@@ -2,7 +2,7 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 
@@ -12,9 +12,10 @@ export const importInitialBalance = async (
   _state: TInitialBalanceState,
   formData: FormData
 ): Promise<TInitialBalanceState> => {
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   try {
-    const { id, companyId } = await getAdminUser()
-    if (!companyId) throw new Error(`AdminUser ${id} has no company`)
     const { closing, unmatchedNames } =
       await synchronizationModel.importInitialBalance({
         file: formData.get('file') as File,

@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { vacationPlanModel } from '@/models/vacation-plan/model'
 
 import type { TPlanFormState, TPlanFormValues } from './types'
@@ -12,9 +12,9 @@ export const save = async (
   state: TPlanFormState,
   formData: FormData
 ): Promise<TPlanFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TPlanFormValues
-  formData.set('companyId', adminUser.companyId ?? '')
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = await handleFormAction(
     vacationPlanModel.save,
     state,

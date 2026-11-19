@@ -3,12 +3,14 @@ import {
   SidebarInset,
   SidebarProvider
 } from '@/app/components/ui/shadcn/sidebar'
+import { requireCompany } from '@/entry/session'
 
-const Layout = ({
+const Layout = async ({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) => {
+  const { company, companies } = await requireCompany()
   return (
     <SidebarProvider
       style={
@@ -18,7 +20,11 @@ const Layout = ({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar
+        variant="inset"
+        company={{ id: company.id, name: company.name }}
+        companies={companies}
+      />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   )

@@ -3,7 +3,6 @@ import { MainContent as _MainContent } from '@/app/components/ui/custom/main-con
 import { Typography } from '@/app/components/ui/custom/typography'
 import type {
   JustificationType,
-  TAdminUserWithRelations,
   TJustificationWithType,
   TScheduleWithDays,
   User
@@ -19,7 +18,7 @@ import { SynchronizationButton } from './synchronization-button/synchronization-
 import { UserHeader } from './user-header/user-header'
 
 export const MainContent = ({
-  adminUser,
+  hasDevice,
   users,
   user,
   period,
@@ -29,7 +28,7 @@ export const MainContent = ({
   justifications,
   justificationTypes
 }: {
-  adminUser: TAdminUserWithRelations
+  hasDevice: boolean
   users: User[]
   user: User | null
   period: TPunchRecordPeriod
@@ -41,9 +40,7 @@ export const MainContent = ({
 }) => (
   <>
     <Header title="Registros de Ponto">
-      {adminUser.companyId && adminUser.deviceCredentials && (
-        <SynchronizationButton />
-      )}
+      {hasDevice && <SynchronizationButton />}
     </Header>
     <_MainContent className="flex flex-col gap-6">
       {user ? (

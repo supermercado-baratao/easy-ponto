@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { justificationModel } from '@/models/justification/model'
 
 import type {
@@ -16,9 +16,9 @@ export const save = async (
   state: TJustificationFormState,
   formData: FormData
 ): Promise<TJustificationFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TJustificationFormValues
-  formData.set('companyId', adminUser.companyId ?? '')
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = formData.get('id')
     ? await handleFormAction(justificationModel.update, state, formData)
     : await handleFormAction(justificationModel.create, state, formData)
@@ -31,9 +31,10 @@ export const removeJustification = async (
   state: TRemoveJustificationState,
   formData: FormData
 ): Promise<TRemoveJustificationState> => {
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   try {
-    const { id, companyId } = await getAdminUser()
-    if (!companyId) throw new Error(`AdminUser ${id} has no company`)
     await justificationModel.remove({
       id: formData.get('id') as string,
       companyId

@@ -17,6 +17,7 @@ const dateSchema = z.string().refine((value) => isValidDate(value), {
 })
 
 export const createNonExistentInAfdSchema = z.object({
+  companyId: z.uuid(),
   pis: pisSchema,
   datetime: z.coerce.date()
 })
@@ -44,6 +45,7 @@ export const updateSchema = z.object({
 export const updateManySchema = z.array(updateSchema).nonempty()
 
 export const findManyParamsSchema = z.object({
+  companyId: z.uuid(),
   pis: pisSchema.nullish(),
   initialNsr: z.coerce.number().int().positive().nullish(),
   finalNsr: z.coerce.number().int().positive().nullish(),
@@ -52,6 +54,7 @@ export const findManyParamsSchema = z.object({
 })
 
 export const findManyByDayParamsSchema = z.object({
+  companyId: z.uuid(),
   pis: pisSchema,
   initialDate: dateSchema,
   finalDate: dateSchema

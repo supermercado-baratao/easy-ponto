@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { companyModel } from '@/models/company/model'
 import { synchronizationModel } from '@/models/synchronization/model'
 
@@ -13,15 +13,11 @@ export const save = async (
   state: TCompanyState,
   formData: FormData
 ): Promise<TCompanyState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TCompanyFormValues
   formData.delete('updatedAt')
-  formData.set('adminUserId', adminUser.id)
-  const result = await handleFormAction(
-    companyModel.upsertForAdminUser,
-    state,
-    formData
-  )
+  formData.set('id', company.id)
+  const result = await handleFormAction(companyModel.save, state, formData)
   if (result.success) {
     refresh()
     return { ...result, values: undefined }
@@ -33,11 +29,15 @@ export const save = async (
 export const importFromDevice = async (
   state: TCompanyState
 ): Promise<TCompanyState> => {
+  const {
+    company: { id: companyId, deviceCredentials }
+  } = await requireCompany()
   try {
-    const { id, deviceCredentials } = await getAdminUser()
-    if (!deviceCredentials) throw new Error(`AdminUser ${id} has no device`)
+    if (!deviceCredentials) {
+      throw new Error(`Company ${companyId} has no device`)
+    }
     const data = await synchronizationModel.synchronizeCompany({
-      adminUserId: id,
+      companyId,
       credentials: deviceCredentials
     })
     refresh()

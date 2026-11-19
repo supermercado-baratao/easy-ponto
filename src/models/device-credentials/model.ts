@@ -1,23 +1,25 @@
 import type { DeviceCredentials } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
+import { companyRepository } from '@/repositories/company-repository'
 import { deviceCredentialsRepository } from '@/repositories/device-credentials-repository'
 
 import { schema } from './schema'
 import { TDeviceCredentialsUpsertData } from './types'
 
 const upsert = async ({
-  adminUserId,
+  companyId,
   ...data
 }: TDeviceCredentialsUpsertData): Promise<DeviceCredentials> => {
-  const { deviceCredentials } = await adminUserModel.findUniqueById(adminUserId)
+  const company = await companyRepository.findUniqueById(companyId)
+  if (!company) throw new Error(`Company ${companyId} not found`)
+  const { deviceCredentials } = company
   const { id, ...deviceData } = schema.parse({
     ...data,
     id: deviceCredentials?.id,
     password: data.password || deviceCredentials?.password
   })
-  return await deviceCredentialsRepository.upsertForAdminUser({
+  return await deviceCredentialsRepository.upsertForCompany({
     id,
-    adminUserId,
+    companyId,
     data: deviceData
   })
 }

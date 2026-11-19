@@ -9,7 +9,7 @@ import { userModel } from '@/models/user/model'
 import orchestrator from '@/tests/orchestrator'
 
 const createCompany = async (): Promise<string> => {
-  const { id } = await companyModel.upsert({
+  const { id } = await companyModel.create({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     cpf: CPF.fake().value,
@@ -40,7 +40,7 @@ const createUser = async (companyId: string): Promise<string> => {
       department: 'Frente de loja',
       status: 'registered',
       companyId,
-      adminUserId: null
+      authUserId: null
     }
   ])
   const users = await userModel.findManyByCompanyId(companyId)

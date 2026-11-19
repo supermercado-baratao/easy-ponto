@@ -1,11 +1,9 @@
 import { z } from 'zod'
 
-import { updateSchema, upsertSchema } from './schema'
+import { createSchema, saveSchema, updateSchema } from './schema'
 
-export type TCompanyUpsertData = z.infer<typeof upsertSchema>
+export type TCompanyCreateData = z.input<typeof createSchema>
 
-export type TCompanyUpsertForAdminUserData = TCompanyUpsertData & {
-  adminUserId: string
-}
+export type TCompanySaveData = z.input<typeof saveSchema>
 
-export type TCompanyUpdateData = z.infer<typeof updateSchema>
+export type TCompanyUpdateData = z.input<typeof updateSchema>

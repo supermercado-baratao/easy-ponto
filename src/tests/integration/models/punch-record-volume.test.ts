@@ -2,8 +2,6 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { faker } from '@faker-js/faker'
-import { CNPJ } from 'validation-br/cnpj'
-import { CPF } from 'validation-br/cpf'
 import {
   afterEach,
   beforeAll,
@@ -14,7 +12,8 @@ import {
   vi
 } from 'vitest'
 
-import { adminUserModel } from '@/models/admin-user/model'
+import { database } from '@/infra/database/client'
+import { punchRecords } from '@/infra/database/schema'
 import { companyModel } from '@/models/company/model'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
@@ -41,21 +40,12 @@ const createAfd = (total: number): string =>
   }).join('\n')
 
 const populate = async () => {
-  const adminUser = await adminUserModel.create()
+  const company = await companyModel.create(orchestrator.createCompanyData())
   const credentials = await deviceCredentialsModel.upsert({
-    adminUserId: adminUser.id,
+    companyId: company.id,
     ip: faker.internet.ipv4(),
     login: faker.internet.username(),
     password: faker.internet.password()
-  })
-  const company = await companyModel.upsert({
-    name: faker.company.name(),
-    address: faker.location.streetAddress(),
-    cpf: CPF.fake().value,
-    tipoDoc: 1,
-    cpfCnpj: CNPJ.fake().value,
-    cei: faker.string.numeric(12),
-    registration: faker.string.numeric(12)
   })
   return { credentials, companyId: company.id }
 }
@@ -73,10 +63,8 @@ const synchronize = (
   })
 }
 
-const countRecords = async (): Promise<number> => {
-  const records = await punchRecordModel.findMany({})
-  return records.length
-}
+const countRecords = async (): Promise<number> =>
+  await database.$count(punchRecords)
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
@@ -125,13 +113,17 @@ describe('Punch record volume', () => {
     test('Keeps edited records when synchronizing again', async () => {
       const data = await populate()
       await synchronize(createAfd(1), data)
-      const [{ id }] = await punchRecordModel.findMany({})
+      const [{ id }] = await punchRecordModel.findMany({
+        companyId: data.companyId
+      })
       const datetime = new Date('2026-02-02T09:30:00.000Z')
       await punchRecordModel.update({ id, datetime })
 
       await synchronize(createAfd(2), data)
 
-      const records = await punchRecordModel.findMany({})
+      const records = await punchRecordModel.findMany({
+        companyId: data.companyId
+      })
       expect(records).toHaveLength(2)
       expect(records.find((record) => record.id === id)?.datetime).toEqual(
         datetime
@@ -164,6 +156,7 @@ describe('Punch record volume', () => {
       const pis = toPis(EMPLOYEES[0])
       const datetime = new Date('2026-01-01T08:00:00.000Z')
       const createRecord = (nsr: number, record = pis) => ({
+        companyId: data.companyId,
         pis: record,
         datetime,
         afdDatetime: datetime,
@@ -191,6 +184,7 @@ describe('Punch record volume', () => {
       const data = await populate()
       await synchronize('', data)
       const records = Array.from({ length: 20_000 }, (_, index) => ({
+        companyId: data.companyId,
         pis: toPis(EMPLOYEES[index % EMPLOYEES.length]),
         datetime: new Date(Date.UTC(2026, 0, 1, 8, index))
       }))

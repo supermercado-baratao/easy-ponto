@@ -20,7 +20,7 @@ const createCompanyWithUsers = async (
   start: number,
   end: number
 ): Promise<{ companyId: string; users: User[] }> => {
-  const { id: companyId } = await companyModel.upsert({
+  const { id: companyId } = await companyModel.create({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     cpf: CPF.fake().value,

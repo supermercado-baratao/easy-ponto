@@ -3,14 +3,15 @@ import Link from 'next/link'
 
 import { ToggleTheme } from '@/app/components/blocks/toggle-theme'
 import { buttonVariants } from '@/app/components/ui/shadcn/button'
+import { SIGN_IN_PATH } from '@/entry/session'
 
 import { Features } from './_components/features'
 import { TimeCardPreview } from './_components/time-card-preview'
+import { redirectSignedInUser } from './data'
 
-// Points to /entrar once authentication exists (#77)
-const SIGN_IN_PATH = '/registros-de-ponto'
+const LandingPage = async () => {
+  await redirectSignedInUser()
 
-const LandingPage = () => {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b">

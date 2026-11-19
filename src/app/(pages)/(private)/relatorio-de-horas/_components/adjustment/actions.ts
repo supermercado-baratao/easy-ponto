@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 
@@ -17,9 +17,9 @@ export const save = async (
   state: TAdjustmentFormState,
   formData: FormData
 ): Promise<TAdjustmentFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TAdjustmentFormValues
-  formData.set('companyId', adminUser.companyId ?? '')
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = formData.get('id')
     ? await handleFormAction(hoursBankModel.updateAdjustment, state, formData)
     : await handleFormAction(hoursBankModel.createAdjustment, state, formData)
@@ -32,9 +32,10 @@ export const removeAdjustment = async (
   _state: TRemoveAdjustmentState,
   formData: FormData
 ): Promise<TRemoveAdjustmentState> => {
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
   try {
-    const { id, companyId } = await getAdminUser()
-    if (!companyId) throw new Error(`AdminUser ${id} has no company`)
     await hoursBankModel.removeAdjustment({
       id: formData.get('id') as string,
       companyId

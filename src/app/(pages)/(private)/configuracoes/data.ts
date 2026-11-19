@@ -1,5 +1,8 @@
-import { getAdminUser } from '@/entry/admin-user'
-import type { TAdminUserWithRelations } from '@/infra/database/types'
+import { requireCompany } from '@/entry/session'
+import type { TCompanyWithDeviceCredentials } from '@/infra/database/types'
 
-export const getSettingsPageData = async (): Promise<TAdminUserWithRelations> =>
-  await getAdminUser()
+export const getSettingsPageData =
+  async (): Promise<TCompanyWithDeviceCredentials> => {
+    const { company } = await requireCompany()
+    return company
+  }

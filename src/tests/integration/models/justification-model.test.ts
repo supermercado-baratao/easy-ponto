@@ -16,7 +16,7 @@ import orchestrator from '@/tests/orchestrator'
 const createCompanyWithUser = async (
   deviceUserIndex: number
 ): Promise<{ companyId: string; userId: string }> => {
-  const { id: companyId } = await companyModel.upsert({
+  const { id: companyId } = await companyModel.create({
     name: faker.company.name(),
     address: faker.location.streetAddress(),
     cpf: CPF.fake().value,

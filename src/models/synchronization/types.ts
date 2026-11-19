@@ -19,7 +19,7 @@ export type TSynchronizationCredentials = TDeviceLoginCredentials & {
 }
 
 export type TCompanySynchronizationParams = {
-  adminUserId: string
+  companyId: string
   credentials: TSynchronizationCredentials
 }
 

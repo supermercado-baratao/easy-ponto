@@ -4,7 +4,7 @@ import { refresh } from 'next/cache'
 import { z } from 'zod'
 import { pt } from 'zod/locales'
 
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 import type { TFileSynchronizationParams } from '@/models/synchronization/types'
@@ -38,10 +38,12 @@ export const importFile = async (
   state: TImportFileState,
   formData: FormData
 ): Promise<TImportFileState> => {
+  const {
+    company: { deviceCredentials, ...company }
+  } = await requireCompany()
   try {
-    const { id, company, deviceCredentials } = await getAdminUser()
-    if (!company || !deviceCredentials) {
-      throw new Error(`AdminUser ${id} has no company or device`)
+    if (!deviceCredentials) {
+      throw new Error(`Company ${company.id} has no device`)
     }
     const result = await synchronizationModel.importFile({
       file: formData.get('file') as File,

@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { justificationTypeModel } from '@/models/justification-type/model'
 
 import type {
@@ -15,9 +15,9 @@ export const save = async (
   state: TJustificationTypeFormState,
   formData: FormData
 ): Promise<TJustificationTypeFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TJustificationTypeFormValues
-  formData.set('companyId', adminUser.companyId ?? '')
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = formData.get('id')
     ? await handleFormAction(justificationTypeModel.update, state, formData)
     : await handleFormAction(justificationTypeModel.create, state, formData)

@@ -1,12 +1,12 @@
 import { CNPJ_LENGTH, CPF_LENGTH } from '@/constants/length'
-import type { Company, TInputData } from '@/infra/database/types'
+import type { TCompanyCreateData } from '@/models/company/types'
 import { TDeviceCompany } from '@/models/device/types'
 
 import { normalizeLeftZeros } from './normalize'
 
 export const mapDeviceCompanyToCompany = (
   deviceCompany: TDeviceCompany
-): TInputData<Company> => ({
+): TCompanyCreateData => ({
   address: deviceCompany.address,
   cei: deviceCompany.cei.toString(),
   cpf: normalizeLeftZeros(deviceCompany.cpf, CPF_LENGTH),

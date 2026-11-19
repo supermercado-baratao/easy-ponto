@@ -93,6 +93,7 @@ const calculateRows = async ({
         date: initialDate
       }),
       punchRecordRepository.findMany({
+        companyId,
         initialDate: dayjs(initialDate).startOf('day').toDate(),
         finalDate: dayjs(finalDate).endOf('day').toDate(),
         pisList: users.map(({ pis }) => pis)

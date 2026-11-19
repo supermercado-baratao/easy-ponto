@@ -25,11 +25,14 @@ import {
 type TFormCardProps = {
   title: string
   description: string
+  // A form that is the whole page names it, so its title is the page heading
+  titleAs?: 'h1' | 'span'
 } & ComponentProps<'div'>
 
 export const FormCard = ({
   title,
   description,
+  titleAs: Title = 'span',
   children,
   className,
   ...props
@@ -37,7 +40,9 @@ export const FormCard = ({
   return (
     <Card className={cn('w-full', className)} {...props}>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>
+          <Title>{title}</Title>
+        </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       {children}

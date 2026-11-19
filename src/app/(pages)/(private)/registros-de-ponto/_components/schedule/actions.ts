@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { scheduleModel } from '@/models/schedule/model'
 
 import type { TScheduleFormState, TScheduleFormValues } from './types'
@@ -12,9 +12,9 @@ export const save = async (
   state: TScheduleFormState,
   formData: FormData
 ): Promise<TScheduleFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TScheduleFormValues
-  formData.set('companyId', adminUser.companyId ?? '')
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = await handleFormAction(
     scheduleModel.save,
     state,

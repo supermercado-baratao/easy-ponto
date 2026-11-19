@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 
 import { TDeviceFormState } from './types'
@@ -12,10 +12,10 @@ export const save = async (
   state: TDeviceFormState,
   formData: FormData
 ): Promise<TDeviceFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const ip = formData.get('ip')?.toString()
   const login = formData.get('login')?.toString()
-  formData.set('adminUserId', adminUser.id)
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = await handleFormAction(
     deviceCredentialsModel.upsert,
     state,

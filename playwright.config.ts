@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
+import { ADMIN_STORAGE_STATE } from './src/tests/_utils/e2e-auth'
+
 // Loaded first because a loaded variable is never overwritten: the E2E server and the setup must not
 // touch the development database. The server inherits these variables
 process.loadEnvFile('.env.test')
@@ -30,8 +32,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/
+    },
+    {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
+      use: { ...devices['Desktop Chrome'], storageState: ADMIN_STORAGE_STATE },
+      dependencies: ['setup']
     }
   ]
 })

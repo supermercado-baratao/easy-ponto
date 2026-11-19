@@ -1,23 +1,30 @@
-import type { Company } from '@/infra/database/types'
-import { adminUserModel } from '@/models/admin-user/model'
+import type {
+  Company,
+  TCompanyWithDeviceCredentials
+} from '@/infra/database/types'
 import { companyRepository } from '@/repositories/company-repository'
 
-import { updateSchema, upsertSchema } from './schema'
+import { createSchema, saveSchema, updateSchema } from './schema'
 import {
-  TCompanyUpdateData,
-  TCompanyUpsertData,
-  TCompanyUpsertForAdminUserData
+  TCompanyCreateData,
+  TCompanySaveData,
+  TCompanyUpdateData
 } from './types'
+import { toSlug } from './utils'
 
-const upsert = async (data: TCompanyUpsertData): Promise<Company> =>
-  await companyRepository.upsert(upsertSchema.parse(data))
+const create = async (data: TCompanyCreateData): Promise<Company> => {
+  const company = createSchema.parse(data)
+  return await companyRepository.create({
+    ...company,
+    slug: toSlug(company.name)
+  })
+}
 
-const upsertForAdminUser = async ({
-  adminUserId,
-  ...data
-}: TCompanyUpsertForAdminUserData): Promise<Company> => {
-  const company = await upsert(data)
-  await adminUserModel.update({ id: adminUserId, companyId: company.id })
+const findUniqueById = async (
+  id: string
+): Promise<TCompanyWithDeviceCredentials> => {
+  const company = await companyRepository.findUniqueById(id)
+  if (!company) throw new Error(`Company ${id} not found`)
   return company
 }
 
@@ -28,8 +35,19 @@ const update = async (data: TCompanyUpdateData): Promise<Company> => {
   return result
 }
 
+const save = async (data: TCompanySaveData): Promise<Company> => {
+  const { id, registration = null, ...company } = saveSchema.parse(data)
+  const result = await companyRepository.update(id, {
+    ...company,
+    registration
+  })
+  if (!result) throw new Error(`Company ${id} not found`)
+  return result
+}
+
 export const companyModel = {
-  upsert,
-  upsertForAdminUser,
+  create,
+  findUniqueById,
+  save,
   update
 }

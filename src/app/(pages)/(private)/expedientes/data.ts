@@ -1,5 +1,5 @@
 import { getStatusFromParameter, STATUS_PARAMS } from '@/app/utils/user-status'
-import { getAdminUser } from '@/entry/admin-user'
+import { requireCompany } from '@/entry/session'
 import { wallClockNow } from '@/infra/dayjs'
 import { scheduleModel } from '@/models/schedule/model'
 import { timeSchema } from '@/models/schedule/schema'
@@ -10,7 +10,6 @@ import type { TAgendaFilters, TAgendaRow } from './_components/types'
 import { buildAgendaRow } from './_components/utils'
 
 type TAgendaPageData = {
-  hasCompany: boolean
   rows: TAgendaRow[]
   total: number
   positions: string[]
@@ -23,13 +22,13 @@ export const getAgendaPageData = async (searchParameters: {
   status?: string
   time?: string
 }): Promise<TAgendaPageData> => {
-  const { companyId } = await getAdminUser()
-  const userSchedules = companyId
-    ? await scheduleModel.findManyInEffectByCompanyId({
-        companyId,
-        date: wallClockNow().format('YYYY-MM-DD')
-      })
-    : []
+  const {
+    company: { id: companyId }
+  } = await requireCompany()
+  const userSchedules = await scheduleModel.findManyInEffectByCompanyId({
+    companyId,
+    date: wallClockNow().format('YYYY-MM-DD')
+  })
   const name = searchParameters.name?.trim() ?? ''
   const position = searchParameters.position?.trim() || null
   const status = getStatusFromParameter(searchParameters.status)
@@ -39,7 +38,6 @@ export const getAgendaPageData = async (searchParameters: {
     { name, position: position ?? undefined, status }
   )
   return {
-    hasCompany: !!companyId,
     rows: userSchedules
       .filter(
         ({ user, schedule }) =>

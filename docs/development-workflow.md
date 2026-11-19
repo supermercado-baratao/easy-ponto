@@ -69,7 +69,7 @@ Check locally before committing:
 pnpm type-check && pnpm eslint:check && pnpm prettier:check && pnpm test && pnpm test:integration && pnpm test:e2e
 ```
 
-The private pages need an `AdminUser`: set its `id` in `ADMIN_USER_ID` (see the `README.md`) to check them in the browser.
+The private pages need a signed-in account: on an empty database, `/entrar` leads to `/configuracao-inicial`, which creates the company and its first admin (see the `README.md`).
 
 ## 6. Commit
 

@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { CNPJ } from 'validation-br/cnpj'
+import { verifyPassword } from 'better-auth/crypto'
+import { sql } from 'drizzle-orm'
 import { CPF } from 'validation-br/cpf'
 import {
   afterEach,
@@ -11,7 +12,13 @@ import {
   vi
 } from 'vitest'
 
-import { adminUserModel } from '@/models/admin-user/model'
+import { database } from '@/infra/database/client'
+import { accountModel } from '@/models/account/model'
+import {
+  EMPLOYEE_ROLE,
+  getDefaultPassword,
+  getEmployeeEmail
+} from '@/models/account/utils'
 import { companyModel } from '@/models/company/model'
 import { deviceModel } from '@/models/device/model'
 import { TDeviceUser } from '@/models/device/types'
@@ -35,26 +42,41 @@ import orchestrator from '@/tests/orchestrator'
 
 const [deviceUser] = deviceUsers
 
+const findAccount = async (
+  authUserId: string
+): Promise<{
+  email: string
+  mustChangePassword: boolean
+  password: string
+}> => {
+  const [account] = await database.execute<{
+    email: string
+    mustChangePassword: boolean
+    password: string
+  }>(
+    sql`
+      SELECT auth_users.email, auth_users.must_change_password AS "mustChangePassword",
+        auth_accounts.password
+      FROM auth_users
+      JOIN auth_accounts ON auth_accounts.user_id = auth_users.id
+      WHERE auth_users.id = ${authUserId}
+    `,
+    'objects'
+  )
+  return account
+}
+
 const compareNames = (a: string, b: string): number => a.localeCompare(b)
 
 const populate = async () => {
-  const adminUser = await adminUserModel.create()
+  const company = await companyModel.create(orchestrator.createCompanyData())
   const credentials = await deviceCredentialsModel.upsert({
-    adminUserId: adminUser.id,
+    companyId: company.id,
     ip: faker.internet.ipv4(),
     login: faker.internet.username(),
     password: faker.internet.password()
   })
-  const company = await companyModel.upsert({
-    name: faker.company.name(),
-    address: faker.location.streetAddress(),
-    cpf: CPF.fake().value,
-    tipoDoc: 1,
-    cpfCnpj: CNPJ.fake().value,
-    cei: faker.string.numeric(12),
-    registration: faker.string.numeric(12)
-  })
-  return { adminUser, credentials, company }
+  return { credentials, company }
 }
 
 const synchronize = (
@@ -195,7 +217,6 @@ describe('Synchronization Model', () => {
       const data = await populate()
       const [{ id }] = await synchronize([deviceUser], data)
       const imported = {
-        adminUserId: data.adminUser.id,
         admissionDate: new Date('2026-01-15T00:00:00.000Z'),
         department: 'Financeiro',
         payrollNumber: '42',
@@ -241,6 +262,64 @@ describe('Synchronization Model', () => {
       )
 
       expect(user.cpf).toBe('12345678901')
+    })
+
+    test('Creates the account of an employee with a CPF, with the default password', async () => {
+      const data = await populate()
+      const cpf = CPF.fake().value
+
+      const [user] = await synchronize(
+        [{ ...deviceUser, cpf: Number(cpf) }],
+        data
+      )
+
+      const account = await findAccount(user.authUserId!)
+      expect(account.email).toBe(getEmployeeEmail(cpf))
+      expect(account.mustChangePassword).toBe(true)
+      expect(
+        await verifyPassword({
+          hash: account.password,
+          password: getDefaultPassword(user.name, cpf)
+        })
+      ).toBe(true)
+      const memberships = await accountModel.findMemberships(user.authUserId!)
+      expect(
+        memberships.map(({ organizationId, role }) => [organizationId, role])
+      ).toEqual([[data.company.id, EMPLOYEE_ROLE]])
+    })
+
+    test('Creates no account for an employee without a valid CPF', async () => {
+      const data = await populate()
+
+      const [withoutCpf, withInvalidCpf] = await synchronize(
+        [
+          { ...deviceUser, cpf: undefined },
+          { ...deviceUsers[1], cpf: 11_111_111_111 }
+        ],
+        data
+      )
+
+      expect(withoutCpf.authUserId).toBeNull()
+      expect(withInvalidCpf.authUserId).toBeNull()
+    })
+
+    test('Links the same CPF in two companies to one account', async () => {
+      const data = await populate()
+      const otherData = await populate()
+      const cpf = Number(CPF.fake().value)
+      const [user] = await synchronize([{ ...deviceUser, cpf }], data)
+      const firstAccount = await findAccount(user.authUserId!)
+
+      const [otherUser] = await synchronize([{ ...deviceUser, cpf }], otherData)
+
+      expect(otherUser.authUserId).toBe(user.authUserId)
+      const account = await findAccount(user.authUserId!)
+      expect(account.password).toBe(firstAccount.password)
+      const memberships = await accountModel.findMemberships(user.authUserId!)
+      expect(memberships.map(({ organizationId }) => organizationId)).toEqual([
+        data.company.id,
+        otherData.company.id
+      ])
     })
   })
 

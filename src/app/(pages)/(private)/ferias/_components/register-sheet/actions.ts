@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
-import { getAdminUser } from '@/entry/admin-user'
 import { handleFormAction } from '@/entry/form-action'
+import { requireCompany } from '@/entry/session'
 import { vacationPlanModel } from '@/models/vacation-plan/model'
 
 import type { TRegisterFormState, TRegisterFormValues } from './types'
@@ -12,9 +12,9 @@ export const register = async (
   state: TRegisterFormState,
   formData: FormData
 ): Promise<TRegisterFormState> => {
-  const adminUser = await getAdminUser()
+  const { company } = await requireCompany()
   const values = Object.fromEntries(formData) as TRegisterFormValues
-  formData.set('companyId', adminUser.companyId ?? '')
+  formData.set('companyId', company.id)
   const { success, errors, fatalError } = await handleFormAction(
     vacationPlanModel.registerJustification,
     state,

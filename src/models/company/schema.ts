@@ -11,7 +11,10 @@ const schema = z.object({
   registration: z.string().nullable().optional()
 })
 
-export const upsertSchema = schema.superRefine((data, context) => {
+const refineDocument = (
+  data: { tipoDoc: number; cpfCnpj: string },
+  context: z.RefinementCtx
+): void => {
   if (data.tipoDoc === 0 && !isCPF(data.cpfCnpj)) {
     context.addIssue({
       code: 'invalid_value',
@@ -29,7 +32,13 @@ export const upsertSchema = schema.superRefine((data, context) => {
       message: 'CNPJ inválido'
     })
   }
-})
+}
+
+export const createSchema = schema.superRefine(refineDocument)
+
+export const saveSchema = schema
+  .extend({ id: z.uuid() })
+  .superRefine(refineDocument)
 
 export const updateSchema = schema
   .partial()

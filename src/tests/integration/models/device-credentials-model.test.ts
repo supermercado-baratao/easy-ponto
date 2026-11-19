@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { ZodError } from 'zod'
 
-import { adminUserModel } from '@/models/admin-user/model'
+import { companyModel } from '@/models/company/model'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import orchestrator from '@/tests/orchestrator'
 
@@ -22,28 +22,32 @@ const createCredentials = () => ({
 
 describe('Device Credentials Model', () => {
   describe('upsert', () => {
-    test('Links the new credentials to the admin user', async () => {
-      const { id: adminUserId } = await adminUserModel.create()
+    test('Links the new credentials to the company', async () => {
+      const { id: companyId } = await companyModel.create(
+        orchestrator.createCompanyData()
+      )
 
       const credentials = await deviceCredentialsModel.upsert({
-        adminUserId,
+        companyId,
         ...createCredentials()
       })
 
-      const adminUser = await adminUserModel.findUniqueById(adminUserId)
-      expect(adminUser.deviceCredentialsId).toBe(credentials.id)
+      const company = await companyModel.findUniqueById(companyId)
+      expect(company.deviceCredentialsId).toBe(credentials.id)
     })
 
-    test('Updates the credentials the admin user already has', async () => {
-      const { id: adminUserId } = await adminUserModel.create()
+    test('Updates the credentials the company already has', async () => {
+      const { id: companyId } = await companyModel.create(
+        orchestrator.createCompanyData()
+      )
       const saved = await deviceCredentialsModel.upsert({
-        adminUserId,
+        companyId,
         ...createCredentials()
       })
       const changes = createCredentials()
 
       const updated = await deviceCredentialsModel.upsert({
-        adminUserId,
+        companyId,
         ...changes
       })
 
@@ -51,15 +55,17 @@ describe('Device Credentials Model', () => {
     })
 
     test('Keeps the saved password when none is sent', async () => {
-      const { id: adminUserId } = await adminUserModel.create()
+      const { id: companyId } = await companyModel.create(
+        orchestrator.createCompanyData()
+      )
       const saved = await deviceCredentialsModel.upsert({
-        adminUserId,
+        companyId,
         ...createCredentials()
       })
       const { ip, login } = createCredentials()
 
       const updated = await deviceCredentialsModel.upsert({
-        adminUserId,
+        companyId,
         ip,
         login,
         password: ''
@@ -69,11 +75,13 @@ describe('Device Credentials Model', () => {
     })
 
     test('Requires a password when there are no saved credentials', async () => {
-      const { id: adminUserId } = await adminUserModel.create()
+      const { id: companyId } = await companyModel.create(
+        orchestrator.createCompanyData()
+      )
       const { ip, login } = createCredentials()
 
       await expect(
-        deviceCredentialsModel.upsert({ adminUserId, ip, login, password: '' })
+        deviceCredentialsModel.upsert({ companyId, ip, login, password: '' })
       ).rejects.toThrow(ZodError)
     })
   })
