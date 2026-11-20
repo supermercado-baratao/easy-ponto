@@ -1,3 +1,4 @@
+import { cn } from 'cn'
 import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -26,6 +27,11 @@ import { minutesToTime } from '@/models/schedule/utils'
 
 // Four punches (two entries and two exits) are the usual day, so the columns never shrink below it
 const MIN_PUNCH_COLUMNS = 4
+
+// The date stays on screen while the other columns scroll on phones (#90). The row's hover color is
+// layered as an image, since the cell needs an opaque background to hide what scrolls under it
+const STICKY_COLUMN_CLASS_NAME =
+  'sticky left-0 z-10 bg-background shadow-[inset_-1px_0_0_var(--color-border)] in-[tr:is(:hover,:has([aria-expanded=true]))]:bg-linear-to-r in-[tr:is(:hover,:has([aria-expanded=true]))]:from-muted/50 in-[tr:is(:hover,:has([aria-expanded=true]))]:to-muted/50'
 
 const PunchRecordCell = ({ record }: { record?: PunchRecord }) => {
   if (!record) return <TableCell />
@@ -162,12 +168,20 @@ export const PunchRecordsTable = ({
     punchRecords.some(({ nsr }) => nsr === null)
   )
   const hasOddPunchDays = days.some(({ journey }) => journey.hasOddPunches)
+  const name = labelledBy
+    ? { 'aria-labelledby': labelledBy }
+    : { 'aria-label': 'Registros de ponto' }
 
   return (
     <Table
-      {...(labelledBy
-        ? { 'aria-labelledby': labelledBy }
-        : { 'aria-label': 'Registros de ponto' })}
+      {...name}
+      containerProps={{
+        ...name,
+        role: 'region',
+        tabIndex: 0,
+        className:
+          'rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
+      }}
     >
       {(hasManualRecords || hasOddPunchDays) && (
         <TableCaption className="text-left">
@@ -187,7 +201,7 @@ export const PunchRecordsTable = ({
       )}
       <TableHeader>
         <TableRow>
-          <TableHead>Data</TableHead>
+          <TableHead className={STICKY_COLUMN_CLASS_NAME}>Data</TableHead>
           <TableHead>Dia</TableHead>
           {Array.from({ length: columns }, (_, index) => (
             <TableHead key={index}>{`Batida ${index + 1}`}</TableHead>
@@ -213,7 +227,12 @@ export const PunchRecordsTable = ({
           )
           return (
             <TableRow key={date}>
-              <TableCell className="font-mono tabular-nums">
+              <TableCell
+                className={cn(
+                  'font-mono tabular-nums',
+                  STICKY_COLUMN_CLASS_NAME
+                )}
+              >
                 {day.format('DD/MM/YYYY')}
               </TableCell>
               <TableCell className="capitalize">{day.format('ddd')}</TableCell>

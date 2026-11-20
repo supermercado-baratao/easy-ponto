@@ -1,8 +1,18 @@
 import { cn } from 'cn'
 import * as React from 'react'
 
-const Table = ({ className, ...props }: React.ComponentProps<'table'>) => (
-  <div data-slot="table-container" className="relative w-full overflow-x-auto">
+const Table = ({
+  className,
+  containerProps,
+  ...props
+}: React.ComponentProps<'table'> & {
+  containerProps?: React.ComponentProps<'div'>
+}) => (
+  <div
+    data-slot="table-container"
+    {...containerProps}
+    className={cn('relative w-full overflow-x-auto', containerProps?.className)}
+  >
     <table
       data-slot="table"
       className={cn('w-full caption-bottom text-sm', className)}

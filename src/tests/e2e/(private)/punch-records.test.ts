@@ -133,6 +133,20 @@ test.describe('Punch Records Page', () => {
     }
   })
 
+  test('Lets the keyboard reach the scroll area of the records', async ({
+    page
+  }) => {
+    await page.goto(getHref(users[0].pis))
+    const region = page.getByRole('region', { name: 'Registros de ponto' })
+
+    await expect(region).toHaveAttribute('tabindex', '0')
+    await region.focus()
+    await expect(region).toBeFocused()
+    await expect(
+      region.getByRole('table', { name: 'Registros de ponto' })
+    ).toBeVisible()
+  })
+
   test('Marks the punch records added by hand', async ({ page }) => {
     await page.goto(getHref(users[0].pis))
 
