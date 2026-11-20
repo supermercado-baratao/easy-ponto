@@ -53,10 +53,8 @@ const EmployeeHome = async ({ searchParams }: PageProps<'/meu-ponto'>) => {
           <>
             <MonthNavigation month={month} path={EMPLOYEE_HOME_PATH} />
             <MonthTotals totals={journey.totals} />
-            <section
-              aria-labelledby="month-records-title"
-              className="flex flex-col gap-3"
-            >
+            {/* The table's scroll area is already the region named by the heading */}
+            <section className="flex flex-col gap-3">
               <h3 id="month-records-title" className="text-base font-medium">
                 Registros do mês
               </h3>

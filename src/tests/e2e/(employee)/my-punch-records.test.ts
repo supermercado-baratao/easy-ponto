@@ -87,6 +87,20 @@ test.describe('Employee area', () => {
     await expect(firstRow).not.toContainText('09:15')
   })
 
+  test('Lets the keyboard reach the scroll area of the records', async ({
+    page
+  }) => {
+    await signIn(page)
+    const region = page.getByRole('region', { name: 'Registros do mês' })
+
+    await expect(region).toHaveAttribute('tabindex', '0')
+    await region.focus()
+    await expect(region).toBeFocused()
+    await expect(
+      region.getByRole('table', { name: 'Registros do mês' })
+    ).toBeVisible()
+  })
+
   test('Navigates to the previous month', async ({ page }) => {
     await signIn(page)
     await page.getByRole('link', { name: 'Mês anterior' }).click()
