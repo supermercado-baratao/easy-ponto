@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import type { PunchRecord } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 
-import { groupByDay, resolvePeriod } from './utils'
+import { getMonthPeriod, groupByDay, resolvePeriod } from './utils'
 
 const now = dayjs('2026-03-15T10:00:00Z')
 
@@ -69,5 +69,14 @@ describe('groupByDay', () => {
       '2026-02-28',
       '2026-03-01'
     ])
+  })
+})
+
+describe('getMonthPeriod', () => {
+  test('Covers the whole month, including the last day of a leap February', () => {
+    expect(getMonthPeriod('2028-02')).toEqual({
+      initialDate: '2028-02-01',
+      finalDate: '2028-02-29'
+    })
   })
 })

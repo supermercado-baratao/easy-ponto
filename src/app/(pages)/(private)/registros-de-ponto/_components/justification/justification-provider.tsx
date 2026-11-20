@@ -30,6 +30,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/app/components/ui/shadcn/sheet'
+import { getJustificationLabel } from '@/app/utils/justification'
 import type {
   JustificationType,
   TJustificationWithType,
@@ -39,11 +40,7 @@ import type {
 import { removeJustification } from './actions'
 import { JustificationForm } from './justification-form'
 import type { TRemoveJustificationState } from './types'
-import {
-  getDayActionsId,
-  getJustificationFormValues,
-  getJustificationLabel
-} from './utils'
+import { getDayActionsId, getJustificationFormValues } from './utils'
 
 type TTarget = { date: string; justification?: TJustificationWithType }
 

@@ -8,8 +8,10 @@ import { TIME_PAIRS } from '@/models/schedule/utils'
 
 import type {
   TJourney,
+  TJourneyDay,
   TJourneyDayInput,
   TJourneyPair,
+  TJourneyTotals,
   TScheduleAlert,
   TScheduleDaySummary
 } from './types'
@@ -166,6 +168,32 @@ export const calculateDay = ({
     lateness: Math.max(0, -balance),
     overtime60: Math.max(0, balance)
   }
+}
+
+export const isCalculated = ({ kind }: Pick<TJourney, 'kind'>): boolean =>
+  kind !== 'no-schedule' && kind !== 'future'
+
+export const sumDays = (days: TJourneyDay[]): TJourneyTotals => {
+  const totals: TJourneyTotals = {
+    expected: 0,
+    worked: 0,
+    absence: 0,
+    lateness: 0,
+    dayOff: 0,
+    overtime60: 0,
+    overtime100: 0
+  }
+  for (const { journey } of days) {
+    if (!isCalculated(journey)) continue
+    totals.expected += journey.expected
+    totals.worked += journey.worked
+    totals.absence += journey.absence
+    totals.lateness += journey.lateness
+    totals.dayOff += journey.dayOff
+    totals.overtime60 += journey.overtime60
+    totals.overtime100 += journey.overtime100
+  }
+  return totals
 }
 
 export const summarizeScheduleDay = (

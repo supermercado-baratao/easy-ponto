@@ -17,7 +17,7 @@ import {
   TPunchRecordFindManyParams,
   TPunchRecordUpdateData
 } from './types'
-import { groupByDay, resolvePeriod } from './utils'
+import { getMonthPeriod, groupByDay, resolvePeriod } from './utils'
 
 const getRecordKey = ({
   companyId,
@@ -123,6 +123,7 @@ export const punchRecordModel = {
   createManyExistentsInAfd,
   findMany,
   findManyByDay,
+  getMonthPeriod,
   resolvePeriod,
   update,
   updateMany,

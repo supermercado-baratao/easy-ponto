@@ -4,7 +4,10 @@ import type {
   TJustificationWithType,
   TScheduleWithDays
 } from '@/infra/database/types'
-import type { TPunchRecordDay } from '@/models/punch-record/types'
+import type {
+  TPunchRecordDay,
+  TPunchRecordPeriod
+} from '@/models/punch-record/types'
 
 export type TJourneyPair = {
   entry: number
@@ -38,6 +41,17 @@ export type TJourney = {
   overtime100: number
 }
 
+export type TJourneyTotals = Pick<
+  TJourney,
+  | 'expected'
+  | 'worked'
+  | 'absence'
+  | 'lateness'
+  | 'dayOff'
+  | 'overtime60'
+  | 'overtime100'
+>
+
 export type TJourneyDayInput = {
   date: string
   punchRecords: PunchRecord[]
@@ -55,4 +69,15 @@ export type TJourneyCalculateDaysParams = {
   holidays: Holiday[]
   justifications: TJustificationWithType[]
   today?: string
+}
+
+export type TJourneyFindUserDaysParams = TPunchRecordPeriod & {
+  companyId: string
+  user: { id: string; pis: string }
+}
+
+export type TJourneyUserDays = {
+  days: TJourneyDay[]
+  schedules: TScheduleWithDays[]
+  justifications: TJustificationWithType[]
 }

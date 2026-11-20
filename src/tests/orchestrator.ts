@@ -128,7 +128,7 @@ const createMember = async ({
   name: string
   email: string
   password: string
-}) => {
+}): Promise<string> => {
   const [user] = await database
     .insert(authUsers)
     .values({ name, email })
@@ -142,6 +142,7 @@ const createMember = async ({
   await database
     .insert(members)
     .values({ organizationId: companyId, userId: user.id, role })
+  return user.id
 }
 
 const orchestrator = {

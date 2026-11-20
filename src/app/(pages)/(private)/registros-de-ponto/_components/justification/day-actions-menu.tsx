@@ -13,15 +13,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/app/components/ui/shadcn/dropdown-menu'
+import {
+  getJustificationLabel,
+  getJustificationShortLabel
+} from '@/app/utils/justification'
 import type { TJustificationWithType } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 
 import { useJustificationActions } from './justification-provider'
-import {
-  getDayActionsId,
-  getJustificationLabel,
-  getJustificationShortLabel
-} from './utils'
+import { getDayActionsId } from './utils'
 
 export const DayActionsMenu = ({
   date,

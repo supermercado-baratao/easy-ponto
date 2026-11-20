@@ -45,3 +45,11 @@ export const groupByDay = (
   }
   return days
 }
+
+export const getMonthPeriod = (month: string): TPunchRecordPeriod => {
+  const firstDay = dayjs(`${month}-01`)
+  return {
+    initialDate: firstDay.format(DATE_FORMAT),
+    finalDate: firstDay.endOf('month').format(DATE_FORMAT)
+  }
+}

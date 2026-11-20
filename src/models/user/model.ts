@@ -11,6 +11,11 @@ const createMany = async (data: TInputData<User>[]): Promise<void> => {
 const findManyByCompanyId = async (companyId: string): Promise<User[]> =>
   await userRepository.findManyByCompanyId(companyId)
 
+const findByAuthUserId = async (params: {
+  companyId: string
+  authUserId: string
+}): Promise<User | null> => await userRepository.findUniqueByAuthUserId(params)
+
 const updateMany = async (
   data: (Partial<TInputData<User>> & { id: string })[]
 ): Promise<void> => {
@@ -30,6 +35,7 @@ const update = async (data: TUserUpdateData): Promise<User> => {
 
 export const userModel = {
   createMany,
+  findByAuthUserId,
   findManyByCompanyId,
   update,
   updateMany
