@@ -3,19 +3,24 @@
 import { isPIS } from 'validation-br'
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import type { Company, PunchRecord, User } from '@/infra/database/types'
+import type {
+  Company,
+  DeviceCredentials,
+  PunchRecord,
+  User
+} from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
+import { normalizePis } from '@/infra/normalize'
 import { companyModel } from '@/models/company/model'
+import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { punchRecordModel } from '@/models/punch-record/model'
-import { normalizePis } from '@/models/synchronization/_utils/normalize'
 import { synchronizationModel } from '@/models/synchronization/model'
-import { TSynchronizationCredentials } from '@/models/synchronization/types'
 import { userModel } from '@/models/user/model'
 import orchestrator from '@/tests/orchestrator'
 
 let companyId: string
-let credentials: TSynchronizationCredentials
+let credentials: DeviceCredentials
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices()
@@ -24,6 +29,7 @@ beforeAll(async () => {
     orchestrator.createCompanyData()
   ))
   credentials = await deviceCredentialsModel.upsert({
+    model: DEFAULT_DEVICE_MODEL,
     ip: process.env.DEVICE_IP!,
     login: process.env.DEVICE_LOGIN!,
     password: process.env.DEVICE_PASSWORD!,

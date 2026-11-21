@@ -5,15 +5,17 @@ import { faker } from '@faker-js/faker'
 import ora from 'ora'
 
 import { PIS_LENGTH } from '@/constants/length'
-import { createDeviceApiInstance } from '@/models/device/device-api'
-import { deviceModel } from '@/models/device/model'
+import {
+  controlIdApi,
+  createApiInstance
+} from '@/models/device/adapters/control-id/api'
+import { mapControlIdUser } from '@/models/device/adapters/control-id/mappers'
 import { parseAfd } from '@/models/synchronization/_utils/afd'
-import { normalizeLeftZeros } from '@/models/synchronization/_utils/normalize'
 import { execAsync } from '@/tests/_utils/exec-async'
 
 process.loadEnvFile('.env.local')
 
-const api = createDeviceApiInstance(process.env.DEVICE_IP as string)
+const api = createApiInstance(process.env.DEVICE_IP as string)
 
 const basePath = path.join(import.meta.dirname, '..')
 
@@ -28,7 +30,7 @@ const saveFile = async (file: string, data: any): Promise<void> => {
 const spinner = ora('Acessando o relógio de ponto').start()
 
 try {
-  const session = await deviceModel.login(api, {
+  const session = await controlIdApi.login(api, {
     login: process.env.DEVICE_LOGIN as string,
     password: process.env.DEVICE_PASSWORD as string
   })
@@ -42,7 +44,7 @@ try {
   spinner.text = 'Buscando dados no relógio de ponto'
 
   const [deviceAfd, deviceUsers] = await Promise.all([
-    deviceModel.getAfd(api, {
+    controlIdApi.getAfd(api, {
       session,
       initialDate: {
         day,
@@ -50,7 +52,7 @@ try {
         year: month === 1 ? year - 1 : year
       }
     }),
-    deviceModel.loadUsers(api, session)
+    controlIdApi.loadUsers(api, session)
   ])
 
   spinner.text = 'Gerando dados falsos'
@@ -60,27 +62,28 @@ try {
     .filter((line) => line.length === 39)
     .join('\n')
 
-  const users = deviceUsers.map((user) => {
-    const fakePis = faker.string.numeric({
-      length: PIS_LENGTH
+  // The mocks hold the normalized users, as every device adapter returns them
+  const users = deviceUsers
+    .map((user) => mapControlIdUser(user))
+    .map((user) => {
+      const fakePis = faker.string.numeric({
+        length: PIS_LENGTH
+      })
+
+      const fakeName = faker.person.fullName()
+      afd = afd
+        .replaceAll(user.pis, () => fakePis)
+        .replaceAll(user.name, () => fakeName)
+
+      return {
+        ...user,
+        pis: fakePis,
+        name: fakeName
+      }
     })
 
-    const fakeName = faker.person.fullName()
-    afd = afd
-      .replaceAll(normalizeLeftZeros(user.pis, PIS_LENGTH), () => fakePis)
-      .replaceAll(user.name, () => fakeName)
-
-    return {
-      ...user,
-      pis: Number(fakePis),
-      name: fakeName
-    }
-  })
-
   const parsedAfd = parseAfd(afd).filter((record) =>
-    users.some(
-      (user) => normalizeLeftZeros(user.pis, PIS_LENGTH) === record.pis
-    )
+    users.some((user) => user.pis === record.pis)
   )
 
   spinner.text = 'Salvando dados'
@@ -89,7 +92,7 @@ try {
   await saveFile(
     'device-users.ts',
     `
-    import { TDeviceUser } from '@/models/device/types'
+    import type { TDeviceUser } from '@/models/device/types'
 
     export const deviceUsers: TDeviceUser[] = ${JSON.stringify(users, null, 2)}
   `

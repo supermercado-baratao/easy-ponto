@@ -40,6 +40,16 @@ test.describe('Settings', () => {
     await expect(form.getByLabel('Senha')).toHaveValue('')
   })
 
+  test('Shows the model of the saved device', async ({ page }) => {
+    await page.goto('/configuracoes')
+
+    await expect(
+      page.locator('#device-form').getByRole('combobox', {
+        name: 'Modelo do relógio'
+      })
+    ).toContainText('Control iD iDClass')
+  })
+
   test('Opens the file picker of the import from the keyboard', async ({
     page
   }) => {

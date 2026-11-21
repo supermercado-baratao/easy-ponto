@@ -20,12 +20,12 @@ O `pnpm dev` sobe o Postgres, roda as migrations e inicia o servidor em [http://
 O login usa o [better-auth](https://www.better-auth.com/), e cada conta pertence a uma ou mais empresas. Não há cadastro público:
 
 1. Com o `pnpm dev` rodando, abra [http://localhost:3000/entrar](http://localhost:3000/entrar). Enquanto não existe nenhuma conta, o app leva para `/configuracao-inicial`, onde você cadastra a empresa e a conta de quem a administra (e-mail e senha).
-2. Em `/configuracoes`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa.
+2. Em `/configuracoes`, escolha o modelo do relógio de ponto, cadastre o IP, o login e a senha e importe a empresa.
 3. Ao sincronizar, cada funcionário com um CPF válido ganha uma conta. Ele entra pela aba CPF de `/entrar` com a senha padrão: os cinco primeiros dígitos do CPF seguidos do último nome, em minúsculas e sem acentos (`Maria Aparecida Souza`, CPF `123.456.789-10` → `12345souza`). No primeiro acesso, o app pede uma senha nova. Se o funcionário esquecer a senha, o administrador a redefine para a senha padrão em `/funcionarios`.
 
 Cada conta tem um papel na empresa: o proprietário e o administrador editam tudo, o visualizador consulta todas as páginas sem editar nada e o funcionário só acessa `/meu-ponto`, onde consulta, sem editar, os próprios registros de ponto e a jornada de cada dia do mês, com os totais do mês. Em `/membros`, o proprietário e o administrador dão acesso a outras pessoas com uma senha temporária, que precisa ser trocada no primeiro acesso: o administrador gerencia os visualizadores, e só o proprietário gerencia os administradores e transfere a propriedade. Os funcionários são geridos em `/funcionarios`.
 
-O servidor lê a empresa ativa e as credenciais do relógio pela sessão, e a senha do relógio nunca vai para o navegador. O `.env.development` já traz um `BETTER_AUTH_SECRET` local. Como a migração deste login exige um banco vazio, recrie o banco de desenvolvimento (`pnpm services:down` e `pnpm dev`) se ele for de uma versão anterior.
+O servidor lê a empresa ativa e as credenciais do relógio pela sessão, e a senha do relógio nunca vai para o navegador. O `.env.development` já traz um `BETTER_AUTH_SECRET` local. Como a migração deste login exige um banco vazio, recrie o banco de desenvolvimento (`docker compose -f src/infra/compose.yml down -v` e `pnpm dev`) se ele for de uma versão anterior.
 
 ### Relógio de ponto
 
@@ -62,7 +62,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 ### Arquitetura
 
 - O código do servidor é dividido em camadas, e os imports só descem: `app` → `entry` → `models` → `repositories` → `infra`, com `constants` disponível para todas, sem importar nenhuma delas. O ESLint garante essa direção, e só os repositories acessam o cliente do banco.
-- `models/` guarda as regras de negócio de cada domínio (inclusive a comunicação com o relógio de ponto, em `models/device`), `repositories/` as queries, `entry/` a adaptação das Server Actions aos models e `infra/` a base técnica (banco, datas e erros).
+- `models/` guarda as regras de negócio de cada domínio (inclusive a comunicação com o relógio de ponto, em `models/device`, com um adaptador para cada modelo de relógio), `repositories/` as queries, `entry/` a adaptação das Server Actions aos models e `infra/` a base técnica (banco, datas e erros).
 - O `synchronizationModel` reúne as sincronizações: empresa, funcionários (pelo PIS), batidas do AFD (ignorando os NSRs já salvos) e a importação do relatório do Secullum para a migração (funcionários pelo nome, as batidas marcadas com `*`, que não estão no AFD, as escalas, a partir do primeiro dia do período do relatório, e as justificativas), gravando tudo numa única transação.
 - As justificativas do relatório do Secullum são lidas pelos códigos nas células de batida. Um código em todos os pares da escala do dia cobre o dia inteiro, e os dias seguidos com o mesmo código viram um único intervalo. Um código em só alguns pares cobre aquele turno, com o horário do par na escala. `Folga` (descanso da escala), `Feriado` e `Falta` são ignorados, diferenciando maiúsculas: `FOLGA` é a folga descontada do banco de horas. Quando um código não tem um tipo cadastrado com o mesmo código, a importação pergunta, antes de gravar, se ele vira um tipo novo ou corresponde a um tipo já cadastrado. A escolha vale só para aquela importação. Uma justificativa que se sobrepõe a outra já cadastrada é ignorada e, se não for a mesma, contada no aviso do fim da importação.
 - Uma escrita que precisa participar de uma transação maior recebe o `tx` opcional e roda com `runInTransaction` (`src/infra/database/client.ts`), porque uma transação não abre outra.

@@ -10,9 +10,8 @@ import type {
 import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
 import { updateSchema as companyUpdateSchema } from '@/models/company/schema'
-import { createDeviceApiInstance } from '@/models/device/device-api'
 import { deviceModel } from '@/models/device/model'
-import { TDeviceUser } from '@/models/device/types'
+import type { TDeviceAdapter, TDeviceUser } from '@/models/device/types'
 import { hoursBankModel } from '@/models/hours-bank/model'
 import { createSchema as justificationCreateSchema } from '@/models/justification/schema'
 import { findOverlappingJustification } from '@/models/justification/utils'
@@ -28,7 +27,6 @@ import {
   mapParsedAfdToPunchRecordCreateMany,
   parseAfd
 } from './_utils/afd'
-import { mapDeviceCompanyToCompany } from './_utils/company'
 import {
   extractDataFromJson,
   extractPeriod,
@@ -42,7 +40,6 @@ import {
   getInitialBalancesToSave
 } from './_utils/hours-bank'
 import { extractJustificationsFromJson } from './_utils/justification'
-import { getSession } from './_utils/session'
 import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
 import { importFileSchema } from './schema'
 import {
@@ -59,22 +56,19 @@ const synchronizeCompany = async ({
   companyId,
   credentials
 }: TCompanySynchronizationParams): Promise<Company> => {
-  const api = createDeviceApiInstance(credentials.ip)
-  const session = await getSession(api, credentials)
-  const deviceCompany = await deviceModel.loadCompany(api, session)
+  const deviceCompany = await deviceModel.connect(credentials).loadCompany()
   return await companyModel.save({
-    ...mapDeviceCompanyToCompany(deviceCompany),
+    ...deviceCompany,
+    registration: null,
     id: companyId
   })
 }
 
-const synchronizeUsers = async ({
-  companyId,
-  credentials
-}: TUserSynchronizationParams): Promise<User[]> => {
-  const api = createDeviceApiInstance(credentials.ip)
-  const session = await getSession(api, credentials)
-  const deviceUsers = await deviceModel.loadUsers(api, session)
+const saveDeviceUsers = async (
+  device: TDeviceAdapter,
+  companyId: string
+): Promise<User[]> => {
+  const deviceUsers = await device.loadUsers()
   const foundUsers = await userModel.findManyByCompanyId(companyId)
 
   const deviceUsersToCreate: TDeviceUser[] = []
@@ -106,19 +100,22 @@ const synchronizeUsers = async ({
   return await userModel.findManyByCompanyId(companyId)
 }
 
+const synchronizeUsers = async ({
+  companyId,
+  credentials
+}: TUserSynchronizationParams): Promise<User[]> =>
+  await saveDeviceUsers(deviceModel.connect(credentials), companyId)
+
 const synchronizeAfd = async ({
   params,
   credentials,
   companyId
 }: TAfdSynchronizationParams): Promise<void> => {
-  const api = createDeviceApiInstance(credentials.ip)
-  const session = await getSession(api, credentials)
+  // One adapter for both calls, so they share a single session on the device
+  const device = deviceModel.connect(credentials)
   const [users, afd] = await Promise.all([
-    synchronizeUsers({ companyId, credentials }),
-    deviceModel.getAfd(api, {
-      session,
-      ...params
-    })
+    saveDeviceUsers(device, companyId),
+    device.loadAfd(params)
   ])
   const parsedAfd = filterExistingDeviceUsersInTheParsedAfd(
     parseAfd(afd),

@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "2c44889c-e77d-44df-b51d-31836cdb5f72",
+  "prevIds": [
+    "bfc5bc62-8205-459c-a300-464cb0203429"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "devices_credentials",
+        "model"
+      ],
+      "writes": [
+        "s|col|public.devices_credentials.model",
+        "n|col|public.devices_credentials.model",
+        "e|col|public.devices_credentials.model"
+      ],
+      "reads": [
+        "n|tbl|public.devices_credentials",
+        "n|sch|public"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "devices_credentials",
+        "name": "model",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'control-id-idclass'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

@@ -15,33 +15,33 @@ import {
 import { database } from '@/infra/database/client'
 import { punchRecords } from '@/infra/database/schema'
 import { companyModel } from '@/models/company/model'
-import { deviceModel } from '@/models/device/model'
-import { TDeviceUser } from '@/models/device/types'
+import type { TDeviceUser } from '@/models/device/types'
+import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { synchronizationModel } from '@/models/synchronization/model'
 import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
 import { parsedAfd } from '@/tests/_mocks/parsed-afd'
+import { mockDeviceAdapter } from '@/tests/_utils/device-adapter'
 import orchestrator from '@/tests/orchestrator'
 
 // A little over a year for 60 employees, with 4 punches a day from Monday to Saturday
 const YEAR_OF_RECORDS = 80_000
 const EMPLOYEES = deviceUsers.slice(0, 37)
 
-const toPis = ({ pis }: TDeviceUser): string => pis.toString().padStart(12, '0')
-
 const createAfd = (total: number): string =>
   Array.from({ length: total }, (_, index) => {
     const nsr = (index + 1).toString().padStart(9, '0')
     const day = ((index % 28) + 1).toString().padStart(2, '0')
-    const pis = toPis(EMPLOYEES[index % EMPLOYEES.length])
+    const { pis } = EMPLOYEES[index % EMPLOYEES.length]
     return `${nsr}3${day}0120260800${pis}abcd\r`
   }).join('\n')
 
 const populate = async () => {
   const company = await companyModel.create(orchestrator.createCompanyData())
   const credentials = await deviceCredentialsModel.upsert({
+    model: DEFAULT_DEVICE_MODEL,
     companyId: company.id,
     ip: faker.internet.ipv4(),
     login: faker.internet.username(),
@@ -55,8 +55,10 @@ const synchronize = (
   data: Awaited<ReturnType<typeof populate>>,
   users: TDeviceUser[] = EMPLOYEES
 ) => {
-  vi.spyOn(deviceModel, 'loadUsers').mockResolvedValue(users)
-  vi.spyOn(deviceModel, 'getAfd').mockResolvedValue(afd)
+  mockDeviceAdapter({
+    loadUsers: async () => users,
+    loadAfd: async () => afd
+  })
   return synchronizationModel.synchronizeAfd({
     ...data,
     params: {}
@@ -72,8 +74,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await orchestrator.clearDatabase()
-  vi.spyOn(deviceModel, 'login').mockResolvedValue('session')
-  vi.spyOn(deviceModel, 'sessionIsValid').mockResolvedValue(true)
 })
 
 afterEach(() => {
@@ -153,7 +153,7 @@ describe('Punch record volume', () => {
     test('Saves nothing when a batch fails', async () => {
       const data = await populate()
       await synchronize('', data)
-      const pis = toPis(EMPLOYEES[0])
+      const pis = EMPLOYEES[0].pis
       const datetime = new Date('2026-01-01T08:00:00.000Z')
       const createRecord = (nsr: number, record = pis) => ({
         companyId: data.companyId,
@@ -185,7 +185,7 @@ describe('Punch record volume', () => {
       await synchronize('', data)
       const records = Array.from({ length: 20_000 }, (_, index) => ({
         companyId: data.companyId,
-        pis: toPis(EMPLOYEES[index % EMPLOYEES.length]),
+        pis: EMPLOYEES[index % EMPLOYEES.length].pis,
         datetime: new Date(Date.UTC(2026, 0, 1, 8, index))
       }))
 
