@@ -22,7 +22,7 @@ export type THoursBankOrder = (typeof HOURS_BANK_ORDERS)[number]
 export type THoursBankTotals = {
   absence: number
   lateness: number
-  dayOff: number
+  compensation: number
   overtime60: number
   overtime100: number
   adjustment: number

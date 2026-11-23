@@ -65,7 +65,7 @@ describe('extractHoursBankFromJson', () => {
         overtime60: 4998,
         overtime100: 820,
         adjustment: -180,
-        dayOff: 0
+        justificationMinutes: {}
       },
       {
         userName: 'João Teste',
@@ -73,12 +73,12 @@ describe('extractHoursBankFromJson', () => {
         overtime60: 0,
         overtime100: 0,
         adjustment: 0,
-        dayOff: 0
+        justificationMinutes: {}
       }
     ])
   })
 
-  test('Deducts a whole day for a day off and part of it for half a day off', async () => {
+  test('Counts a whole workday for a code in two pairs and half a day for a code in one', async () => {
     const balance = await extractDays([
       createDayRow('23/10/25 - qui', {
         'Ent. 1': 'FOLGA',
@@ -91,10 +91,35 @@ describe('extractHoursBankFromJson', () => {
         'Saí. 1': '11:05',
         'Ent. 2': 'FOLGA',
         'Saí. 2': 'FOLGA'
+      }),
+      createDayRow('25/10/25 - sáb', {
+        'Ent. 1': 'ATESTADO',
+        'Saí. 1': 'ATESTADO',
+        'Ent. 2': 'ATESTADO',
+        'Saí. 2': 'ATESTADO'
       })
     ])
 
-    expect(balance.dayOff).toBe(640)
+    expect(balance.justificationMinutes).toEqual({ FOLGA: 640, ATESTADO: 440 })
+  })
+
+  test('Ignores the weekly rest and the unjustified absences', async () => {
+    const balance = await extractDays([
+      createDayRow('26/10/25 - dom', {
+        'Ent. 1': 'Folga',
+        'Saí. 1': 'Folga',
+        'Ent. 2': 'Folga',
+        'Saí. 2': 'Folga'
+      }),
+      createDayRow('27/10/25 - seg', {
+        'Ent. 1': 'Falta',
+        'Saí. 1': 'Falta',
+        'Ent. 2': 'Falta',
+        'Saí. 2': 'Falta'
+      })
+    ])
+
+    expect(balance.justificationMinutes).toEqual({})
   })
 
   test('Credits the rest of the workday for a worked holiday', async () => {
@@ -116,7 +141,7 @@ describe('extractHoursBankFromJson', () => {
     expect(balance.adjustment).toBe(246)
   })
 
-  test('Ignores the holidays and the days off on a holiday that were not worked', async () => {
+  test('Ignores the holidays not worked and the codes on them', async () => {
     const balance = await extractDays([
       createDayRow('12/10/25 - feri', {
         'Ent. 1': 'Feriado',
@@ -131,7 +156,7 @@ describe('extractHoursBankFromJson', () => {
       })
     ])
 
-    expect(balance).toMatchObject({ adjustment: 0, dayOff: 0 })
+    expect(balance).toMatchObject({ adjustment: 0, justificationMinutes: {} })
   })
 
   test('Throws InvalidExcelFileError when a total column is missing', async () => {

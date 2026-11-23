@@ -4,6 +4,7 @@ import { isCPF } from 'validation-br'
 import type { Company, TMemberWithCompany } from '@/infra/database/types'
 import { NotFoundError, ValidationError } from '@/infra/errors'
 import { toSlug } from '@/models/company/utils'
+import { DEFAULT_JUSTIFICATION_TYPES } from '@/models/justification-type/utils'
 import { accountRepository } from '@/repositories/account-repository'
 import { userRepository } from '@/repositories/user-repository'
 
@@ -43,7 +44,10 @@ const setup = async (
   }
   const { companyName, name, email, password } = setupSchema.parse(data)
   const { company } = await accountRepository.createWithCompany({
-    company: { name: companyName, slug: toSlug(companyName) },
+    company: {
+      company: { name: companyName, slug: toSlug(companyName) },
+      justificationTypes: DEFAULT_JUSTIFICATION_TYPES
+    },
     user: { name, email, mustChangePassword: false },
     role: OWNER_ROLE,
     passwordHash: await hashPassword(password)

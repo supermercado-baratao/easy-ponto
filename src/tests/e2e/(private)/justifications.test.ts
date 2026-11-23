@@ -20,9 +20,15 @@ test.describe.configure({ mode: 'serial' })
 test.describe('Justifications', () => {
   test('Adds, edits and removes the justification types', async ({ page }) => {
     await page.goto('/tipos-de-justificativa')
-    await expect(
-      page.getByText('Nenhum tipo de justificativa cadastrado')
-    ).toBeVisible()
+    const table = page.getByRole('table', { name: 'Tipos de justificativa' })
+    await expect(table.locator('tbody tr th')).toHaveText([
+      'ABONO',
+      'ATESTADO',
+      'AUSENCIA LEGAL',
+      'COMPENSACAO',
+      'FERIAS',
+      'LICENCA'
+    ])
 
     for (const { code, description, effect } of [
       { code: 'ATEST', description: 'Atestado', effect: 'Abona' },
@@ -55,13 +61,14 @@ test.describe('Justifications', () => {
     await expect(createSheet.getByLabel('Código')).toBeFocused()
     await createSheet.getByRole('button', { name: 'Cancelar' }).click()
 
-    const table = page.getByRole('table', { name: 'Tipos de justificativa' })
-    await page.getByRole('button', { name: 'Editar ATEST' }).click()
+    await page
+      .getByRole('button', { name: 'Editar ATEST', exact: true })
+      .click()
     const editSheet = page.getByRole('dialog', { name: 'Editar tipo' })
     await editSheet.getByLabel('Descrição').fill('Atestado médico')
     await editSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(editSheet).toBeHidden()
-    await expect(table.locator('tbody tr').nth(0).locator('th, td')).toHaveText(
+    await expect(table.locator('tbody tr').nth(1).locator('th, td')).toHaveText(
       ['ATEST', 'Atestado médico', 'Abona', '']
     )
 
@@ -74,7 +81,7 @@ test.describe('Justifications', () => {
     await expect(
       page.getByText('Tipo de justificativa removido com sucesso!')
     ).toBeVisible()
-    await expect(table.locator('tbody tr')).toHaveCount(1)
+    await expect(table.locator('tbody tr')).toHaveCount(7)
   })
 
   test('Justifies, edits and removes the absence of a day', async ({
@@ -141,7 +148,9 @@ test.describe('Justifications', () => {
     await expect(getJustificationCell('07/10/2025')).toHaveText('')
 
     await page.goto('/tipos-de-justificativa')
-    await page.getByRole('button', { name: 'Remover ATEST' }).click()
+    await page
+      .getByRole('button', { name: 'Remover ATEST', exact: true })
+      .click()
     await page
       .getByRole('alertdialog', { name: 'Remover tipo de justificativa?' })
       .getByRole('button', { name: 'Remover' })

@@ -15,14 +15,14 @@ export const sumJourneys = (
   const totals = {
     absence: 0,
     lateness: 0,
-    dayOff: 0,
+    compensation: 0,
     overtime60: 0,
     overtime100: 0
   }
   for (const { journey } of days) {
     totals.absence += journey.absence
     totals.lateness += journey.lateness
-    totals.dayOff += journey.dayOff
+    totals.compensation += journey.compensation
     totals.overtime60 += journey.overtime60
     totals.overtime100 += journey.overtime100
   }
@@ -33,7 +33,7 @@ export const calculateBalance = ({
   previousBalance,
   absence,
   lateness,
-  dayOff,
+  compensation,
   overtime60,
   overtime100,
   adjustment
@@ -44,7 +44,7 @@ export const calculateBalance = ({
   adjustment -
   absence -
   lateness -
-  dayOff
+  compensation
 
 export const sortRows = (
   rows: THoursBankRow[],

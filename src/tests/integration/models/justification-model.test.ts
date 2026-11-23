@@ -8,6 +8,7 @@ import { companyModel } from '@/models/company/model'
 import { justificationModel } from '@/models/justification/model'
 import { JustificationTypeInUseError } from '@/models/justification-type/errors'
 import { justificationTypeModel } from '@/models/justification-type/model'
+import { DEFAULT_JUSTIFICATION_TYPES } from '@/models/justification-type/utils'
 import { mapDeviceUserToUser } from '@/models/synchronization/_utils/user'
 import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
@@ -49,7 +50,27 @@ beforeAll(async () => {
     await createCompanyWithUser(1))
 })
 
+const DEFAULT_CODES = new Set(
+  DEFAULT_JUSTIFICATION_TYPES.map(({ code }) => code)
+)
+
 describe('Justification Type Model', () => {
+  test('Creates the default types with the company', async () => {
+    const types = await justificationTypeModel.findManyByCompanyId(companyId)
+
+    expect(
+      types.map(({ code, description, effect }) => ({
+        code,
+        description,
+        effect
+      }))
+    ).toEqual(
+      DEFAULT_JUSTIFICATION_TYPES.toSorted((a, b) =>
+        a.code.localeCompare(b.code)
+      )
+    )
+  })
+
   test('Creates, updates and lists the types of the company ordered by code', async () => {
     const type = await justificationTypeModel.create({
       companyId,
@@ -74,13 +95,16 @@ describe('Justification Type Model', () => {
     })
 
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
-    expect(types.map(({ code, description }) => [code, description])).toEqual([
-      ['ATEST', 'Atestado médico'],
-      ['FOLGA', 'Folga']
-    ])
-    expect(
+    const created = types.filter(({ code }) => !DEFAULT_CODES.has(code))
+    expect(created.map(({ code, description }) => [code, description])).toEqual(
+      [
+        ['ATEST', 'Atestado médico'],
+        ['FOLGA', 'Folga']
+      ]
+    )
+    const otherTypes =
       await justificationTypeModel.findManyByCompanyId(otherCompanyId)
-    ).toEqual([])
+    expect(otherTypes.map(({ code }) => code)).not.toContain('ATEST')
   })
 
   test('Rejects a code already used in the company', async () => {
@@ -216,11 +240,11 @@ describe('Justification Model', () => {
     )
 
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
-    const dayOff = types.find(({ code }) => code === 'FOLGA')!
-    await justificationTypeModel.remove({ id: dayOff.id, companyId })
+    const compensation = types.find(({ code }) => code === 'FOLGA')!
+    await justificationTypeModel.remove({ id: compensation.id, companyId })
     const remaining =
       await justificationTypeModel.findManyByCompanyId(companyId)
-    expect(remaining.map(({ code }) => code)).toEqual(['ATEST'])
+    expect(remaining.map(({ code }) => code)).not.toContain('FOLGA')
   })
 
   test('Does not use or change the data of another company', async () => {

@@ -94,7 +94,7 @@ beforeAll(async () => {
       ])
     )
   })
-  const dayOffType = await justificationTypeModel.create({
+  const compensationType = await justificationTypeModel.create({
     companyId,
     code: 'FOLGA',
     description: 'Folga',
@@ -103,7 +103,7 @@ beforeAll(async () => {
   await justificationModel.create({
     companyId,
     userId: scheduled.id,
-    typeId: dayOffType.id,
+    typeId: compensationType.id,
     startDate: '2026-10-07',
     endDate: '2026-10-07'
   })
@@ -137,7 +137,7 @@ describe('Hours Bank Model', () => {
       previousBalance: 0,
       absence: 240,
       lateness: 30,
-      dayOff: 240,
+      compensation: 240,
       overtime60: 60,
       overtime100: 0,
       adjustment: 60,

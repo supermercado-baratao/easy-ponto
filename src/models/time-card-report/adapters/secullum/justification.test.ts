@@ -194,7 +194,7 @@ describe('extractJustificationsFromJson', () => {
     ])
   })
 
-  test('Ignores the weekly rest, the holidays and the unjustified absences, matching the case', async () => {
+  test('Ignores the weekly rest on a rest day, the holidays and the unjustified absences, matching the case', async () => {
     const justifications = await extractDays([
       createDayRow('05/10/25 - dom', wholeDay('Folga')),
       createDayRow('12/10/25 - feri', wholeDay('Feriado')),
@@ -209,6 +209,23 @@ describe('extractJustificationsFromJson', () => {
 
     expect(justifications).toMatchObject([
       { code: 'FOLGA', startDate: '2025-10-14' }
+    ])
+  })
+
+  test('Reads the weekly rest on a workday of the schedule as a whole day code', async () => {
+    const justifications = await extractDays([
+      createDayRow('06/10/25 - seg', wholeDay('Folga'))
+    ])
+
+    expect(justifications).toEqual([
+      {
+        userName: 'Maria Teste',
+        code: 'Folga',
+        startDate: '2025-10-06',
+        endDate: '2025-10-06',
+        startTime: '',
+        endTime: ''
+      }
     ])
   })
 

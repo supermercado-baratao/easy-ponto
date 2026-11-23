@@ -2,6 +2,7 @@ import type {
   Company,
   TCompanyWithDeviceCredentials
 } from '@/infra/database/types'
+import { DEFAULT_JUSTIFICATION_TYPES } from '@/models/justification-type/utils'
 import { companyRepository } from '@/repositories/company-repository'
 
 import { createSchema, saveSchema, updateSchema } from './schema'
@@ -15,8 +16,8 @@ import { toSlug } from './utils'
 const create = async (data: TCompanyCreateData): Promise<Company> => {
   const company = createSchema.parse(data)
   return await companyRepository.create({
-    ...company,
-    slug: toSlug(company.name)
+    company: { ...company, slug: toSlug(company.name) },
+    justificationTypes: DEFAULT_JUSTIFICATION_TYPES
   })
 }
 

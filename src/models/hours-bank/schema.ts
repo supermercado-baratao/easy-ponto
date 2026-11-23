@@ -70,7 +70,7 @@ const totalMinutesSchema = z.number().int()
 const initialBalanceItemSchema = z.object({
   userId: z.uuidv4(),
   absence: totalMinutesSchema,
-  dayOff: totalMinutesSchema,
+  compensation: totalMinutesSchema,
   overtime60: totalMinutesSchema,
   overtime100: totalMinutesSchema,
   adjustment: totalMinutesSchema

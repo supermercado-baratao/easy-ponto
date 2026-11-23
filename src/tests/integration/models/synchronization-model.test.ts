@@ -37,7 +37,8 @@ import {
   createDayRow,
   createEmployee,
   createReportFile,
-  createReportRows
+  createReportRows,
+  type TRow
 } from '@/tests/_utils/secullum-report'
 import orchestrator from '@/tests/orchestrator'
 
@@ -147,6 +148,20 @@ const JUSTIFICATION_DAYS = [
   })
 ]
 
+const REST_DAY = {
+  'Ent. 1': 'Folga',
+  'Saí. 1': 'Folga',
+  'Ent. 2': 'Folga',
+  'Saí. 2': 'Folga'
+}
+
+const WHOLE_DAY_FOLGA = {
+  'Ent. 1': 'FOLGA',
+  'Saí. 1': 'FOLGA',
+  'Ent. 2': 'FOLGA',
+  'Saí. 2': 'FOLGA'
+}
+
 const UNMATCHED_DAYS = [createDayRow('06/10/25 - seg', { 'Ent. 1': 'OUTRO' })]
 
 const createJustificationsFile = (): File =>
@@ -167,6 +182,13 @@ const INSS_RESOLUTION: Extract<TCodeResolution, { action: 'create' }> = {
 }
 
 const RESOLUTIONS: Record<string, TCodeResolution> = { INSS: INSS_RESOLUTION }
+
+const createDaysFile = (days: TRow[]): File =>
+  createReportFile(
+    createReportRows({
+      employees: [createEmployee({ name: deviceUser.name, totals: {}, days })]
+    })
+  )
 
 const createScheduleFile = (mondayEntry: string): File =>
   createReportFile(
@@ -393,7 +415,9 @@ describe('Synchronization Model', () => {
       expect(result).toMatchObject({
         status: 'unresolved',
         unknownCodes: ['INSS'],
-        types: [expect.objectContaining({ code: 'FOLGA' })]
+        types: expect.arrayContaining([
+          expect.objectContaining({ code: 'FOLGA' })
+        ])
       })
       const [user] = await userModel.findManyByCompanyId(data.company.id)
       expect(
@@ -407,7 +431,7 @@ describe('Synchronization Model', () => {
 
     test('Saves the new types and the justifications with the chosen resolutions', async () => {
       const data = await populate()
-      const dayOff = await justificationTypeModel.create({
+      const compensation = await justificationTypeModel.create({
         companyId: data.company.id,
         code: 'FOLGA DO BANCO',
         description: 'Folga do banco de horas',
@@ -420,7 +444,7 @@ describe('Synchronization Model', () => {
         {
           ...RESOLUTIONS,
           INSS: { ...INSS_RESOLUTION, code: 'AFASTAMENTO' },
-          FOLGA: { action: 'associate', typeId: dayOff.id }
+          FOLGA: { action: 'associate', typeId: compensation.id }
         }
       )
 
@@ -431,10 +455,9 @@ describe('Synchronization Model', () => {
       const types = await justificationTypeModel.findManyByCompanyId(
         data.company.id
       )
-      expect(types.map(({ code }) => code)).toEqual([
-        'AFASTAMENTO',
-        'FOLGA DO BANCO'
-      ])
+      expect(types.map(({ code }) => code)).toEqual(
+        expect.arrayContaining(['AFASTAMENTO', 'FOLGA DO BANCO'])
+      )
       expect(await findJustifications(data.company.id)).toEqual([
         expect.objectContaining({
           startDate: '2025-10-06',
@@ -452,9 +475,62 @@ describe('Synchronization Model', () => {
           endDate: '2025-10-08',
           startTime: 780,
           endTime: 980,
-          typeId: dayOff.id
+          typeId: compensation.id
         })
       ])
+    })
+
+    test('Reuses the choices of an earlier import for the same codes', async () => {
+      const data = await populate()
+      const types = await justificationTypeModel.findManyByCompanyId(
+        data.company.id
+      )
+      const compensation = types.find(({ code }) => code === 'COMPENSACAO')!
+      await importFileWithResolutions(createJustificationsFile(), data, {
+        INSS: { ...INSS_RESOLUTION, code: 'AFASTAMENTO' },
+        FOLGA: { action: 'associate', typeId: compensation.id }
+      })
+      const [user] = await userModel.findManyByCompanyId(data.company.id)
+      const [saved] = await findJustifications(data.company.id)
+      await justificationModel.remove({
+        id: saved.id,
+        companyId: data.company.id
+      })
+
+      const result = await importFileWithResolutions(
+        createJustificationsFile(),
+        data
+      )
+
+      expect(result).toMatchObject({ status: 'imported' })
+      expect(await findJustifications(data.company.id)).toEqual([
+        expect.objectContaining({
+          userId: user.id,
+          startDate: '2025-10-06',
+          type: expect.objectContaining({ code: 'AFASTAMENTO' })
+        }),
+        expect.objectContaining({
+          startDate: '2025-10-08',
+          typeId: compensation.id
+        })
+      ])
+    })
+
+    test('Asks for the weekly rest on a workday of the schedule, like any other code', async () => {
+      const data = await populate()
+
+      const result = await importFileWithResolutions(
+        createDaysFile([
+          createDayRow('05/10/25 - dom', REST_DAY),
+          createDayRow('06/10/25 - seg', REST_DAY)
+        ]),
+        data
+      )
+
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unknownCodes: ['Folga']
+      })
     })
 
     test('Does not duplicate the justifications when the same file is imported again', async () => {
@@ -559,18 +635,20 @@ describe('Synchronization Model', () => {
       const data = await populate()
       await synchronize([deviceUser], data)
 
-      const { closing, unmatchedNames } =
-        await synchronizationModel.importInitialBalance({
-          file: createBalanceFile(),
-          format: 'secullum',
-          companyId: data.company.id
-        })
+      const result = await synchronizationModel.importInitialBalance({
+        file: createBalanceFile(),
+        format: 'secullum',
+        companyId: data.company.id
+      })
 
-      expect(unmatchedNames).toEqual(['Former Employee'])
-      expect(closing).toMatchObject({
-        startDate: '2025-10-01',
-        endDate: '2025-10-31',
-        initial: true
+      expect(result).toMatchObject({
+        status: 'imported',
+        unmatchedNames: ['Former Employee'],
+        closing: {
+          startDate: '2025-10-01',
+          endDate: '2025-10-31',
+          initial: true
+        }
       })
       const report = await hoursBankModel.generate({
         companyId: data.company.id,
@@ -586,6 +664,55 @@ describe('Synchronization Model', () => {
           adjustment: 30,
           balance: 300
         })
+      ])
+    })
+
+    test('Deducts the days of the codes whose type deducts from the hours bank', async () => {
+      const data = await populate()
+      await synchronize([deviceUser], data)
+      const types = await justificationTypeModel.findManyByCompanyId(
+        data.company.id
+      )
+      const compensation = types.find(({ code }) => code === 'COMPENSACAO')!
+      const file = createDaysFile([
+        createDayRow('06/10/25 - seg', WHOLE_DAY_FOLGA),
+        createDayRow('07/10/25 - ter', {
+          'Ent. 1': '7:00',
+          'Saí. 1': '11:00',
+          'Ent. 2': 'FOLGA',
+          'Saí. 2': 'FOLGA'
+        }),
+        createDayRow('08/10/25 - qua', {
+          'Ent. 1': 'ATESTADO',
+          'Saí. 1': 'ATESTADO',
+          'Ent. 2': 'ATESTADO',
+          'Saí. 2': 'ATESTADO'
+        })
+      ])
+      const params = {
+        file,
+        format: 'secullum' as const,
+        companyId: data.company.id
+      }
+
+      const unresolved = await synchronizationModel.importInitialBalance(params)
+      const imported = await synchronizationModel.importInitialBalance({
+        ...params,
+        resolutions: { FOLGA: { action: 'associate', typeId: compensation.id } }
+      })
+
+      expect(unresolved).toMatchObject({
+        status: 'unresolved',
+        unknownCodes: ['FOLGA']
+      })
+      expect(imported).toMatchObject({ status: 'imported' })
+      const report = await hoursBankModel.generate({
+        companyId: data.company.id,
+        initialDate: '2025-10-01',
+        finalDate: '2025-10-31'
+      })
+      expect(report.rows).toEqual([
+        expect.objectContaining({ compensation: 640, balance: -640 })
       ])
     })
 

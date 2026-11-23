@@ -47,8 +47,14 @@ export type TReportJustification = {
   endTime: string
 }
 
-export type TReportBalance = Omit<THoursBankInitialBalanceItem, 'userId'> & {
+// The minutes of each justification code, by the source system's rules: the code's type decides
+// whether they are deducted from the hours bank
+export type TReportBalance = Omit<
+  THoursBankInitialBalanceItem,
+  'userId' | 'compensation'
+> & {
   userName: string
+  justificationMinutes: Record<string, number>
 }
 
 // The employees are identified by name because a report has no PIS, the key of the device users

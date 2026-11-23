@@ -98,7 +98,8 @@ export const UnknownCodesDialog = ({
           <DialogDescription>
             O relatório tem códigos sem um tipo de justificativa cadastrado.
             Escolha, para cada um, se ele vira um tipo novo ou se corresponde a
-            um tipo já cadastrado. A escolha vale só para esta importação.
+            um tipo já cadastrado. A escolha fica salva para as próximas
+            importações.
           </DialogDescription>
         </DialogHeader>
         <form

@@ -20,7 +20,12 @@ import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
 import { timeCardReportModel } from '@/models/time-card-report/model'
+import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 import { userModel } from '@/models/user/model'
+import {
+  justificationCodeMappingRepository,
+  type TCodeResolutionsSaveData
+} from '@/repositories/justification-code-mapping-repository'
 import { justificationRepository } from '@/repositories/justification-repository'
 import { synchronizationRepository } from '@/repositories/synchronization-repository'
 
@@ -44,6 +49,7 @@ import {
   TFileSynchronizationParams,
   TInitialBalanceImportParams,
   TInitialBalanceImportResult,
+  TUnresolvedImport,
   TUserSynchronizationParams
 } from './types'
 
@@ -122,56 +128,107 @@ const synchronizeAfd = async ({
   }
 }
 
-const resolveTypes = (
-  codes: string[],
-  resolutions: z.infer<typeof importFileSchema>['resolutions'],
-  savedTypes: JustificationType[],
+type TResolvedCodes = {
+  typesByCode: Map<string, Pick<JustificationType, 'id' | 'effect'>>
+  codeResolutions: TCodeResolutionsSaveData
+}
+
+// A code is resolved by the user's choice in this import, then by the choice of an earlier one,
+// then by a type with the same code. The choices are saved, so each code is asked only once (#98)
+const resolveCodes = async ({
+  codes,
+  format,
+  companyId,
+  resolutions
+}: {
+  codes: string[]
+  format: TTimeCardReportFormat
   companyId: string
-): {
-  typeIds: Map<string, string>
-  typesToCreate: (TInputData<JustificationType> & { id: string })[]
-} => {
-  const typeIds = new Map(savedTypes.map((type) => [type.code, type.id]))
-  const typesToCreate: (TInputData<JustificationType> & { id: string })[] = []
+  resolutions: z.infer<typeof importFileSchema>['resolutions']
+}): Promise<TResolvedCodes | TUnresolvedImport> => {
+  const [savedTypes, mappings] = await Promise.all([
+    justificationTypeModel.findManyByCompanyId(companyId),
+    justificationCodeMappingRepository.findManyByFormat({ companyId, format })
+  ])
+  const savedTypesById = new Map(savedTypes.map((type) => [type.id, type]))
+  const savedTypesByCode = new Map(savedTypes.map((type) => [type.code, type]))
+  const mappedTypeIds = new Map(
+    mappings.map(({ code, typeId }) => [code, typeId])
+  )
+  const findSavedType = (code: string): JustificationType | undefined => {
+    const typeId = mappedTypeIds.get(code)
+    return typeId ? savedTypesById.get(typeId) : savedTypesByCode.get(code)
+  }
+
+  const unknownCodes = codes.filter(
+    (code) => !Object.hasOwn(resolutions, code) && !findSavedType(code)
+  )
+  if (unknownCodes.length > 0) {
+    return {
+      status: 'unresolved',
+      unknownCodes,
+      types: savedTypes.map(({ id, code, description }) => ({
+        id,
+        code,
+        description
+      }))
+    }
+  }
+
+  const typesByCode: TResolvedCodes['typesByCode'] = new Map()
+  const codeResolutions: TCodeResolutionsSaveData = {
+    justificationTypes: [],
+    mappings: []
+  }
   const issues: z.core.$ZodIssue[] = []
 
   for (const code of codes) {
-    if (typeIds.has(code)) continue
     const resolution = resolutions[code]
+    if (!resolution) {
+      typesByCode.set(code, findSavedType(code)!)
+      continue
+    }
+
+    let type: Pick<JustificationType, 'id' | 'effect'> | undefined
     if (resolution.action === 'associate') {
-      if (savedTypes.every((type) => type.id !== resolution.typeId)) {
+      type = savedTypesById.get(resolution.typeId)
+      if (!type) {
         throw new NotFoundError({
           message: 'O tipo de justificativa não foi encontrado.',
           cause: `JustificationType ${resolution.typeId} not found in company ${companyId}`
         })
       }
-      typeIds.set(code, resolution.typeId)
-      continue
-    }
-    const type = {
-      code: resolution.code,
-      description: resolution.description,
-      effect: resolution.effect
-    }
-    if (
-      savedTypes.some((saved) => saved.code === type.code) ||
-      typesToCreate.some((created) => created.code === type.code)
-    ) {
-      issues.push({
-        code: 'custom',
-        path: ['resolutions', code, 'code'],
-        message: 'Já existe um tipo com esse código',
-        input: type.code
+    } else {
+      const { code: typeCode, description, effect } = resolution
+      if (
+        savedTypesByCode.has(typeCode) ||
+        codeResolutions.justificationTypes.some(
+          (created) => created.code === typeCode
+        )
+      ) {
+        issues.push({
+          code: 'custom',
+          path: ['resolutions', code, 'code'],
+          message: 'Já existe um tipo com esse código',
+          input: typeCode
+        })
+        continue
+      }
+      type = { id: crypto.randomUUID(), effect }
+      codeResolutions.justificationTypes.push({
+        id: type.id,
+        code: typeCode,
+        description,
+        effect,
+        companyId
       })
-      continue
     }
-    const id = crypto.randomUUID()
-    typesToCreate.push({ ...type, id, companyId })
-    typeIds.set(code, id)
+    typesByCode.set(code, type)
+    codeResolutions.mappings.push({ companyId, format, code, typeId: type.id })
   }
 
   if (issues.length > 0) throw new z.ZodError(issues)
-  return { typeIds, typesToCreate }
+  return { typesByCode, codeResolutions }
 }
 
 const toCompanyUpdate = ({
@@ -202,39 +259,22 @@ const importFile = async ({
   const { resolutions: validResolutions } = importFileSchema.parse({
     resolutions
   })
-  const [report, users, savedTypes] = await Promise.all([
+  const [report, users] = await Promise.all([
     timeCardReportModel.read(format, file),
-    synchronizeUsers({ companyId: company.id, credentials }),
-    justificationTypeModel.findManyByCompanyId(company.id)
+    synchronizeUsers({ companyId: company.id, credentials })
   ])
   const reportJustifications = report.justifications.filter(({ userName }) =>
     users.some((user) => user.name === userName)
   )
 
-  const codes = [...new Set(reportJustifications.map(({ code }) => code))]
-  const unknownCodes = codes.filter(
-    (code) =>
-      savedTypes.every((type) => type.code !== code) &&
-      !Object.hasOwn(validResolutions, code)
-  )
-  if (unknownCodes.length > 0) {
-    return {
-      status: 'unresolved',
-      unknownCodes,
-      types: savedTypes.map(({ id, code, description }) => ({
-        id,
-        code,
-        description
-      }))
-    }
-  }
-
-  const { typeIds, typesToCreate } = resolveTypes(
-    codes,
-    validResolutions,
-    savedTypes,
-    company.id
-  )
+  const resolved = await resolveCodes({
+    codes: [...new Set(reportJustifications.map(({ code }) => code))],
+    format,
+    companyId: company.id,
+    resolutions: validResolutions
+  })
+  if ('status' in resolved) return resolved
+  const { typesByCode, codeResolutions } = resolved
   const { startDate, endDate } = report.period
   const savedJustifications =
     await justificationRepository.findManyInPeriodByUserIds({
@@ -252,7 +292,7 @@ const importFile = async ({
         ...period,
         companyId: company.id,
         userId: user.id,
-        typeId: typeIds.get(code)
+        typeId: typesByCode.get(code)?.id
       })
     const justification = {
       userId,
@@ -294,7 +334,7 @@ const importFile = async ({
       const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
       return { userId, startDate, days }
     }),
-    justificationTypes: typesToCreate,
+    codeResolutions,
     justifications: justificationsToCreate
   })
   // The report may fill the CPF of an employee the device saved without one
@@ -310,22 +350,52 @@ const importFile = async ({
 const importInitialBalance = async ({
   file,
   format,
-  companyId
+  companyId,
+  resolutions
 }: TInitialBalanceImportParams): Promise<TInitialBalanceImportResult> => {
+  const { resolutions: validResolutions } = importFileSchema.parse({
+    resolutions
+  })
   const [report, users] = await Promise.all([
     timeCardReportModel.read(format, file),
     userModel.findManyByCompanyId(companyId)
   ])
+  const reportBalances = report.balances.filter(({ userName }) =>
+    users.some((user) => user.name === userName)
+  )
+  const resolved = await resolveCodes({
+    codes: [
+      ...new Set(
+        reportBalances.flatMap(({ justificationMinutes }) =>
+          Object.keys(justificationMinutes)
+        )
+      )
+    ],
+    format,
+    companyId,
+    resolutions: validResolutions
+  })
+  if ('status' in resolved) return resolved
+
+  const deductedCodes = new Set(
+    [...resolved.typesByCode]
+      .filter(([, type]) => type.effect === 'deduct')
+      .map(([code]) => code)
+  )
   const { balances, unmatchedNames } = getInitialBalancesToSave(
     report.balances,
-    users
+    users,
+    deductedCodes
+  )
+  await justificationCodeMappingRepository.saveResolutions(
+    resolved.codeResolutions
   )
   const closing = await hoursBankModel.createInitialBalance({
     companyId,
     ...report.period,
     balances
   })
-  return { closing, unmatchedNames }
+  return { status: 'imported', closing, unmatchedNames }
 }
 
 export const synchronizationModel = {

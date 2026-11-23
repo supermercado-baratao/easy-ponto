@@ -71,9 +71,21 @@ export const getSchedulesToSave = (
   return schedulesToSave
 }
 
+const sumDeductedMinutes = (
+  justificationMinutes: Record<string, number>,
+  deductedCodes: Set<string>
+): number => {
+  let total = 0
+  for (const [code, minutes] of Object.entries(justificationMinutes)) {
+    if (deductedCodes.has(code)) total += minutes
+  }
+  return total
+}
+
 export const getInitialBalancesToSave = (
   reportBalances: TReportBalance[],
-  users: User[]
+  users: User[],
+  deductedCodes: Set<string>
 ): {
   balances: THoursBankInitialBalanceItem[]
   unmatchedNames: string[]
@@ -81,10 +93,17 @@ export const getInitialBalancesToSave = (
   const balances: THoursBankInitialBalanceItem[] = []
   const unmatchedNames: string[] = []
 
-  for (const { userName, ...balance } of reportBalances) {
+  for (const { userName, justificationMinutes, ...totals } of reportBalances) {
     const user = users.find(({ name }) => name === userName)
-    if (user) balances.push({ userId: user.id, ...balance })
-    else unmatchedNames.push(userName)
+    if (!user) {
+      unmatchedNames.push(userName)
+      continue
+    }
+    balances.push({
+      userId: user.id,
+      ...totals,
+      compensation: sumDeductedMinutes(justificationMinutes, deductedCodes)
+    })
   }
 
   return { balances, unmatchedNames }

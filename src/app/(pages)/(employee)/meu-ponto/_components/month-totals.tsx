@@ -6,7 +6,7 @@ const TOTALS = [
   { key: 'worked', label: 'Trabalhado' },
   { key: 'absence', label: 'Faltas' },
   { key: 'lateness', label: 'Atrasos' },
-  { key: 'dayOff', label: 'Folgas (banco)' },
+  { key: 'compensation', label: 'Compensações' },
   { key: 'overtime60', label: 'Extra 60%' },
   { key: 'overtime100', label: 'Extra 100%' }
 ] as const

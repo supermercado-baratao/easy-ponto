@@ -18,7 +18,7 @@ import { formatSignedMinutes, getPunchRecordsHref } from '../utils'
 const TOTAL_COLUMNS: { key: keyof THoursBankTotals; label: string }[] = [
   { key: 'absence', label: 'Faltas' },
   { key: 'lateness', label: 'Atrasos' },
-  { key: 'dayOff', label: 'Folgas' },
+  { key: 'compensation', label: 'Compensações' },
   { key: 'overtime60', label: 'Extras 60%' },
   { key: 'overtime100', label: 'Extras 100%' },
   { key: 'adjustment', label: 'Ajustes' }

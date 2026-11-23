@@ -1,13 +1,13 @@
 import { InvalidExcelFileError } from '@/models/time-card-report/errors'
 import type { TReportBalance } from '@/models/time-card-report/types'
 
-// The store's rules for the Secullum balance, from the spreadsheet it used before the migration:
-// a day off (FOLGA) is deducted from the hours bank, and a worked holiday credits a whole
-// workday. Not the rules of Easy Ponto's own journey (#65)
-export const WORKDAY_MINUTES = 440
-export const HALF_DAY_OFF_MINUTES = 200
+import { PAIR_COLUMNS, REST_CODE, toCode } from './justification'
 
-const DAY_OFF = 'FOLGA'
+// The store's rules for the Secullum balance, from the spreadsheet it used before the migration:
+// a code in two pairs of the day counts a whole workday and in one pair half a day, and a worked
+// holiday credits a whole workday. Not the rules of Easy Ponto's own journey (#65)
+export const WORKDAY_MINUTES = 440
+export const HALF_DAY_MINUTES = 200
 
 const DAY_ROW_PATTERN = /^\d{2}\/\d{2}\/\d{2} - (\S+)$/
 
@@ -36,7 +36,7 @@ const mapColumns = (header: Record<string, unknown>): Map<string, string> =>
 const readTotals = (
   totals: Record<string, unknown>,
   columns: Map<string, string>
-): Omit<TReportBalance, 'userName' | 'dayOff'> => {
+): Omit<TReportBalance, 'userName' | 'justificationMinutes'> => {
   const result = { absence: 0, overtime60: 0, overtime100: 0, adjustment: 0 }
   for (const [field, label] of Object.entries(TOTAL_COLUMNS)) {
     const key = columns.get(label)
@@ -63,9 +63,21 @@ const applyDay = (
     return
   }
 
-  const daysOff = Object.values(row).filter((value) => value === DAY_OFF)
-  if (daysOff.length >= 4) balance.dayOff += WORKDAY_MINUTES
-  else if (daysOff.length === 2) balance.dayOff += HALF_DAY_OFF_MINUTES
+  const cellsByCode = new Map<string, number>()
+  for (const { entry, exit } of PAIR_COLUMNS) {
+    for (const label of [entry, exit]) {
+      const code = toCode(row[columns.get(label) ?? ''])
+      // The spreadsheet never deducted the weekly rest, even on a day the schedule marks as work
+      if (!code || code === REST_CODE) continue
+      cellsByCode.set(code, (cellsByCode.get(code) ?? 0) + 1)
+    }
+  }
+  for (const [code, cells] of cellsByCode) {
+    if (cells !== 2 && cells < 4) continue
+    balance.justificationMinutes[code] =
+      (balance.justificationMinutes[code] ?? 0) +
+      (cells === 2 ? HALF_DAY_MINUTES : WORKDAY_MINUTES)
+  }
 }
 
 export const extractHoursBankFromJson = (json: any[]): TReportBalance[] => {
@@ -84,7 +96,7 @@ export const extractHoursBankFromJson = (json: any[]): TReportBalance[] => {
             totals && !('CARTÃO PONTO' in totals) ? totals : {},
             columns
           ),
-          dayOff: 0
+          justificationMinutes: {}
         })
         continue
       }
