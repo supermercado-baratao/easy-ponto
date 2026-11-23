@@ -46,12 +46,14 @@ export type TFileSynchronizationParams = {
   resolutions?: Record<string, TCodeResolution>
 }
 
+export type TUnresolvedImport = {
+  status: 'unresolved'
+  unknownCodes: string[]
+  types: Pick<JustificationType, 'id' | 'code' | 'description'>[]
+}
+
 export type TFileImportResult =
-  | {
-      status: 'unresolved'
-      unknownCodes: string[]
-      types: Pick<JustificationType, 'id' | 'code' | 'description'>[]
-    }
+  | TUnresolvedImport
   | {
       status: 'imported'
       company: Company
@@ -62,9 +64,13 @@ export type TInitialBalanceImportParams = {
   file: File
   format: TTimeCardReportFormat
   companyId: string
+  resolutions?: Record<string, TCodeResolution>
 }
 
-export type TInitialBalanceImportResult = {
-  closing: HoursBankClosing
-  unmatchedNames: string[]
-}
+export type TInitialBalanceImportResult =
+  | TUnresolvedImport
+  | {
+      status: 'imported'
+      closing: HoursBankClosing
+      unmatchedNames: string[]
+    }

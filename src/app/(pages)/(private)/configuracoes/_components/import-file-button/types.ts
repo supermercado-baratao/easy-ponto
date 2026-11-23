@@ -1,16 +1,7 @@
+import type { TReportImportState } from '@/app/components/blocks/report-import-form'
 import type { Company } from '@/infra/database/types'
-import type { TFileImportResult } from '@/models/synchronization/types'
 
-type TUnresolvedImport = Extract<TFileImportResult, { status: 'unresolved' }>
-
-export type TImportFileState = {
+export type TImportFileState = TReportImportState & {
   data?: Company
-  success?: boolean
-  fatalError?: boolean
-  message?: string
-  action?: string
-  unknownCodes?: TUnresolvedImport['unknownCodes']
-  types?: TUnresolvedImport['types']
-  errors?: Record<string, string>
   skippedJustifications?: number
 }

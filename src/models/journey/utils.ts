@@ -123,7 +123,7 @@ export const calculateDay = ({
     worked,
     absence: 0,
     lateness: 0,
-    dayOff: 0,
+    compensation: 0,
     overtime60: 0,
     overtime100: 0
   }
@@ -150,21 +150,23 @@ export const calculateDay = ({
   const deductions = justifications.filter(
     ({ type }) => type.effect === 'deduct'
   )
-  const dayOff = deductions.some(({ startTime }) => startTime === null)
+  const compensation = deductions.some(({ startTime }) => startTime === null)
     ? expected
     : Math.min(expected, getCoveredMinutes(scheduled, deductions))
-  const due = expected - dayOff
+  const due = expected - compensation
   if (punchRecords.length === 0) {
-    return { ...journey, expected, dayOff, absence: due }
+    return { ...journey, expected, compensation, absence: due }
   }
 
   const punchTimes = punchRecords.map(({ datetime }) => toMinutes(datetime))
   const balance =
-    dayOff === 0 && isWithinTolerance(punchTimes, scheduled) ? 0 : worked - due
+    compensation === 0 && isWithinTolerance(punchTimes, scheduled)
+      ? 0
+      : worked - due
   return {
     ...journey,
     expected,
-    dayOff,
+    compensation,
     lateness: Math.max(0, -balance),
     overtime60: Math.max(0, balance)
   }
@@ -179,7 +181,7 @@ export const sumDays = (days: TJourneyDay[]): TJourneyTotals => {
     worked: 0,
     absence: 0,
     lateness: 0,
-    dayOff: 0,
+    compensation: 0,
     overtime60: 0,
     overtime100: 0
   }
@@ -189,7 +191,7 @@ export const sumDays = (days: TJourneyDay[]): TJourneyTotals => {
     totals.worked += journey.worked
     totals.absence += journey.absence
     totals.lateness += journey.lateness
-    totals.dayOff += journey.dayOff
+    totals.compensation += journey.compensation
     totals.overtime60 += journey.overtime60
     totals.overtime100 += journey.overtime100
   }

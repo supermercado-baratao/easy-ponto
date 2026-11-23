@@ -1,14 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useActionState, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { ReportFormatSelect } from '@/app/components/blocks/report-format-select'
-import { Loader } from '@/app/components/ui/custom/loader'
-import { Button } from '@/app/components/ui/shadcn/button'
-import { Input } from '@/app/components/ui/shadcn/input'
-import { showActionError } from '@/app/utils/action-error'
+import { ReportImportForm } from '@/app/components/blocks/report-import-form'
 import type { THoursBankOrder } from '@/models/hours-bank/types'
 
 import { getHoursReportHref } from '../utils'
@@ -21,70 +16,24 @@ export const ImportInitialBalanceButton = ({
   order: THoursBankOrder
 }) => {
   const router = useRouter()
-  const formReference = useRef<HTMLFormElement>(null)
-  const inputReference = useRef<HTMLInputElement>(null)
-  const initialState: TInitialBalanceState = {}
-  const [, formAction, pending] = useActionState(
-    async (
-      previousState: TInitialBalanceState,
-      formData: FormData
-    ): Promise<TInitialBalanceState> => {
-      const result = await importInitialBalance(previousState, formData)
-      formReference.current?.reset()
-      if (result.success && result.data) {
-        const { startDate, endDate, unmatchedNames } = result.data
-        toast.success('Saldo inicial importado com sucesso!')
-        if (unmatchedNames.length > 0) {
-          toast.warning(
-            'Funcionários do relatório não encontrados no Easy Ponto',
-            {
-              description: `${unmatchedNames.join(', ')}. Eles ficaram sem saldo inicial.`
-            }
-          )
-        }
-        router.replace(
-          getHoursReportHref({
-            initialDate: startDate,
-            finalDate: endDate,
-            order
-          })
-        )
-      } else {
-        showActionError(result)
-      }
-      return result
-    },
-    initialState
-  )
+
+  const handleSuccess = ({ data }: TInitialBalanceState): void => {
+    if (!data) return
+    const { startDate, endDate, unmatchedNames } = data
+    toast.success('Saldo inicial importado com sucesso!')
+    if (unmatchedNames.length > 0) {
+      toast.warning('Funcionários do relatório não encontrados no Easy Ponto', {
+        description: `${unmatchedNames.join(', ')}. Eles ficaram sem saldo inicial.`
+      })
+    }
+    router.replace(
+      getHoursReportHref({ initialDate: startDate, finalDate: endDate, order })
+    )
+  }
 
   return (
-    <>
-      <form
-        action={formAction}
-        ref={formReference}
-        className="flex items-center gap-2"
-      >
-        <ReportFormatSelect disabled={pending} />
-        <Button
-          type="button"
-          variant="outline"
-          disabled={pending}
-          focusableWhenDisabled
-          onClick={() => inputReference.current?.click()}
-        >
-          Importar saldo inicial
-        </Button>
-        <Input
-          ref={inputReference}
-          type="file"
-          name="file"
-          accept=".xls,.xlsx,.csv"
-          className="hidden"
-          disabled={pending}
-          onChange={() => formReference.current?.requestSubmit()}
-        />
-      </form>
-      <Loader open={pending} />
-    </>
+    <ReportImportForm action={importInitialBalance} onSuccess={handleSuccess}>
+      Importar saldo inicial
+    </ReportImportForm>
   )
 }

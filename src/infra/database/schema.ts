@@ -390,6 +390,37 @@ export const justificationTypes = pgTable(
   ]
 )
 
+// The type each code of an imported report stands for, so an import asks only once per code (#98)
+export const justificationCodeMappings = pgTable(
+  'justification_code_mappings',
+  {
+    id: id(),
+    format: text('format').notNull(),
+    code: text('code').notNull(),
+    companyId: text('company_id').notNull(),
+    typeId: text('type_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('justification_code_mappings_company_id_format_code_key').on(
+      table.companyId,
+      table.format,
+      table.code
+    ),
+    index('justification_code_mappings_type_id_idx_907568e1').on(table.typeId),
+    foreignKey({
+      name: 'justification_code_mappings_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'justification_code_mappings_type_id_fkey',
+      columns: [table.typeId],
+      foreignColumns: [justificationTypes.id]
+    }).onDelete('cascade')
+  ]
+)
+
 export const justifications = pgTable(
   'justifications',
   {
@@ -450,7 +481,7 @@ export const hoursBankBalances = pgTable(
     previousBalance: integer('previous_balance').notNull(),
     absence: integer('absence').notNull(),
     lateness: integer('lateness').notNull(),
-    dayOff: integer('day_off').notNull(),
+    compensation: integer('compensation').notNull(),
     overtime60: integer('overtime_60').notNull(),
     overtime100: integer('overtime_100').notNull(),
     adjustment: integer('adjustment').notNull(),

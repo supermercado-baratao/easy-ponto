@@ -207,7 +207,12 @@ describe('calculateDay', () => {
   test('Deducts the whole day of a justification without times from the hours bank', () => {
     expect(
       calculate({ justifications: [justification('deduct')] })
-    ).toMatchObject({ kind: 'workday', expected: 480, dayOff: 480, absence: 0 })
+    ).toMatchObject({
+      kind: 'workday',
+      expected: 480,
+      compensation: 480,
+      absence: 0
+    })
   })
 
   test('Deducts only the scheduled hours inside the justified interval from the hours bank', () => {
@@ -215,13 +220,13 @@ describe('calculateDay', () => {
       calculate({
         justifications: [justification('deduct', ['13:00', '17:00'])]
       })
-    ).toMatchObject({ expected: 480, dayOff: 240, absence: 240 })
+    ).toMatchObject({ expected: 480, compensation: 240, absence: 240 })
     expect(
       calculate({
         justifications: [justification('deduct', ['13:00', '17:00'])],
         punchRecords: punches(MONDAY, '07:00', '11:00')
       })
-    ).toMatchObject({ dayOff: 240, lateness: 0, overtime60: 0 })
+    ).toMatchObject({ compensation: 240, lateness: 0, overtime60: 0 })
   })
 
   test('Pays the hours worked on a day deducted from the hours bank as overtime of 60%', () => {
@@ -230,7 +235,7 @@ describe('calculateDay', () => {
         justifications: [justification('deduct')],
         punchRecords: punches(MONDAY, '07:00', '09:00')
       })
-    ).toMatchObject({ dayOff: 480, lateness: 0, overtime60: 120 })
+    ).toMatchObject({ compensation: 480, lateness: 0, overtime60: 120 })
   })
 
   test('Sums only the complete pairs of a day with odd punches', () => {
@@ -365,7 +370,7 @@ describe('sumDays', () => {
       worked: 540,
       absence: 480,
       lateness: 0,
-      dayOff: 0,
+      compensation: 0,
       overtime60: 60,
       overtime100: 0
     })

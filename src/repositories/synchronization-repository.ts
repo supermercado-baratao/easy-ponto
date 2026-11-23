@@ -3,13 +3,11 @@ import { eq } from 'drizzle-orm'
 import { database } from '@/infra/database/client'
 import {
   companies,
-  justifications as justificationsTable,
-  justificationTypes as justificationTypesTable
+  justifications as justificationsTable
 } from '@/infra/database/schema'
 import type {
   Company,
   Justification,
-  JustificationType,
   PunchRecord,
   Schedule,
   ScheduleDay,
@@ -17,6 +15,10 @@ import type {
   User
 } from '@/infra/database/types'
 
+import {
+  justificationCodeMappingRepository,
+  type TCodeResolutionsSaveData
+} from './justification-code-mapping-repository'
 import { punchRecordRepository } from './punch-record-repository'
 import { scheduleRepository } from './schedule-repository'
 import { userRepository } from './user-repository'
@@ -28,7 +30,7 @@ type TFileImportData = {
   schedules: (TInputData<Schedule> & {
     days: Omit<TInputData<ScheduleDay>, 'scheduleId'>[]
   })[]
-  justificationTypes: (TInputData<JustificationType> & { id: string })[]
+  codeResolutions: TCodeResolutionsSaveData
   justifications: TInputData<Justification>[]
 }
 
@@ -38,7 +40,7 @@ export const synchronizationRepository = {
     users,
     punchRecords,
     schedules,
-    justificationTypes,
+    codeResolutions,
     justifications
   }: TFileImportData): Promise<Company | null> =>
     await database.transaction(async (tx) => {
@@ -56,9 +58,10 @@ export const synchronizationRepository = {
       for (const schedule of schedules) {
         await scheduleRepository.save(schedule, tx)
       }
-      if (justificationTypes.length > 0) {
-        await tx.insert(justificationTypesTable).values(justificationTypes)
-      }
+      await justificationCodeMappingRepository.saveResolutions(
+        codeResolutions,
+        tx
+      )
       if (justifications.length > 0) {
         await tx.insert(justificationsTable).values(justifications)
       }

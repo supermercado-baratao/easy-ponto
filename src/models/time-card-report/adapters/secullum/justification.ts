@@ -6,15 +6,19 @@ import type {
   TReportSchedule
 } from '@/models/time-card-report/types'
 
-// `Folga` is the weekly rest of the schedule and `Feriado` a holiday of the calendar, which
-// Easy Ponto already derives from the schedules and the holidays. `Falta` is an unjustified
-// absence. `FOLGA`, in uppercase, is a day off deducted from the hours bank, so the match is
-// case-sensitive
-const IGNORED_CODES = new Set(['Folga', 'Feriado', 'Falta'])
+// `Feriado` is a holiday of the calendar, which Easy Ponto already derives from the holidays, and
+// `Falta` an unjustified absence. The match is case-sensitive: `FOLGA`, in uppercase, is a code
+// of the store, not the weekly rest
+const IGNORED_CODES = new Set(['Feriado', 'Falta'])
+
+// The weekly rest is already in the schedule, but Secullum also writes it on a day the imported
+// schedule marks as work (a rotation of the 5x2 or the store closed), where skipping it would make
+// the day an absence
+export const REST_CODE = 'Folga'
 
 const DAY_ROW_PATTERN = /^(\d{2})\/(\d{2})\/(\d{2}) - \S+$/
 
-const PAIR_COLUMNS = [
+export const PAIR_COLUMNS = [
   { entry: 'Ent. 1', exit: 'Saí. 1' },
   { entry: 'Ent. 2', exit: 'Saí. 2' },
   { entry: 'Ent. 3', exit: 'Saí. 3' }
@@ -31,7 +35,7 @@ const mapColumns = (header: Record<string, unknown>): Map<string, string> =>
     Object.entries(header).map(([key, label]) => [String(label).trim(), key])
   )
 
-const toCode = (value: unknown): string | null => {
+export const toCode = (value: unknown): string | null => {
   const code = typeof value === 'string' ? value.trim() : ''
   return CODE_PATTERN.test(code) && !IGNORED_CODES.has(code) ? code : null
 }
@@ -79,6 +83,7 @@ const extractDayJustifications = ({
   const justifications: TDayJustification[] = []
 
   for (const [code, indexes] of pairsByCode) {
+    if (code === REST_CODE && scheduledIndexes.length === 0) continue
     const dayJustification = {
       userName,
       code,

@@ -48,12 +48,8 @@ beforeAll(async () => {
   const other = await createCompanyWithUsers(3, 4)
   otherCompanyId = other.companyId
   otherUser = other.users[0]
-  ;({ id: typeId } = await justificationTypeModel.create({
-    companyId,
-    code: 'FERIAS',
-    description: 'Férias',
-    effect: 'excuse'
-  }))
+  const types = await justificationTypeModel.findManyByCompanyId(companyId)
+  typeId = types.find(({ code }) => code === 'FERIAS')!.id
 })
 
 const findPlans = async (): Promise<Record<string, number | undefined>> => {

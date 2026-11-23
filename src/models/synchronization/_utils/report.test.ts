@@ -81,27 +81,41 @@ describe('getPunchRecordsToCreate', () => {
 })
 
 describe('getInitialBalancesToSave', () => {
+  const totals = { absence: 60, overtime60: 30, overtime100: 0, adjustment: 0 }
+
   test('Matches the balances to the users by name and lists the unmatched names', () => {
     const users = [{ id: 'user-1', name: 'Maria Teste' }] as User[]
-    const totals = {
-      absence: 60,
-      dayOff: 0,
-      overtime60: 30,
-      overtime100: 0,
-      adjustment: 0
-    }
 
     const result = getInitialBalancesToSave(
       [
-        { userName: 'Maria Teste', ...totals },
-        { userName: 'Former Employee', ...totals }
+        { userName: 'Maria Teste', ...totals, justificationMinutes: {} },
+        { userName: 'Former Employee', ...totals, justificationMinutes: {} }
       ],
-      users
+      users,
+      new Set()
     )
 
     expect(result).toEqual({
-      balances: [{ userId: 'user-1', ...totals }],
+      balances: [{ userId: 'user-1', ...totals, compensation: 0 }],
       unmatchedNames: ['Former Employee']
     })
+  })
+
+  test('Deducts only the minutes of the codes whose type deducts from the hours bank', () => {
+    const users = [{ id: 'user-1', name: 'Maria Teste' }] as User[]
+
+    const { balances } = getInitialBalancesToSave(
+      [
+        {
+          userName: 'Maria Teste',
+          ...totals,
+          justificationMinutes: { FOLGA: 640, COMP: 200, ATESTADO: 440 }
+        }
+      ],
+      users,
+      new Set(['FOLGA', 'COMP'])
+    )
+
+    expect(balances[0].compensation).toBe(840)
   })
 })

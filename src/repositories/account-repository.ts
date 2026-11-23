@@ -5,7 +5,6 @@ import {
   authAccounts,
   authSessions,
   authUsers,
-  companies,
   members,
   users
 } from '@/infra/database/schema'
@@ -14,6 +13,11 @@ import type {
   Company,
   TMemberWithCompany
 } from '@/infra/database/types'
+
+import {
+  companyRepository,
+  type TCompanyCreateData
+} from './company-repository'
 
 // The provider better-auth gives to the email and password accounts
 const CREDENTIAL_PROVIDER_ID = 'credential'
@@ -60,16 +64,13 @@ export const accountRepository = {
     role,
     passwordHash
   }: {
-    company: Pick<Company, 'name' | 'slug'>
+    company: TCompanyCreateData
     user: TAuthUserInsert
     role: string
     passwordHash: string
   }): Promise<{ account: AuthUser; company: Company }> =>
     await database.transaction(async (tx) => {
-      const [createdCompany] = await tx
-        .insert(companies)
-        .values(company)
-        .returning()
+      const createdCompany = await companyRepository.create(company, tx)
       const account = await createAccount(tx, user, passwordHash)
       await tx.insert(members).values({
         organizationId: createdCompany.id,

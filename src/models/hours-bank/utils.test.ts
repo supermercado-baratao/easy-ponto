@@ -15,7 +15,7 @@ const day = (journey: Partial<TJourney>): TJourneyDay =>
     journey: {
       absence: 0,
       lateness: 0,
-      dayOff: 0,
+      compensation: 0,
       overtime60: 0,
       overtime100: 0,
       ...journey
@@ -31,12 +31,12 @@ describe('sumJourneys', () => {
       sumJourneys([
         day({ absence: 440, overtime100: 60 }),
         day({ lateness: 15, overtime60: 30 }),
-        day({ dayOff: 200, overtime60: 10 })
+        day({ compensation: 200, overtime60: 10 })
       ])
     ).toEqual({
       absence: 440,
       lateness: 15,
-      dayOff: 200,
+      compensation: 200,
       overtime60: 40,
       overtime100: 60
     })
@@ -50,7 +50,7 @@ describe('calculateBalance', () => {
         previousBalance: 100,
         absence: 440,
         lateness: 15,
-        dayOff: 200,
+        compensation: 200,
         overtime60: 300,
         overtime100: 120,
         adjustment: -30

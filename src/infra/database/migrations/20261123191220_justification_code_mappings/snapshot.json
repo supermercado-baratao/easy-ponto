@@ -1,0 +1,339 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "430e5dc0-aa7e-4451-8eb8-5d2fc926ddb0",
+  "prevIds": [
+    "2c44889c-e77d-44df-b51d-31836cdb5f72"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "justification_code_mappings"
+      ],
+      "writes": [
+        "s|tbl|public.justification_code_mappings",
+        "n|tbl|public.justification_code_mappings",
+        "e|tbl|public.justification_code_mappings",
+        "n|rel|public.justification_code_mappings",
+        "n|type|public.justification_code_mappings",
+        "n|rel|public.justification_code_mappings_pkey",
+        "n|rel|public.justification_code_mappings_company_id_format_code_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "rename_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "hours_bank_balances",
+        "day_off"
+      ],
+      "writes": [
+        "s|col|public.hours_bank_balances.day_off",
+        "n|col|public.hours_bank_balances.day_off",
+        "s|col|public.hours_bank_balances.compensation",
+        "n|col|public.hours_bank_balances.compensation"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "justification_code_mappings",
+        "justification_code_mappings_type_id_idx_907568e1"
+      ],
+      "writes": [
+        "s|idx|public.justification_code_mappings_type_id_idx_907568e1",
+        "n|idx|public.justification_code_mappings_type_id_idx_907568e1",
+        "e|idx|public.justification_code_mappings_type_id_idx_907568e1",
+        "n|rel|public.justification_code_mappings_type_id_idx_907568e1"
+      ],
+      "reads": [
+        "n|tbl|public.justification_code_mappings",
+        "n|sch|public",
+        "n|col|public.justification_code_mappings.type_id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "justification_code_mappings"
+      ],
+      "writes": [
+        "s|fk|public.justification_code_mappings.justification_code_mappings_company_id_fkey",
+        "n|fk|public.justification_code_mappings.justification_code_mappings_company_id_fkey",
+        "e|fk|public.justification_code_mappings.justification_code_mappings_company_id_fkey",
+        "n|con|public.justification_code_mappings.justification_code_mappings_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.justification_code_mappings",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.justification_code_mappings.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "justification_code_mappings"
+      ],
+      "writes": [
+        "s|fk|public.justification_code_mappings.justification_code_mappings_type_id_fkey",
+        "n|fk|public.justification_code_mappings.justification_code_mappings_type_id_fkey",
+        "e|fk|public.justification_code_mappings.justification_code_mappings_type_id_fkey",
+        "n|con|public.justification_code_mappings.justification_code_mappings_type_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.justification_code_mappings",
+        "n|sch|public",
+        "n|tbl|public.justification_types",
+        "n|sch|public",
+        "n|col|public.justification_code_mappings.type_id",
+        "n|col|public.justification_types.id",
+        "e|uniqueness|public.justification_types.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "rename",
+      "key": "columns\u0000[\"public\",\"hours_bank_balances\",\"day_off\"]",
+      "set": {
+        "name": "compensation"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "justification_code_mappings",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "format",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "code",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "type_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "justification_code_mappings_type_id_idx_907568e1",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "type_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "justification_code_mappings_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "justification_code_mappings_type_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "type_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "justification_types",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "justification_code_mappings_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_code_mappings",
+        "name": "justification_code_mappings_company_id_format_code_key",
+        "nameExplicit": true,
+        "columns": [
+          "company_id",
+          "format",
+          "code"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    }
+  ]
+}

@@ -36,7 +36,7 @@ export type TJourney = {
   worked: number
   absence: number
   lateness: number
-  dayOff: number
+  compensation: number
   overtime60: number
   overtime100: number
 }
@@ -47,7 +47,7 @@ export type TJourneyTotals = Pick<
   | 'worked'
   | 'absence'
   | 'lateness'
-  | 'dayOff'
+  | 'compensation'
   | 'overtime60'
   | 'overtime100'
 >
