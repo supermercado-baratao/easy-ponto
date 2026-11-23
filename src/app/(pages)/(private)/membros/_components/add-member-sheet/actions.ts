@@ -21,13 +21,17 @@ export const addMember = async (
   formData.set('companyId', company.id)
   formData.set('actorUserId', user.id)
   formData.set('actorRole', role)
-  const { success, errors, fatalError } = await handleFormAction(
-    memberModel.add,
-    state,
-    formData
-  )
+  const { success, errors, fatalError, message, action } =
+    await handleFormAction(memberModel.add, state, formData)
   if (success) refresh()
   // React resets the form after the action, so the typed values (but never the password) come back
   // as the defaults on an error (#56)
-  return { success, errors, fatalError, values: success ? undefined : values }
+  return {
+    success,
+    errors,
+    fatalError,
+    message,
+    action,
+    values: success ? undefined : values
+  }
 }

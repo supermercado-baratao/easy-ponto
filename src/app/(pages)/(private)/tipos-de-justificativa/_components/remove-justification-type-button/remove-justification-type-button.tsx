@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger
 } from '@/app/components/ui/shadcn/alert-dialog'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { showActionError } from '@/app/utils/action-error'
 import type { JustificationType } from '@/infra/database/types'
 
 import { CREATE_TYPE_BUTTON_ID } from '../utils'
@@ -42,13 +43,9 @@ export const RemoveJustificationTypeButton = ({
       if (result.success) {
         toast.success('Tipo de justificativa removido com sucesso!')
         setOpen(false)
-      } else if (result.message) {
-        toast.error(result.message, { description: result.action })
-        setOpen(false)
       } else {
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
+        showActionError(result)
+        if (result.message) setOpen(false)
       }
       return result
     },

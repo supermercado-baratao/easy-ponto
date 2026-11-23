@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import type { Justification, VacationPlan } from '@/infra/database/types'
 import { wallClockNow } from '@/infra/dayjs'
+import { NotFoundError, ValidationError } from '@/infra/errors'
 import { yearSchema } from '@/models/holiday/schema'
 import { justificationModel } from '@/models/justification/model'
 import { INACTIVE_USER_STATUSES, type TUserStatus } from '@/models/user/utils'
@@ -27,7 +28,10 @@ const assertUserInCompany = async (
 ): Promise<void> => {
   const user = await userRepository.findUniqueById(userId)
   if (user?.companyId !== companyId) {
-    throw new Error(`User ${userId} not found in company ${companyId}`)
+    throw new NotFoundError({
+      message: 'O funcionário não foi encontrado.',
+      cause: `User ${userId} not found in company ${companyId}`
+    })
   }
 }
 
@@ -97,12 +101,18 @@ const registerJustification = async ({
   const { companyId, userId, year } = registerJustificationSchema.parse(params)
   const plan = await vacationPlanRepository.findUnique({ userId, year })
   if (!plan) {
-    throw new Error(`User ${userId} has no vacation planned in ${year}`)
+    throw new NotFoundError({
+      message: 'As férias desse ano não estão planejadas.',
+      action: 'Atualize a página e planeje as férias antes de registrá-las.',
+      cause: `User ${userId} has no vacation planned in ${year}`
+    })
   }
   if (plan.justificationId) {
-    throw new Error(
-      `The vacation of user ${userId} in ${year} is already registered`
-    )
+    throw new ValidationError({
+      message: 'As férias desse ano já foram registradas.',
+      action: 'Atualize a página para ver a justificativa das férias.',
+      cause: `The vacation of user ${userId} in ${year} is already registered`
+    })
   }
 
   const justification = await justificationModel.create({

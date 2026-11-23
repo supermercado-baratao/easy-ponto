@@ -7,6 +7,7 @@ import type {
   User
 } from '@/infra/database/types'
 import { dayjs, wallClockNow } from '@/infra/dayjs'
+import { NotFoundError } from '@/infra/errors'
 import { journeyModel } from '@/models/journey/model'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 import { groupByDay, resolvePeriod } from '@/models/punch-record/utils'
@@ -240,7 +241,10 @@ const reopen = async (
   if (lastClosing?.id !== id) throw new HoursBankReopenError()
   const closing = await hoursBankClosingRepository.remove({ id, companyId })
   if (!closing) {
-    throw new Error(`HoursBankClosing ${id} not found in company ${companyId}`)
+    throw new NotFoundError({
+      message: 'O fechamento do banco de horas não foi encontrado.',
+      cause: `HoursBankClosing ${id} not found in company ${companyId}`
+    })
   }
   return closing
 }
@@ -251,7 +255,10 @@ const assertUserInCompany = async (
 ): Promise<void> => {
   const user = await userRepository.findUniqueById(userId)
   if (user?.companyId !== companyId) {
-    throw new Error(`User ${userId} not found in company ${companyId}`)
+    throw new NotFoundError({
+      message: 'O funcionário não foi encontrado.',
+      cause: `User ${userId} not found in company ${companyId}`
+    })
   }
 }
 
@@ -284,7 +291,10 @@ const findOwnedAdjustment = async ({
     const user = await userRepository.findUniqueById(adjustment.userId)
     if (user?.companyId === companyId) return adjustment
   }
-  throw new Error(`HoursBankAdjustment ${id} not found in company ${companyId}`)
+  throw new NotFoundError({
+    message: 'O ajuste do banco de horas não foi encontrado.',
+    cause: `HoursBankAdjustment ${id} not found in company ${companyId}`
+  })
 }
 
 const assertOpenAdjustment = async (
@@ -316,7 +326,10 @@ const updateAdjustment = async (
   await assertOpenDate(validData.date, companyId)
   const adjustment = await hoursBankAdjustmentRepository.update(validData)
   if (!adjustment) {
-    throw new Error(`HoursBankAdjustment ${validData.id} not found`)
+    throw new NotFoundError({
+      message: 'O ajuste do banco de horas não foi encontrado.',
+      cause: `HoursBankAdjustment ${validData.id} not found`
+    })
   }
   return adjustment
 }

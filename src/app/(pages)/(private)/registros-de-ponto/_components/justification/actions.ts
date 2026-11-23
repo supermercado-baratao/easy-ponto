@@ -2,6 +2,7 @@
 
 import { refresh } from 'next/cache'
 
+import { handleAction } from '@/entry/action'
 import { handleFormAction } from '@/entry/form-action'
 import { requireEditor } from '@/entry/session'
 import { justificationModel } from '@/models/justification/model'
@@ -19,30 +20,34 @@ export const save = async (
   const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TJustificationFormValues
   formData.set('companyId', company.id)
-  const { success, errors, fatalError } = formData.get('id')
+  const { success, errors, fatalError, message, action } = formData.get('id')
     ? await handleFormAction(justificationModel.update, state, formData)
     : await handleFormAction(justificationModel.create, state, formData)
   if (success) refresh()
   // React resets the form after the action, so the typed values come back as the defaults on an error (#56)
-  return { success, errors, fatalError, values: success ? undefined : values }
+  return {
+    success,
+    errors,
+    fatalError,
+    message,
+    action,
+    values: success ? undefined : values
+  }
 }
 
 export const removeJustification = async (
-  state: TRemoveJustificationState,
+  _state: TRemoveJustificationState,
   formData: FormData
 ): Promise<TRemoveJustificationState> => {
   const {
     company: { id: companyId }
   } = await requireEditor()
-  try {
+  return await handleAction(async () => {
     await justificationModel.remove({
       id: formData.get('id') as string,
       companyId
     })
     refresh()
-    return { success: true, fatalError: false }
-  } catch (error) {
-    console.error(error)
-    return { success: false, fatalError: true }
-  }
+    return null
+  })
 }

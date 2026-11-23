@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { showActionError } from '@/app/utils/action-error'
 
 import { importFromDevice } from './actions'
 import { TCompanyState } from './types'
@@ -22,11 +23,7 @@ export const ImportButton = ({ isFormPending }: { isFormPending: boolean }) => {
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state])
 
   const isPending = pending || isFormPending

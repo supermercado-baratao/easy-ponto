@@ -1,10 +1,7 @@
-import { Clock } from 'lucide-react'
 import Link from 'next/link'
 
 import { MonthNavigation } from '@/app/components/blocks/month-navigation'
 import { PunchRecordsTable } from '@/app/components/blocks/punch-records-table'
-import { SignOutButton } from '@/app/components/blocks/sign-out/sign-out-button'
-import { ToggleTheme } from '@/app/components/blocks/toggle-theme'
 import { Typography } from '@/app/components/ui/custom/typography'
 import { buttonVariants } from '@/app/components/ui/shadcn/button'
 import { CHANGE_PASSWORD_PATH, EMPLOYEE_HOME_PATH } from '@/entry/session'
@@ -19,64 +16,50 @@ const EmployeeHome = async ({ searchParams }: PageProps<'/meu-ponto'>) => {
   })
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="border-b">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <span className="flex items-center gap-2 font-semibold tracking-tight">
-            <Clock aria-hidden className="size-5" />
-            Easy Ponto
-          </span>
-          <div className="flex items-center gap-2">
-            <ToggleTheme />
-            <SignOutButton />
-          </div>
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <Typography component="h1" variant="h4">
+            Olá, {name}
+          </Typography>
+          <Typography component="p" variant="base" muted>
+            Seus registros de ponto em {companyName}
+          </Typography>
         </div>
-      </header>
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <Typography component="h1" variant="h4">
-              Olá, {name}
-            </Typography>
-            <Typography component="p" variant="base" muted>
-              Seus registros de ponto em {companyName}
-            </Typography>
-          </div>
-          <Link
-            href={CHANGE_PASSWORD_PATH}
-            className={buttonVariants({ variant: 'outline' })}
-          >
-            Trocar senha
-          </Link>
+        <Link
+          href={CHANGE_PASSWORD_PATH}
+          className={buttonVariants({ variant: 'outline' })}
+        >
+          Trocar senha
+        </Link>
+      </div>
+      {journey ? (
+        <>
+          <MonthNavigation month={month} path={EMPLOYEE_HOME_PATH} />
+          <MonthTotals totals={journey.totals} />
+          {/* The table's scroll area is already the region named by the heading */}
+          <section className="flex flex-col gap-3">
+            <h3 id="month-records-title" className="text-base font-medium">
+              Registros do mês
+            </h3>
+            <PunchRecordsTable
+              days={journey.days}
+              justifications={journey.justifications}
+              labelledBy="month-records-title"
+            />
+          </section>
+        </>
+      ) : (
+        <div>
+          <Typography component="p" variant="h6">
+            Cadastro de funcionário não encontrado
+          </Typography>
+          <Typography component="p" variant="base">
+            Peça ao administrador da empresa para conferir o seu cadastro
+          </Typography>
         </div>
-        {journey ? (
-          <>
-            <MonthNavigation month={month} path={EMPLOYEE_HOME_PATH} />
-            <MonthTotals totals={journey.totals} />
-            {/* The table's scroll area is already the region named by the heading */}
-            <section className="flex flex-col gap-3">
-              <h3 id="month-records-title" className="text-base font-medium">
-                Registros do mês
-              </h3>
-              <PunchRecordsTable
-                days={journey.days}
-                justifications={journey.justifications}
-                labelledBy="month-records-title"
-              />
-            </section>
-          </>
-        ) : (
-          <div>
-            <Typography component="p" variant="h6">
-              Cadastro de funcionário não encontrado
-            </Typography>
-            <Typography component="p" variant="base">
-              Peça ao administrador da empresa para conferir o seu cadastro
-            </Typography>
-          </div>
-        )}
-      </main>
-    </div>
+      )}
+    </main>
   )
 }
 

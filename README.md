@@ -78,7 +78,7 @@ As convenções completas estão no [`AGENTS.md`](./AGENTS.md), e o fluxo do pla
 - As batidas do AFD de um PIS sem funcionário salvo são descartadas, até a #30 decidir como guardar o histórico de ex-funcionários.
 - Datas e horários são salvos em UTC com o horário local (`07:27` vira `07:27Z`), sempre pelo `dayjs` de `@/infra/dayjs`. A data atual vem de `wallClockNow()`, no horário de São Paulo.
 - `actions.ts` com `'use server'` é só para mutações chamadas pelo cliente; dados lidos por uma Server Component vêm de um `data.ts`. As páginas que leem o banco renderizam a cada requisição.
-- Os formulários usam `useFormState` (os novos usam `useActionState`, o nome atual no React 19) com Server Actions que chamam o `handleFormAction()`: os erros do Zod viram mensagens nos campos, e os outros erros viram um toast. Depois de um erro, a action devolve os valores digitados (menos as senhas), porque o React limpa o formulário ao fim da action.
+- Os formulários usam `useFormState` (os novos usam `useActionState`, o nome atual no React 19) com Server Actions que chamam o `handleFormAction()`: os erros do Zod viram mensagens nos campos, os erros conhecidos (`KnownError`, como `ValidationError` e os erros do relógio de ponto) viram um toast com a mensagem e o que fazer, e os inesperados viram um toast genérico, sem expor detalhes internos. As actions que não são envio de formulário usam o `handleAction()`, com o mesmo tratamento. Depois de um erro, a action devolve os valores digitados (menos as senhas), porque o React limpa o formulário ao fim da action.
 - Todo registro que pode ser cadastrado também pode ser editado, e todos os campos do formulário são editáveis, menos os dados imutáveis (como os que vêm do AFD).
 
 ### Interface

@@ -29,6 +29,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/app/components/ui/shadcn/sheet'
+import { showActionError } from '@/app/utils/action-error'
 import type { HoursBankAdjustment, User } from '@/infra/database/types'
 
 import { getRowActionsId } from '../utils'
@@ -82,13 +83,9 @@ const RemoveAdjustmentDialog = ({
       if (result.success) {
         toast.success('Ajuste removido com sucesso!')
         onClose()
-      } else if (result.message) {
-        toast.error(result.message, { description: result.action })
-        onClose()
       } else {
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
+        showActionError(result)
+        if (result.message) onClose()
       }
       return result
     },

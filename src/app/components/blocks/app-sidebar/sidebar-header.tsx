@@ -3,7 +3,6 @@
 import { Building2, ChevronsUpDown, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { useTransition } from 'react'
-import { toast } from 'sonner'
 
 import {
   DropdownMenu,
@@ -19,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/app/components/ui/shadcn/sidebar'
+import { showActionError } from '@/app/utils/action-error'
 
 import { switchCompany } from './actions'
 import type { TSidebarCompany } from './types'
@@ -36,9 +36,7 @@ const CompanySwitcher = ({
     if (pending || companyId === company.id) return
     startTransition(async () => {
       if (await switchCompany(companyId)) return
-      toast.error('Um erro inesperado aconteceu!', {
-        description: 'Atualize a página e tente novamente.'
-      })
+      showActionError({ fatalError: true })
     })
   }
 

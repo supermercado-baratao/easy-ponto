@@ -1,4 +1,5 @@
 import type { PunchRecord } from '@/infra/database/types'
+import { NotFoundError } from '@/infra/errors'
 import { punchRecordRepository } from '@/repositories/punch-record-repository'
 
 import {
@@ -102,7 +103,11 @@ const findManyByDay = async (
 const update = async (data: TPunchRecordUpdateData): Promise<PunchRecord> => {
   const { id, ...validData } = await updateSchema.parseAsync(data)
   const punchRecord = await punchRecordRepository.update(id, validData)
-  if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
+  if (!punchRecord)
+    throw new NotFoundError({
+      message: 'O registro de ponto não foi encontrado.',
+      cause: `PunchRecord ${id} not found`
+    })
   return punchRecord
 }
 
@@ -112,7 +117,11 @@ const updateMany = async (data: TPunchRecordUpdateData[]): Promise<void> => {
 
 const deleteRecord = async (id: string): Promise<PunchRecord> => {
   const punchRecord = await punchRecordRepository.delete(id)
-  if (!punchRecord) throw new Error(`PunchRecord ${id} not found`)
+  if (!punchRecord)
+    throw new NotFoundError({
+      message: 'O registro de ponto não foi encontrado.',
+      cause: `PunchRecord ${id} not found`
+    })
   return punchRecord
 }
 

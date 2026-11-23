@@ -13,17 +13,17 @@ import type { codeResolutionSchema } from './schema'
 
 export type TCompanySynchronizationParams = {
   companyId: string
-  credentials: DeviceCredentials
+  credentials: DeviceCredentials | null
 }
 
 export type TUserSynchronizationParams = {
   companyId: string
-  credentials: DeviceCredentials
+  credentials: DeviceCredentials | null
 }
 
 export type TAfdSynchronizationParams = {
   params: TAfdQuery
-  credentials: DeviceCredentials
+  credentials: DeviceCredentials | null
   companyId: string
 }
 
@@ -42,7 +42,7 @@ export type TFileSynchronizationParams = {
   file: File
   format: TTimeCardReportFormat
   company: Company
-  credentials: DeviceCredentials
+  credentials: DeviceCredentials | null
   resolutions?: Record<string, TCodeResolution>
 }
 

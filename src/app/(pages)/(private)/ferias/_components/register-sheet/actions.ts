@@ -15,12 +15,20 @@ export const register = async (
   const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TRegisterFormValues
   formData.set('companyId', company.id)
-  const { success, errors, fatalError } = await handleFormAction(
-    vacationPlanModel.registerJustification,
-    state,
-    formData
-  )
+  const { success, errors, fatalError, message, action } =
+    await handleFormAction(
+      vacationPlanModel.registerJustification,
+      state,
+      formData
+    )
   if (success) refresh()
   // React resets the form after the action, so the typed values come back as the defaults on an error (#56)
-  return { success, errors, fatalError, values: success ? undefined : values }
+  return {
+    success,
+    errors,
+    fatalError,
+    message,
+    action,
+    values: success ? undefined : values
+  }
 }

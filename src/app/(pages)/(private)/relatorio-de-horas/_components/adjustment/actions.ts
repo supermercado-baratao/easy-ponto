@@ -2,9 +2,9 @@
 
 import { refresh } from 'next/cache'
 
+import { handleAction } from '@/entry/action'
 import { handleFormAction } from '@/entry/form-action'
 import { requireEditor } from '@/entry/session'
-import { ValidationError } from '@/infra/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 
 import type {
@@ -20,12 +20,19 @@ export const save = async (
   const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TAdjustmentFormValues
   formData.set('companyId', company.id)
-  const { success, errors, fatalError } = formData.get('id')
+  const { success, errors, fatalError, message, action } = formData.get('id')
     ? await handleFormAction(hoursBankModel.updateAdjustment, state, formData)
     : await handleFormAction(hoursBankModel.createAdjustment, state, formData)
   if (success) refresh()
   // React resets the form after the action, so the typed values come back as the defaults on an error (#56)
-  return { success, errors, fatalError, values: success ? undefined : values }
+  return {
+    success,
+    errors,
+    fatalError,
+    message,
+    action,
+    values: success ? undefined : values
+  }
 }
 
 export const removeAdjustment = async (
@@ -35,23 +42,12 @@ export const removeAdjustment = async (
   const {
     company: { id: companyId }
   } = await requireEditor()
-  try {
+  return await handleAction(async () => {
     await hoursBankModel.removeAdjustment({
       id: formData.get('id') as string,
       companyId
     })
     refresh()
-    return { success: true, fatalError: false }
-  } catch (error) {
-    console.error(error)
-    if (error instanceof ValidationError) {
-      return {
-        success: false,
-        fatalError: false,
-        message: error.message,
-        action: error.action
-      }
-    }
-    return { success: false, fatalError: true }
-  }
+    return null
+  })
 }

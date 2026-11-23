@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import type { JustificationType } from '@/infra/database/types'
+import { NotFoundError } from '@/infra/errors'
 import { justificationRepository } from '@/repositories/justification-repository'
 import { justificationTypeRepository } from '@/repositories/justification-type-repository'
 
@@ -59,9 +60,10 @@ const update = async (
   await assertUniqueCode(validData)
   const type = await justificationTypeRepository.update(validData)
   if (!type) {
-    throw new Error(
-      `JustificationType ${validData.id} not found in company ${validData.companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O tipo de justificativa não foi encontrado.',
+      cause: `JustificationType ${validData.id} not found in company ${validData.companyId}`
+    })
   }
   return type
 }
@@ -72,9 +74,10 @@ const remove = async (
   const validParams = removeSchema.parse(params)
   const type = await justificationTypeRepository.findUnique(validParams)
   if (!type) {
-    throw new Error(
-      `JustificationType ${validParams.id} not found in company ${validParams.companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O tipo de justificativa não foi encontrado.',
+      cause: `JustificationType ${validParams.id} not found in company ${validParams.companyId}`
+    })
   }
   if (await justificationRepository.existsByTypeId(type.id)) {
     throw new JustificationTypeInUseError(type.code)

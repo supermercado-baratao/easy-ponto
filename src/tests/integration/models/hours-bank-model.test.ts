@@ -315,6 +315,8 @@ describe('Hours Bank Adjustments', () => {
         minutes: '01:00',
         reason: 'Correção'
       })
-    ).rejects.toThrow(/not found in company/)
+    ).rejects.toMatchObject({
+      cause: expect.stringMatching(/not found in company/)
+    })
   })
 })

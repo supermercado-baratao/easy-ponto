@@ -5,6 +5,7 @@ import type {
   TJustificationWithType
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
+import { NotFoundError } from '@/infra/errors'
 import { justificationRepository } from '@/repositories/justification-repository'
 import { justificationTypeRepository } from '@/repositories/justification-type-repository'
 import { userRepository } from '@/repositories/user-repository'
@@ -31,7 +32,10 @@ const assertUserInCompany = async (
 ): Promise<void> => {
   const user = await userRepository.findUniqueById(userId)
   if (user?.companyId !== companyId) {
-    throw new Error(`User ${userId} not found in company ${companyId}`)
+    throw new NotFoundError({
+      message: 'O funcionário não foi encontrado.',
+      cause: `User ${userId} not found in company ${companyId}`
+    })
   }
 }
 
@@ -46,9 +50,10 @@ const assertSavable = async ({
     companyId
   })
   if (!type) {
-    throw new Error(
-      `JustificationType ${justification.typeId} not found in company ${companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O tipo de justificativa não foi encontrado.',
+      cause: `JustificationType ${justification.typeId} not found in company ${companyId}`
+    })
   }
 
   const justifications = await justificationRepository.findManyInPeriod({
@@ -84,7 +89,10 @@ const findOwned = async ({
     const user = await userRepository.findUniqueById(justification.userId)
     if (user?.companyId === companyId) return justification
   }
-  throw new Error(`Justification ${id} not found in company ${companyId}`)
+  throw new NotFoundError({
+    message: 'A justificativa não foi encontrada.',
+    cause: `Justification ${id} not found in company ${companyId}`
+  })
 }
 
 const findManyInPeriod = async (
@@ -110,7 +118,10 @@ const update = async (
   await assertSavable({ companyId, ...validData })
   const justification = await justificationRepository.update(validData)
   if (!justification) {
-    throw new Error(`Justification ${validData.id} not found`)
+    throw new NotFoundError({
+      message: 'A justificativa não foi encontrada.',
+      cause: `Justification ${validData.id} not found`
+    })
   }
   return justification
 }

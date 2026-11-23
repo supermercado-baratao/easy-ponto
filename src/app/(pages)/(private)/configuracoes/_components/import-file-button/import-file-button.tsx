@@ -8,6 +8,7 @@ import { ReportFormatSelect } from '@/app/components/blocks/report-format-select
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
+import { showActionError } from '@/app/utils/action-error'
 import type { TCodeResolution } from '@/models/synchronization/types'
 
 import { importFile } from './actions'
@@ -48,14 +49,8 @@ export const ImportFileButton = () => {
         toast.success('Arquivo importado com sucesso!', {
           description: describeSkipped(result.skippedJustifications ?? 0)
         })
-      } else if (result.message) {
+      } else if (showActionError(result)) {
         setIsDialogOpen(false)
-        toast.error(result.message, { description: result.action })
-      } else if (result.fatalError) {
-        setIsDialogOpen(false)
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
       }
       return result
     },

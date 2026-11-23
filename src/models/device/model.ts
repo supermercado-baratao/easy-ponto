@@ -1,6 +1,7 @@
 import type { DeviceCredentials } from '@/infra/database/types'
 
 import { createControlIdAdapter } from './adapters/control-id/adapter'
+import { DeviceNotConfiguredError, UnsupportedDeviceModelError } from './errors'
 import type { TDeviceAdapter, TDeviceModel } from './types'
 
 const ADAPTERS: Record<
@@ -10,11 +11,10 @@ const ADAPTERS: Record<
   'control-id-idclass': createControlIdAdapter
 }
 
-const connect = (credentials: DeviceCredentials): TDeviceAdapter => {
+const connect = (credentials: DeviceCredentials | null): TDeviceAdapter => {
+  if (!credentials) throw new DeviceNotConfiguredError()
   const createAdapter = ADAPTERS[credentials.model as TDeviceModel]
-  if (!createAdapter) {
-    throw new Error(`Device model ${credentials.model} has no adapter`)
-  }
+  if (!createAdapter) throw new UnsupportedDeviceModelError(credentials.model)
   return createAdapter(credentials)
 }
 

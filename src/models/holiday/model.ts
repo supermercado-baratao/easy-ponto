@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import type { Holiday } from '@/infra/database/types'
 import { wallClockNow } from '@/infra/dayjs'
+import { NotFoundError } from '@/infra/errors'
 import { holidayRepository } from '@/repositories/holiday-repository'
 
 import {
@@ -82,9 +83,10 @@ const update = async (data: THolidayUpdateData): Promise<Holiday> => {
   await assertNoConflict(validData)
   const holiday = await holidayRepository.update(validData)
   if (!holiday) {
-    throw new Error(
-      `Holiday ${validData.id} not found in company ${validData.companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O feriado não foi encontrado.',
+      cause: `Holiday ${validData.id} not found in company ${validData.companyId}`
+    })
   }
   return holiday
 }
@@ -93,9 +95,10 @@ const remove = async (params: THolidayRemoveParams): Promise<Holiday> => {
   const validParams = removeSchema.parse(params)
   const holiday = await holidayRepository.remove(validParams)
   if (!holiday) {
-    throw new Error(
-      `Holiday ${validParams.id} not found in company ${validParams.companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O feriado não foi encontrado.',
+      cause: `Holiday ${validParams.id} not found in company ${validParams.companyId}`
+    })
   }
   return holiday
 }

@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
+import { handleAction } from '@/entry/action'
 import { requireEditor } from '@/entry/session'
-import { ValidationError } from '@/infra/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 
 import type { TClosingState } from './types'
@@ -14,22 +14,11 @@ const runClosingAction = async (
   const {
     company: { id: companyId }
   } = await requireEditor()
-  try {
+  return await handleAction(async () => {
     await action(companyId)
     refresh()
-    return { success: true, fatalError: false }
-  } catch (error) {
-    console.error(error)
-    if (error instanceof ValidationError) {
-      return {
-        success: false,
-        fatalError: false,
-        message: error.message,
-        action: error.action
-      }
-    }
-    return { success: false, fatalError: true }
-  }
+    return null
+  })
 }
 
 export const closePeriod = async (

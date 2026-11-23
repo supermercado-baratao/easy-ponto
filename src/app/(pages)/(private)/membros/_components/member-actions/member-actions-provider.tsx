@@ -22,6 +22,7 @@ import {
   AlertDialogTitle
 } from '@/app/components/ui/shadcn/alert-dialog'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { showActionError } from '@/app/utils/action-error'
 import type { TMember } from '@/models/member/types'
 
 import { ADD_MEMBER_BUTTON_ID, getRowActionsId } from '../utils'
@@ -45,16 +46,6 @@ export const useMemberActions = (): TMemberActions => {
     )
   }
   return actions
-}
-
-const showError = ({ message, action }: TMemberActionState): void => {
-  if (message) {
-    toast.error(message, { description: action })
-    return
-  }
-  toast.error('Um erro inesperado aconteceu!', {
-    description: 'Atualize a página e tente novamente.'
-  })
 }
 
 const ConfirmMemberDialog = ({
@@ -96,7 +87,7 @@ const ConfirmMemberDialog = ({
         toast.success(successMessage)
         onClose()
       } else {
-        showError(result)
+        showActionError(result)
         if (result.message) onClose()
       }
       return result
@@ -170,7 +161,7 @@ export const MemberActionsProvider = ({
           if (result.success) {
             toast.success('Papel alterado com sucesso!')
           } else {
-            showError(result)
+            showActionError(result)
           }
           setPendingMemberId(null)
         })

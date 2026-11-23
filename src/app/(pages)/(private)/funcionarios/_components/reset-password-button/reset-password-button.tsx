@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger
 } from '@/app/components/ui/shadcn/alert-dialog'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { showActionError } from '@/app/utils/action-error'
 
 import { resetPassword } from './actions'
 import type { TResetPasswordState } from './types'
@@ -39,9 +40,8 @@ export const ResetPasswordButton = ({
         toast.success('Senha redefinida com sucesso!')
         setOpen(false)
       } else {
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
+        showActionError(result)
+        if (result.message) setOpen(false)
       }
       return result
     },
