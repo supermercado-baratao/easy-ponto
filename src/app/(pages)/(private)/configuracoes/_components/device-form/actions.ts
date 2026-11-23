@@ -13,6 +13,7 @@ export const save = async (
   formData: FormData
 ): Promise<TDeviceFormState> => {
   const { company } = await requireEditor()
+  const model = formData.get('model')?.toString()
   const ip = formData.get('ip')?.toString()
   const login = formData.get('login')?.toString()
   formData.set('companyId', company.id)
@@ -28,6 +29,6 @@ export const save = async (
     success,
     errors,
     fatalError,
-    values: success ? undefined : { ip, login }
+    values: success ? undefined : { model, ip, login }
   }
 }

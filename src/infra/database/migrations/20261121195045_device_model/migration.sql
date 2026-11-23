@@ -1,0 +1,1 @@
+ALTER TABLE "devices_credentials" ADD COLUMN "model" text DEFAULT 'control-id-idclass' NOT NULL;

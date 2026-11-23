@@ -1,9 +1,6 @@
-import { CPF_LENGTH, PIS_LENGTH } from '@/constants/length'
 import type { TInputData, User } from '@/infra/database/types'
-import { TDeviceUser } from '@/models/device/types'
+import type { TDeviceUser } from '@/models/device/types'
 import { DEFAULT_USER_STATUS } from '@/models/user/utils'
-
-import { normalizeLeftZeros } from './normalize'
 
 type TDeviceUserFields = Omit<
   TInputData<User>,
@@ -18,18 +15,7 @@ type TDeviceUserFields = Omit<
 export const mapDeviceUserToUserFields = (
   deviceUser: TDeviceUser,
   companyId: string
-): TDeviceUserFields => ({
-  bars: deviceUser.bars.toString(),
-  code: deviceUser.code.toString(),
-  cpf: deviceUser.cpf ? normalizeLeftZeros(deviceUser.cpf, CPF_LENGTH) : null,
-  name: deviceUser.name,
-  password: deviceUser.password,
-  pis: normalizeLeftZeros(deviceUser.pis, PIS_LENGTH),
-  rfid: deviceUser.rfid.toString(),
-  registration: deviceUser.registration.toString(),
-  templatesCount: deviceUser.templates_count,
-  companyId
-})
+): TDeviceUserFields => ({ ...deviceUser, companyId })
 
 export const mapDeviceUserToUser = (
   deviceUsers: TDeviceUser[],

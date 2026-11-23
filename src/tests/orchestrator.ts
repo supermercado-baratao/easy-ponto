@@ -9,6 +9,7 @@ import { database } from '@/infra/database/client'
 import { authAccounts, authUsers, members } from '@/infra/database/schema'
 import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
+import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { statusModel } from '@/models/status/model'
@@ -63,6 +64,7 @@ const populateDatabaseWithRealData = async () => {
     passwordConfirmation: MOCKED_ADMIN.password
   })
   const credentials = await deviceCredentialsModel.upsert({
+    model: DEFAULT_DEVICE_MODEL,
     companyId: company.id,
     ip: process.env.DEVICE_IP!,
     login: process.env.DEVICE_LOGIN!,
@@ -80,6 +82,7 @@ const populateDatabaseWithMockedData = async () => {
     passwordConfirmation: MOCKED_ADMIN.password
   })
   const deviceCredentials = await deviceCredentialsModel.upsert({
+    model: DEFAULT_DEVICE_MODEL,
     companyId: createdCompany.id,
     ip: faker.internet.ipv4(),
     login: faker.internet.username(),

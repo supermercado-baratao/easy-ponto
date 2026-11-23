@@ -3,10 +3,15 @@
 import { useActionState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { FormCard, FormField } from '@/app/components/ui/custom/form'
+import { FormCard, FormField, Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
+import {
+  DEFAULT_DEVICE_MODEL,
+  DEVICE_MODEL_LABELS,
+  DEVICE_MODELS
+} from '@/models/device/utils'
 
 import { save } from './actions'
 import { TDeviceFormState, TDeviceFormValues } from './types'
@@ -57,6 +62,17 @@ export const DeviceForm = ({
           action={formAction}
           noValidate
         >
+          <Select
+            name="model"
+            label="Modelo do relógio"
+            placeholder="Selecione o modelo"
+            defaultValue={values?.model ?? DEFAULT_DEVICE_MODEL}
+            options={DEVICE_MODELS.map((model) => ({
+              value: model,
+              label: DEVICE_MODEL_LABELS[model]
+            }))}
+            error={state.errors?.model}
+          />
           <FormField
             name="ip"
             label="Endereço IPV4"

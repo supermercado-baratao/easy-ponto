@@ -20,6 +20,7 @@ export const MainContent = ({
       <DeviceForm
         deviceCredentials={
           deviceCredentials && {
+            model: deviceCredentials.model,
             ip: deviceCredentials.ip,
             login: deviceCredentials.login,
             updatedAt: deviceCredentials.updatedAt

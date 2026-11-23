@@ -32,6 +32,8 @@ const timestamps = () => ({
 
 export const devicesCredentials = pgTable('devices_credentials', {
   id: id(),
+  // Every device saved before the adapters is a Control iD iDClass (#96)
+  model: text('model').notNull().default('control-id-idclass'),
   ip: text('ip').notNull(),
   login: text('login').notNull(),
   password: text('password').notNull(),

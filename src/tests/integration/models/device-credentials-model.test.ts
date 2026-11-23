@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { ZodError } from 'zod'
 
 import { companyModel } from '@/models/company/model'
+import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import orchestrator from '@/tests/orchestrator'
 
@@ -15,6 +16,7 @@ beforeEach(async () => {
 })
 
 const createCredentials = () => ({
+  model: DEFAULT_DEVICE_MODEL,
   ip: faker.internet.ipv4(),
   login: faker.internet.username(),
   password: faker.internet.password()
@@ -62,10 +64,11 @@ describe('Device Credentials Model', () => {
         companyId,
         ...createCredentials()
       })
-      const { ip, login } = createCredentials()
+      const { model, ip, login } = createCredentials()
 
       const updated = await deviceCredentialsModel.upsert({
         companyId,
+        model,
         ip,
         login,
         password: ''
@@ -78,10 +81,16 @@ describe('Device Credentials Model', () => {
       const { id: companyId } = await companyModel.create(
         orchestrator.createCompanyData()
       )
-      const { ip, login } = createCredentials()
+      const { model, ip, login } = createCredentials()
 
       await expect(
-        deviceCredentialsModel.upsert({ companyId, ip, login, password: '' })
+        deviceCredentialsModel.upsert({
+          companyId,
+          model,
+          ip,
+          login,
+          password: ''
+        })
       ).rejects.toThrow(ZodError)
     })
   })

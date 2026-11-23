@@ -20,8 +20,8 @@ import {
   getEmployeeEmail
 } from '@/models/account/utils'
 import { companyModel } from '@/models/company/model'
-import { deviceModel } from '@/models/device/model'
-import { TDeviceUser } from '@/models/device/types'
+import type { TDeviceUser } from '@/models/device/types'
+import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { HoursBankInitialBalanceError } from '@/models/hours-bank/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
@@ -32,6 +32,7 @@ import { synchronizationModel } from '@/models/synchronization/model'
 import type { TCodeResolution } from '@/models/synchronization/types'
 import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
+import { mockDeviceAdapter } from '@/tests/_utils/device-adapter'
 import {
   createDayRow,
   createEmployee,
@@ -71,6 +72,7 @@ const compareNames = (a: string, b: string): number => a.localeCompare(b)
 const populate = async () => {
   const company = await companyModel.create(orchestrator.createCompanyData())
   const credentials = await deviceCredentialsModel.upsert({
+    model: DEFAULT_DEVICE_MODEL,
     companyId: company.id,
     ip: faker.internet.ipv4(),
     login: faker.internet.username(),
@@ -83,7 +85,7 @@ const synchronize = (
   users: TDeviceUser[],
   { credentials, company }: Awaited<ReturnType<typeof populate>>
 ) => {
-  vi.spyOn(deviceModel, 'loadUsers').mockResolvedValue(users)
+  mockDeviceAdapter({ loadUsers: async () => users })
   return synchronizationModel.synchronizeUsers({
     companyId: company.id,
     credentials
@@ -94,7 +96,7 @@ const importFile = (
   file: File,
   { credentials, company }: Awaited<ReturnType<typeof populate>>
 ) => {
-  vi.spyOn(deviceModel, 'loadUsers').mockResolvedValue([deviceUser])
+  mockDeviceAdapter({ loadUsers: async () => [deviceUser] })
   return synchronizationModel.importFile({ file, company, credentials })
 }
 
@@ -103,7 +105,7 @@ const importFileWithResolutions = (
   { credentials, company }: Awaited<ReturnType<typeof populate>>,
   resolutions?: Record<string, TCodeResolution>
 ) => {
-  vi.spyOn(deviceModel, 'loadUsers').mockResolvedValue([deviceUser])
+  mockDeviceAdapter({ loadUsers: async () => [deviceUser] })
   return synchronizationModel.importFile({
     file,
     company,
@@ -192,8 +194,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await orchestrator.clearDatabase()
-  vi.spyOn(deviceModel, 'login').mockResolvedValue('session')
-  vi.spyOn(deviceModel, 'sessionIsValid').mockResolvedValue(true)
 })
 
 afterEach(() => {
@@ -243,10 +243,7 @@ describe('Synchronization Model', () => {
       const cpf = CPF.fake().value
       await userModel.updateMany([{ id, cpf }])
 
-      const [user] = await synchronize(
-        [{ ...deviceUser, cpf: undefined }],
-        data
-      )
+      const [user] = await synchronize([{ ...deviceUser, cpf: null }], data)
 
       expect(user.cpf).toBe(cpf)
     })
@@ -257,7 +254,7 @@ describe('Synchronization Model', () => {
       await userModel.updateMany([{ id, cpf: CPF.fake().value }])
 
       const [user] = await synchronize(
-        [{ ...deviceUser, cpf: 12_345_678_901 }],
+        [{ ...deviceUser, cpf: '12345678901' }],
         data
       )
 
@@ -268,10 +265,7 @@ describe('Synchronization Model', () => {
       const data = await populate()
       const cpf = CPF.fake().value
 
-      const [user] = await synchronize(
-        [{ ...deviceUser, cpf: Number(cpf) }],
-        data
-      )
+      const [user] = await synchronize([{ ...deviceUser, cpf }], data)
 
       const account = await findAccount(user.authUserId!)
       expect(account.email).toBe(getEmployeeEmail(cpf))
@@ -293,8 +287,8 @@ describe('Synchronization Model', () => {
 
       const [withoutCpf, withInvalidCpf] = await synchronize(
         [
-          { ...deviceUser, cpf: undefined },
-          { ...deviceUsers[1], cpf: 11_111_111_111 }
+          { ...deviceUser, cpf: null },
+          { ...deviceUsers[1], cpf: '11111111111' }
         ],
         data
       )
@@ -306,7 +300,7 @@ describe('Synchronization Model', () => {
     test('Links the same CPF in two companies to one account', async () => {
       const data = await populate()
       const otherData = await populate()
-      const cpf = Number(CPF.fake().value)
+      const cpf = CPF.fake().value
       const [user] = await synchronize([{ ...deviceUser, cpf }], data)
       const firstAccount = await findAccount(user.authUserId!)
 

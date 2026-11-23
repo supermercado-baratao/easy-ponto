@@ -2,6 +2,7 @@ import type { z } from 'zod'
 
 import type {
   Company,
+  DeviceCredentials,
   HoursBankClosing,
   JustificationType,
   PunchRecord,
@@ -9,28 +10,23 @@ import type {
 } from '@/infra/database/types'
 import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
 
-import { TDeviceLoginCredentials, TGetAfdParams } from '../device/types'
+import type { TAfdQuery } from '../device/types'
 import type { TScheduleSaveData } from '../schedule/types'
 import type { codeResolutionSchema } from './schema'
 
-export type TSynchronizationCredentials = TDeviceLoginCredentials & {
-  ip: string
-  id: string
-}
-
 export type TCompanySynchronizationParams = {
   companyId: string
-  credentials: TSynchronizationCredentials
+  credentials: DeviceCredentials
 }
 
 export type TUserSynchronizationParams = {
   companyId: string
-  credentials: TSynchronizationCredentials
+  credentials: DeviceCredentials
 }
 
 export type TAfdSynchronizationParams = {
-  params: Omit<TGetAfdParams, 'session'>
-  credentials: TSynchronizationCredentials
+  params: TAfdQuery
+  credentials: DeviceCredentials
   companyId: string
 }
 
@@ -48,7 +44,7 @@ export type TCodeResolution = z.input<typeof codeResolutionSchema>
 export type TFileSynchronizationParams = {
   file: File
   company: Company
-  credentials: TSynchronizationCredentials
+  credentials: DeviceCredentials
   resolutions?: Record<string, TCodeResolution>
 }
 

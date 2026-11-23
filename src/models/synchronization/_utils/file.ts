@@ -3,6 +3,7 @@ import * as xlsx from 'xlsx'
 
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
+import { normalizeCnpj, normalizeCpf } from '@/infra/normalize'
 import { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record/types'
 import type { TScheduleSaveData } from '@/models/schedule/types'
 import {
@@ -21,7 +22,6 @@ import {
   TScheduleInJson,
   TUserInJson
 } from '../types'
-import { normalizeCnpj, normalizeCpf } from './normalize'
 
 export const parseXlsToJson = async (file: File): Promise<unknown[]> => {
   const buffer = Buffer.from(await file.arrayBuffer())

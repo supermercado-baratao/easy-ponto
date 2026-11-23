@@ -6,10 +6,10 @@ export type TDeviceFormState = Omit<
   TState<TDeviceCredentialsFormData, DeviceCredentials>,
   'data'
 > & {
-  values?: Partial<Record<'ip' | 'login', string>>
+  values?: Partial<Record<'model' | 'ip' | 'login', string>>
 }
 
 export type TDeviceFormValues = Pick<
   DeviceCredentials,
-  'ip' | 'login' | 'updatedAt'
+  'model' | 'ip' | 'login' | 'updatedAt'
 >
