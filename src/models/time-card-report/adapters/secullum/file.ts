@@ -1,27 +1,28 @@
 import { isCNPJ, isCPF } from 'validation-br'
 import * as xlsx from 'xlsx'
 
-import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { normalizeCnpj, normalizeCpf } from '@/infra/normalize'
-import { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record/types'
-import type { TScheduleSaveData } from '@/models/schedule/types'
 import {
   getTimeFieldName,
   TIME_FIELDS,
   type TScheduleTimeFieldName,
   type TWeekdayKey
 } from '@/models/schedule/utils'
+import { InvalidExcelFileError } from '@/models/time-card-report/errors'
+import type {
+  TReportCompany,
+  TReportPeriod,
+  TReportPunchRecord,
+  TReportSchedule,
+  TReportUser,
+  TTimeCardReport
+} from '@/models/time-card-report/types'
 
-import { InvalidExcelFileError } from '../errors'
-import {
-  TCompanyInJson,
-  TDataInJson,
-  TPeriodInJson,
-  TPunchRecordInJson,
-  TScheduleInJson,
-  TUserInJson
-} from '../types'
+type TReportData = Pick<
+  TTimeCardReport,
+  'company' | 'users' | 'punchRecords' | 'schedules'
+>
 
 export const parseXlsToJson = async (file: File): Promise<unknown[]> => {
   const buffer = Buffer.from(await file.arrayBuffer())
@@ -84,7 +85,7 @@ const toScheduleTime = (value: unknown): string =>
     ? value.padStart(5, '0')
     : ''
 
-export const extractPeriod = (json: any[]): TPeriodInJson => {
+export const extractPeriod = (json: any[]): TReportPeriod => {
   const [, startDay, startMonth, startYear, endDay, endMonth, endYear] =
     /^De: (\d{2})\/(\d{2})\/(\d{4}) até (\d{2})\/(\d{2})\/(\d{4})/.exec(
       json[0]['CARTÃO PONTO']
@@ -111,21 +112,21 @@ const extractScheduleTimes = (
   return times
 }
 
-export const extractDataFromJson = (json: any[]): TDataInJson => {
+export const extractDataFromJson = (json: any[]): TReportData => {
   try {
     const cnpj = normalizeCnpj(json[3]['__EMPTY'])
 
-    const company: TCompanyInJson = {
+    const company: TReportCompany = {
       name: json[2]['__EMPTY'],
       cpfCnpj: isCNPJ(cnpj) ? cnpj : '',
       registration: json[4]['__EMPTY']
     }
 
-    const users: TUserInJson[] = []
+    const users: TReportUser[] = []
 
-    const punchRecords: TPunchRecordInJson[] = []
+    const punchRecords: TReportPunchRecord[] = []
 
-    const schedules: TScheduleInJson[] = []
+    const schedules: TReportSchedule[] = []
 
     const scheduleStartDate = extractPeriod(json).startDate
 
@@ -135,7 +136,7 @@ export const extractDataFromJson = (json: any[]): TDataInJson => {
       if (keys[0] === 'CARTÃO PONTO' && values[0] === 'Departamento') {
         const cpf = normalizeCpf(json[index - 3]['__EMPTY_3'])
         const admissionDate = json[index - 2]['__EMPTY_3']
-        const user: TUserInJson = {
+        const user: TReportUser = {
           department: values[1] as string,
           position: json[index - 1]['__EMPTY'],
           admissionDate: isValidDate(admissionDate)
@@ -187,66 +188,4 @@ export const extractDataFromJson = (json: any[]): TDataInJson => {
   } catch (error) {
     throw new InvalidExcelFileError(error as Error)
   }
-}
-
-export const getUsersToUpdate = (
-  savedUsers: User[],
-  users: TUserInJson[]
-): User[] => {
-  const usersToUpdate: User[] = []
-
-  for (const user of users) {
-    const foundUser = savedUsers.find(
-      (foundUser) => foundUser.name === user.name
-    )
-    if (!foundUser) continue
-    const userToUpdate: User = {
-      ...foundUser,
-      ...user
-    }
-
-    usersToUpdate.push(userToUpdate)
-  }
-
-  return usersToUpdate
-}
-
-export const getPunchRecordsToCreate = (
-  punchRecordsInJson: TPunchRecordInJson[],
-  users: User[]
-): TPunchRecordCreateNonExistentInAfdData[] => {
-  const punchRecordsToCreate: TPunchRecordCreateNonExistentInAfdData[] = []
-
-  for (const punchRecordInJson of punchRecordsInJson) {
-    const foundUser = users.find(
-      (user) => user.name === punchRecordInJson.userName
-    )
-    if (!foundUser || punchRecordInJson.afdDatetime) continue
-    punchRecordsToCreate.push({
-      companyId: foundUser.companyId,
-      pis: foundUser.pis,
-      datetime: punchRecordInJson.datetime
-    })
-  }
-
-  return punchRecordsToCreate
-}
-
-export const getSchedulesToSave = (
-  schedulesInJson: TScheduleInJson[],
-  users: User[]
-): TScheduleSaveData[] => {
-  const schedulesToSave: TScheduleSaveData[] = []
-
-  for (const { userName, ...schedule } of schedulesInJson) {
-    const foundUser = users.find((user) => user.name === userName)
-    if (!foundUser) continue
-    schedulesToSave.push({
-      ...schedule,
-      companyId: foundUser.companyId,
-      userId: foundUser.id
-    })
-  }
-
-  return schedulesToSave
 }

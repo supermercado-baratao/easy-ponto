@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useActionState, useRef } from 'react'
 import { toast } from 'sonner'
 
+import { ReportFormatSelect } from '@/app/components/blocks/report-format-select'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
@@ -61,7 +62,12 @@ export const ImportInitialBalanceButton = ({
 
   return (
     <>
-      <form action={formAction} ref={formReference}>
+      <form
+        action={formAction}
+        ref={formReference}
+        className="flex items-center gap-2"
+      >
+        <ReportFormatSelect disabled={pending} />
         <Button
           type="button"
           variant="outline"

@@ -2,7 +2,8 @@
 
 import { describe, expect, test } from 'vitest'
 
-import type { User } from '@/infra/database/types'
+import { InvalidExcelFileError } from '@/models/time-card-report/errors'
+import type { TReportBalance } from '@/models/time-card-report/types'
 import {
   createDayRow,
   createEmployee,
@@ -12,23 +13,17 @@ import {
   type TRow
 } from '@/tests/_utils/secullum-report'
 
-import { InvalidExcelFileError } from '../errors'
-import type { THoursBankBalanceInJson, THoursBankInJson } from '../types'
 import { parseXlsToJson } from './file'
-import {
-  extractHoursBankFromJson,
-  getInitialBalancesToSave,
-  timeToSignedMinutes
-} from './hours-bank'
+import { extractHoursBankFromJson, timeToSignedMinutes } from './hours-bank'
 
-const extract = async (rows: TRow[]): Promise<THoursBankInJson> =>
+const extract = async (rows: TRow[]): Promise<TReportBalance[]> =>
   extractHoursBankFromJson(await parseXlsToJson(createReportFile(rows)))
 
-const extractDays = async (days: TRow[]): Promise<THoursBankBalanceInJson> => {
-  const { balances } = await extract(
+const extractDays = async (days: TRow[]): Promise<TReportBalance> => {
+  const [balance] = await extract(
     createReportRows({ employees: [createEmployee({ days })] })
   )
-  return balances[0]
+  return balance
 }
 
 describe('timeToSignedMinutes', () => {
@@ -45,17 +40,8 @@ describe('timeToSignedMinutes', () => {
 })
 
 describe('extractHoursBankFromJson', () => {
-  test('Extracts the period of the report', async () => {
-    const { startDate, endDate } = await extract(createReportRows())
-
-    expect({ startDate, endDate }).toEqual({
-      startDate: '2025-10-01',
-      endDate: '2025-10-31'
-    })
-  })
-
   test('Extracts the totals of each user', async () => {
-    const { balances } = await extract(
+    const balances = await extract(
       createReportRows({
         employees: [
           createEmployee({
@@ -156,31 +142,5 @@ describe('extractHoursBankFromJson', () => {
     )
 
     await expect(extract(rows)).rejects.toBeInstanceOf(InvalidExcelFileError)
-  })
-})
-
-describe('getInitialBalancesToSave', () => {
-  test('Matches the balances to the users by name and lists the unmatched names', () => {
-    const users = [{ id: 'user-1', name: 'Maria Teste' }] as User[]
-    const totals = {
-      absence: 60,
-      dayOff: 0,
-      overtime60: 30,
-      overtime100: 0,
-      adjustment: 0
-    }
-
-    const result = getInitialBalancesToSave(
-      [
-        { userName: 'Maria Teste', ...totals },
-        { userName: 'Former Employee', ...totals }
-      ],
-      users
-    )
-
-    expect(result).toEqual({
-      balances: [{ userId: 'user-1', ...totals }],
-      unmatchedNames: ['Former Employee']
-    })
   })
 })

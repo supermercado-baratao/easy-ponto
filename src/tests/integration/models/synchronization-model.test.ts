@@ -97,7 +97,12 @@ const importFile = (
   { credentials, company }: Awaited<ReturnType<typeof populate>>
 ) => {
   mockDeviceAdapter({ loadUsers: async () => [deviceUser] })
-  return synchronizationModel.importFile({ file, company, credentials })
+  return synchronizationModel.importFile({
+    file,
+    format: 'secullum',
+    company,
+    credentials
+  })
 }
 
 const importFileWithResolutions = (
@@ -108,6 +113,7 @@ const importFileWithResolutions = (
   mockDeviceAdapter({ loadUsers: async () => [deviceUser] })
   return synchronizationModel.importFile({
     file,
+    format: 'secullum',
     company,
     credentials,
     resolutions
@@ -556,6 +562,7 @@ describe('Synchronization Model', () => {
       const { closing, unmatchedNames } =
         await synchronizationModel.importInitialBalance({
           file: createBalanceFile(),
+          format: 'secullum',
           companyId: data.company.id
         })
 
@@ -587,6 +594,7 @@ describe('Synchronization Model', () => {
       await synchronize([deviceUser], data)
       await synchronizationModel.importInitialBalance({
         file: createBalanceFile(),
+        format: 'secullum',
         companyId: data.company.id
       })
 
@@ -611,6 +619,7 @@ describe('Synchronization Model', () => {
       await expect(
         synchronizationModel.importInitialBalance({
           file: createBalanceFile(),
+          format: 'secullum',
           companyId: data.company.id
         })
       ).rejects.toBeInstanceOf(HoursBankInitialBalanceError)

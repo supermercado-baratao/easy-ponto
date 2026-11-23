@@ -1,8 +1,10 @@
 import { dayjs } from '@/infra/dayjs'
 import { getTimeFieldName, TIME_PAIRS, WEEKDAYS } from '@/models/schedule/utils'
-
-import { InvalidExcelFileError } from '../errors'
-import type { TJustificationInJson, TScheduleInJson } from '../types'
+import { InvalidExcelFileError } from '@/models/time-card-report/errors'
+import type {
+  TReportJustification,
+  TReportSchedule
+} from '@/models/time-card-report/types'
 
 // `Folga` is the weekly rest of the schedule and `Feriado` a holiday of the calendar, which
 // Easy Ponto already derives from the schedules and the holidays. `Falta` is an unjustified
@@ -20,7 +22,7 @@ const PAIR_COLUMNS = [
 
 const CODE_PATTERN = /^\p{L}/u
 
-type TDayJustification = Omit<TJustificationInJson, 'endDate'>
+type TDayJustification = Omit<TReportJustification, 'endDate'>
 
 type TScheduledPair = { startTime: string; endTime: string } | null
 
@@ -35,7 +37,7 @@ const toCode = (value: unknown): string | null => {
 }
 
 const getScheduledPairs = (
-  schedule: TScheduleInJson | undefined,
+  schedule: TReportSchedule | undefined,
   date: string
 ): TScheduledPair[] => {
   const weekday = dayjs(date).day()
@@ -60,7 +62,7 @@ const extractDayJustifications = ({
   date: string
   row: Record<string, unknown>
   columns: Map<string, string>
-  schedule: TScheduleInJson | undefined
+  schedule: TReportSchedule | undefined
 }): TDayJustification[] => {
   const pairsByCode = new Map<string, number[]>()
   for (const [index, pair] of PAIR_COLUMNS.entries()) {
@@ -105,8 +107,8 @@ const isWholeDay = ({ startTime }: TDayJustification): boolean =>
 
 const mergeConsecutiveDays = (
   justifications: TDayJustification[]
-): TJustificationInJson[] => {
-  const merged: TJustificationInJson[] = []
+): TReportJustification[] => {
+  const merged: TReportJustification[] = []
   for (const justification of justifications) {
     const previous = merged.findLast(
       (other) =>
@@ -130,8 +132,8 @@ const mergeConsecutiveDays = (
 
 export const extractJustificationsFromJson = (
   json: any[],
-  schedules: TScheduleInJson[]
-): TJustificationInJson[] => {
+  schedules: TReportSchedule[]
+): TReportJustification[] => {
   try {
     const justifications: TDayJustification[] = []
     let employeeName: string | undefined
