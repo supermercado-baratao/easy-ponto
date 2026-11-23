@@ -9,6 +9,7 @@ import { Button } from '@/app/components/ui/shadcn/button'
 import { Checkbox } from '@/app/components/ui/shadcn/checkbox'
 import { Label } from '@/app/components/ui/shadcn/label'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
+import { showActionError } from '@/app/utils/action-error'
 import { HOLIDAY_SCOPES } from '@/models/holiday/utils'
 
 import { SCOPE_LABELS } from '../utils'
@@ -50,11 +51,7 @@ export const HolidayForm = ({
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state, onSaved])
 
   return (

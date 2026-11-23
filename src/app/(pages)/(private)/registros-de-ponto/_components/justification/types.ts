@@ -1,3 +1,4 @@
+import type { TActionState } from '@/entry/action'
 import type { TState } from '@/entry/form-action'
 import type { TJustificationUpdateData } from '@/models/justification/types'
 
@@ -21,7 +22,4 @@ export type TJustificationFormState = Omit<
   values?: TJustificationFormValues
 }
 
-export type TRemoveJustificationState = Pick<
-  TState<never, never>,
-  'success' | 'fatalError'
->
+export type TRemoveJustificationState = TActionState<never>

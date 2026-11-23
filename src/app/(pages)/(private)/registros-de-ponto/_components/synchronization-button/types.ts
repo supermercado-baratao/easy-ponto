@@ -1,3 +1,3 @@
-import { TState } from '@/entry/form-action'
+import type { TActionState } from '@/entry/action'
 
-export type TSynchronizationState = TState<never, null>
+export type TSynchronizationState = TActionState<null>

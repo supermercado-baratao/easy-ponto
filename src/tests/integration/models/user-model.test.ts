@@ -115,7 +115,9 @@ describe('User Model', () => {
 
       await expect(
         userModel.update({ id, companyId, status: 'dismissed' })
-      ).rejects.toThrow(`User ${id} not found in company ${companyId}`)
+      ).rejects.toMatchObject({
+        cause: `User ${id} not found in company ${companyId}`
+      })
 
       const [user] = await userModel.findManyByCompanyId(otherCompanyId)
       expect(user.status).toBe('registered')

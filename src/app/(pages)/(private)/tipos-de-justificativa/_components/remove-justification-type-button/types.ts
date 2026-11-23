@@ -1,8 +1,3 @@
-import type { TState } from '@/entry/form-action'
+import type { TActionState } from '@/entry/action'
 
-export type TRemoveJustificationTypeState = Pick<
-  TState<never, never>,
-  'success' | 'fatalError' | 'message'
-> & {
-  action?: string
-}
+export type TRemoveJustificationTypeState = TActionState<never>

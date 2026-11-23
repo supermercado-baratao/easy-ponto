@@ -1,4 +1,5 @@
 import type { TScheduleWithDays } from '@/infra/database/types'
+import { NotFoundError } from '@/infra/errors'
 import { scheduleRepository } from '@/repositories/schedule-repository'
 import { userRepository } from '@/repositories/user-repository'
 
@@ -54,9 +55,10 @@ const save = async (data: TScheduleSaveData): Promise<TScheduleWithDays> => {
   const { companyId, ...validData } = saveSchema.parse(data)
   const user = await userRepository.findUniqueById(validData.userId)
   if (user?.companyId !== companyId) {
-    throw new Error(
-      `User ${validData.userId} not found in company ${companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O funcionário não foi encontrado.',
+      cause: `User ${validData.userId} not found in company ${companyId}`
+    })
   }
   return await scheduleRepository.save(validData)
 }

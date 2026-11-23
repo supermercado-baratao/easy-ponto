@@ -7,6 +7,7 @@ import { FormField, Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
+import { showActionError } from '@/app/utils/action-error'
 import { getAssignableRoles } from '@/models/member/utils'
 
 import { getRoleLabel } from '../utils'
@@ -47,11 +48,7 @@ export const AddMemberForm = ({
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state, onSaved])
 
   return (

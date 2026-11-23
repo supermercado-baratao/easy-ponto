@@ -2,6 +2,8 @@ import { revalidatePath } from 'next/cache'
 import * as z from 'zod'
 import { pt } from 'zod/locales'
 
+import { type TActionState, toActionError } from './action'
+
 z.config(pt())
 
 type TAction<TInputData, TOutputData> = (
@@ -10,12 +12,8 @@ type TAction<TInputData, TOutputData> = (
 
 type TError<T> = Partial<Record<keyof T, string>>
 
-export type TState<TInputData, TOutputData> = {
-  message?: string
-  data?: TOutputData | null
-  success?: boolean
+export type TState<TInputData, TOutputData> = TActionState<TOutputData> & {
   errors?: TError<TInputData>
-  fatalError?: boolean
 }
 
 const parseFormData = <T>(formData: FormData): T =>
@@ -46,25 +44,24 @@ export const handleFormAction = async <TInputData, TOutputData>(
       data,
       success: true,
       errors: undefined,
-      fatalError: false
+      fatalError: false,
+      message: undefined,
+      action: undefined
     }
   } catch (error) {
-    console.error(error)
     if (error instanceof z.ZodError) {
+      console.error(error)
       const errors = parseErrors<TInputData>(error)
       return {
         ...initialState,
         errors,
         success: false,
-        fatalError: false
+        fatalError: false,
+        message: undefined,
+        action: undefined
       }
     }
 
-    return {
-      ...initialState,
-      success: false,
-      errors: undefined,
-      fatalError: true
-    }
+    return { ...initialState, errors: undefined, ...toActionError(error) }
   }
 }

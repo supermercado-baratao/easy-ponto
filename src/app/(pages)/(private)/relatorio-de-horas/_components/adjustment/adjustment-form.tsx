@@ -7,6 +7,7 @@ import { FormField } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
+import { showActionError } from '@/app/utils/action-error'
 
 import { save } from './actions'
 import type { TAdjustmentFormState, TAdjustmentFormValues } from './types'
@@ -43,11 +44,7 @@ export const AdjustmentForm = ({
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state, onSaved])
 
   const getFieldProps = (

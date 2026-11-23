@@ -8,6 +8,7 @@ import { ReportFormatSelect } from '@/app/components/blocks/report-format-select
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
+import { showActionError } from '@/app/utils/action-error'
 import type { THoursBankOrder } from '@/models/hours-bank/types'
 
 import { getHoursReportHref } from '../utils'
@@ -48,12 +49,8 @@ export const ImportInitialBalanceButton = ({
             order
           })
         )
-      } else if (result.message) {
-        toast.error(result.message, { description: result.action })
       } else {
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
+        showActionError(result)
       }
       return result
     },

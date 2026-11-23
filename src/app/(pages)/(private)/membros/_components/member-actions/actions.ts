@@ -2,8 +2,8 @@
 
 import { refresh } from 'next/cache'
 
+import { handleAction } from '@/entry/action'
 import { requireEditor } from '@/entry/session'
-import { ValidationError } from '@/infra/errors'
 import { memberModel } from '@/models/member/model'
 
 import type { TMemberActionState } from './types'
@@ -19,24 +19,12 @@ const getActorData = async (): Promise<{
 
 const runMemberAction = async (
   action: () => Promise<void>
-): Promise<TMemberActionState> => {
-  try {
+): Promise<TMemberActionState> =>
+  await handleAction(async () => {
     await action()
     refresh()
-    return { success: true, fatalError: false }
-  } catch (error) {
-    console.error(error)
-    if (error instanceof ValidationError) {
-      return {
-        success: false,
-        fatalError: false,
-        message: error.message,
-        action: error.action
-      }
-    }
-    return { success: false, fatalError: true }
-  }
-}
+    return null
+  })
 
 export const changeMemberRole = async ({
   id,

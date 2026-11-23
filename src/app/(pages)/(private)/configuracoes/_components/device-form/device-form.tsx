@@ -7,6 +7,7 @@ import { FormCard, FormField, Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
+import { showActionError } from '@/app/utils/action-error'
 import {
   DEFAULT_DEVICE_MODEL,
   DEVICE_MODEL_LABELS,
@@ -41,11 +42,7 @@ export const DeviceForm = ({
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state])
 
   return (

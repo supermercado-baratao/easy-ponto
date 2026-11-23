@@ -1,3 +1,4 @@
+import type { TActionState } from '@/entry/action'
 import type { TState } from '@/entry/form-action'
 import type { THoursBankAdjustmentUpdateData } from '@/models/hours-bank/types'
 
@@ -12,9 +13,4 @@ export type TAdjustmentFormState = Omit<
   values?: TAdjustmentFormValues
 }
 
-export type TRemoveAdjustmentState = Pick<
-  TState<never, never>,
-  'success' | 'fatalError' | 'message'
-> & {
-  action?: string
-}
+export type TRemoveAdjustmentState = TActionState<never>

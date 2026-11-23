@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { showActionError } from '@/app/utils/action-error'
 
 import { addNationalHolidays } from './actions'
 import type { TNationalHolidaysState } from './types'
@@ -19,9 +20,7 @@ export const NationalHolidaysButton = ({ year }: { year: number }) => {
     ): Promise<TNationalHolidaysState> => {
       const result = await addNationalHolidays(previousState, formData)
       if (!result.success) {
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
+        showActionError(result)
       } else if (result.data) {
         toast.success(
           result.data === 1

@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { showActionError } from '@/app/utils/action-error'
 
 import { synchronize } from './actions'
 import { TSynchronizationState } from './types'
@@ -21,11 +22,7 @@ export const SynchronizationButton = () => {
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state])
 
   return (

@@ -2,6 +2,7 @@
 
 import { refresh } from 'next/cache'
 
+import { handleAction } from '@/entry/action'
 import { handleFormAction } from '@/entry/form-action'
 import { requireEditor } from '@/entry/session'
 import { companyModel } from '@/models/company/model'
@@ -32,18 +33,13 @@ export const importFromDevice = async (
   const {
     company: { id: companyId, deviceCredentials }
   } = await requireEditor()
-  try {
-    if (!deviceCredentials) {
-      throw new Error(`Company ${companyId} has no device`)
-    }
+  const result = await handleAction(async () => {
     const data = await synchronizationModel.synchronizeCompany({
       companyId,
       credentials: deviceCredentials
     })
     refresh()
-    return { ...state, data, success: true, fatalError: false }
-  } catch (error) {
-    console.error(error)
-    return { ...state, success: false, fatalError: true }
-  }
+    return data
+  })
+  return { ...state, ...result, data: result.data ?? state.data }
 }

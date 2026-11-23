@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { FormCard, FormField, Select } from '@/app/components/ui/custom/form'
 import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
 import { Field } from '@/app/components/ui/shadcn/field'
+import { showActionError } from '@/app/utils/action-error'
 import type { Company } from '@/infra/database/types'
 
 import { save } from './actions'
@@ -53,11 +54,7 @@ export const CompanyForm = ({ company, hasDevice }: TCompanyFormProps) => {
       return
     }
 
-    if (!state.fatalError) return
-
-    toast.error('Um erro inesperado aconteceu!', {
-      description: 'Atualize a página e tente novamente.'
-    })
+    showActionError(state)
   }, [pending, state])
 
   return (

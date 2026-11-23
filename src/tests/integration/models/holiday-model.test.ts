@@ -145,9 +145,13 @@ describe('Holiday Model', () => {
         name: 'Outro nome',
         scope: 'state'
       })
-    ).rejects.toThrow(`Holiday ${holiday.id} not found in company ${companyId}`)
+    ).rejects.toMatchObject({
+      cause: `Holiday ${holiday.id} not found in company ${companyId}`
+    })
     await expect(
       holidayModel.remove({ id: holiday.id, companyId })
-    ).rejects.toThrow(`Holiday ${holiday.id} not found in company ${companyId}`)
+    ).rejects.toMatchObject({
+      cause: `Holiday ${holiday.id} not found in company ${companyId}`
+    })
   })
 })

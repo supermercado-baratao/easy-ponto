@@ -2,6 +2,7 @@ import { hashPassword } from 'better-auth/crypto'
 import { isCPF } from 'validation-br'
 
 import type { Company, TMemberWithCompany } from '@/infra/database/types'
+import { NotFoundError, ValidationError } from '@/infra/errors'
 import { toSlug } from '@/models/company/utils'
 import { accountRepository } from '@/repositories/account-repository'
 import { userRepository } from '@/repositories/user-repository'
@@ -34,7 +35,12 @@ const isSetUp = async (): Promise<boolean> =>
 const setup = async (
   data: TAccountSetupData
 ): Promise<{ company: Company; credentials: TSignInCredentials }> => {
-  if (await isSetUp()) throw new Error('The first account already exists')
+  if (await isSetUp()) {
+    throw new ValidationError({
+      message: 'A configuração inicial já foi feita.',
+      action: 'Entre com a sua conta.'
+    })
+  }
   const { companyName, name, email, password } = setupSchema.parse(data)
   const { company } = await accountRepository.createWithCompany({
     company: { name: companyName, slug: toSlug(companyName) },
@@ -92,7 +98,10 @@ const resetEmployeePassword = async (
   const { companyId, userId } = resetEmployeePasswordSchema.parse(data)
   const employee = await userRepository.findUniqueById(userId)
   if (employee?.companyId !== companyId) {
-    throw new Error(`User ${userId} not found in company ${companyId}`)
+    throw new NotFoundError({
+      message: 'O funcionário não foi encontrado.',
+      cause: `User ${userId} not found in company ${companyId}`
+    })
   }
   if (!employee.authUserId || !employee.cpf) {
     throw new Error(`User ${userId} has no account`)

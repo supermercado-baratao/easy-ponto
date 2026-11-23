@@ -4,8 +4,8 @@ import { refresh } from 'next/cache'
 import { z } from 'zod'
 import { pt } from 'zod/locales'
 
+import { toActionError } from '@/entry/action'
 import { requireEditor } from '@/entry/session'
-import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 import type { TFileSynchronizationParams } from '@/models/synchronization/types'
 import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
@@ -43,9 +43,6 @@ export const importFile = async (
     company: { deviceCredentials, ...company }
   } = await requireEditor()
   try {
-    if (!deviceCredentials) {
-      throw new Error(`Company ${company.id} has no device`)
-    }
     const result = await synchronizationModel.importFile({
       file: formData.get('file') as File,
       format: formData.get('format') as TTimeCardReportFormat,
@@ -65,21 +62,13 @@ export const importFile = async (
       fatalError: false
     }
   } catch (error) {
-    console.error(error)
     if (error instanceof z.ZodError) {
       const errors = parseResolutionErrors(error)
       if (errors) {
+        console.error(error)
         return { ...state, errors, success: false, fatalError: false }
       }
     }
-    if (error instanceof ValidationError) {
-      return {
-        success: false,
-        fatalError: false,
-        message: error.message,
-        action: error.action
-      }
-    }
-    return { ...state, success: false, fatalError: true }
+    return toActionError(error)
   }
 }

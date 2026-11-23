@@ -30,6 +30,7 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/app/components/ui/shadcn/sheet'
+import { showActionError } from '@/app/utils/action-error'
 import { getJustificationLabel } from '@/app/utils/justification'
 import type {
   JustificationType,
@@ -87,9 +88,8 @@ const RemoveJustificationDialog = ({
         toast.success('Justificativa removida com sucesso!')
         onClose()
       } else {
-        toast.error('Um erro inesperado aconteceu!', {
-          description: 'Atualize a página e tente novamente.'
-        })
+        showActionError(result)
+        if (result.message) onClose()
       }
       return result
     },

@@ -1,4 +1,5 @@
 import type { TInputData, User } from '@/infra/database/types'
+import { NotFoundError } from '@/infra/errors'
 import { userRepository } from '@/repositories/user-repository'
 
 import { updateSchema } from './schema'
@@ -26,9 +27,10 @@ const update = async (data: TUserUpdateData): Promise<User> => {
   const validData = updateSchema.parse(data)
   const user = await userRepository.update(validData)
   if (!user) {
-    throw new Error(
-      `User ${validData.id} not found in company ${validData.companyId}`
-    )
+    throw new NotFoundError({
+      message: 'O funcionário não foi encontrado.',
+      cause: `User ${validData.id} not found in company ${validData.companyId}`
+    })
   }
   return user
 }

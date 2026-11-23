@@ -16,13 +16,10 @@ export const setUp = async (
     name: formData.get('name')?.toString(),
     email: formData.get('email')?.toString()
   }
-  const { success, errors, fatalError } = await handleFormAction(
-    setUpFirstAccount,
-    state,
-    formData
-  )
+  const { success, errors, fatalError, message, action } =
+    await handleFormAction(setUpFirstAccount, state, formData)
   if (success) redirect(PRIVATE_HOME_PATH)
   // React resets the form after the action, so the typed values come back as the defaults on an
   // error. The passwords are left out, so they never travel back to the client (#56)
-  return { success, errors, fatalError, values }
+  return { success, errors, fatalError, message, action, values }
 }

@@ -11,11 +11,8 @@ export const save = async (
   state: TChangePasswordState,
   formData: FormData
 ): Promise<TChangePasswordState> => {
-  const { success, errors, fatalError } = await handleFormAction(
-    changePassword,
-    state,
-    formData
-  )
+  const { success, errors, fatalError, message, action } =
+    await handleFormAction(changePassword, state, formData)
   if (success) redirect(PRIVATE_HOME_PATH)
-  return { success, errors, fatalError }
+  return { success, errors, fatalError, message, action }
 }

@@ -2,6 +2,7 @@ import https from 'node:https'
 
 import axios, { type AxiosInstance } from 'axios'
 
+import { LOGIN_PATH, toDeviceError } from './errors'
 import {
   TControlIdAboutRep,
   TControlIdAfdParams,
@@ -18,13 +19,24 @@ import {
   TUsersInfo
 } from './types'
 
+const REQUEST_TIMEOUT = 15_000
+
+// The whole AFD comes in one response, which takes longer as the punches pile up
+const AFD_TIMEOUT = 120_000
+
 // The device answers over HTTPS with a self-signed certificate and non-standard HTTP
-export const createApiInstance = (ip: string): AxiosInstance =>
-  axios.create({
+export const createApiInstance = (ip: string): AxiosInstance => {
+  const api = axios.create({
     baseURL: `https://${ip}`,
     httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    insecureHTTPParser: true
+    insecureHTTPParser: true,
+    timeout: REQUEST_TIMEOUT
   })
+  api.interceptors.response.use(undefined, (error) => {
+    throw toDeviceError(error)
+  })
+  return api
+}
 
 // `mode=671` asks for the AFD of Portaria 671
 const normalizeUrl = ({
@@ -44,7 +56,7 @@ const login = async (
 ): Promise<string> => {
   const {
     data: { session }
-  }: { data: { session: string } } = await api.post('/login.fcgi', {
+  }: { data: { session: string } } = await api.post(LOGIN_PATH, {
     login: credentials.login,
     password: credentials.password
   })
@@ -174,7 +186,8 @@ const getAfd = async (
   if (initialNsr) body = { ...body, initial_nsr: initialNsr }
   const { data }: { data: string } = await api.post(
     normalizeUrl({ path: '/get_afd', session }),
-    body
+    body,
+    { timeout: AFD_TIMEOUT }
   )
   return data
 }

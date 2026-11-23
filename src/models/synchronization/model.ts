@@ -7,6 +7,7 @@ import type {
   TInputData,
   User
 } from '@/infra/database/types'
+import { NotFoundError } from '@/infra/errors'
 import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
 import { updateSchema as companyUpdateSchema } from '@/models/company/schema'
@@ -139,9 +140,10 @@ const resolveTypes = (
     const resolution = resolutions[code]
     if (resolution.action === 'associate') {
       if (savedTypes.every((type) => type.id !== resolution.typeId)) {
-        throw new Error(
-          `JustificationType ${resolution.typeId} not found in company ${companyId}`
-        )
+        throw new NotFoundError({
+          message: 'O tipo de justificativa não foi encontrado.',
+          cause: `JustificationType ${resolution.typeId} not found in company ${companyId}`
+        })
       }
       typeIds.set(code, resolution.typeId)
       continue

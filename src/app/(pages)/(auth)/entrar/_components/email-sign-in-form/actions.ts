@@ -12,13 +12,10 @@ export const signIn = async (
   formData: FormData
 ): Promise<TEmailSignInState> => {
   const email = formData.get('email')?.toString()
-  const { success, errors, fatalError } = await handleFormAction(
-    signInWithEmail,
-    state,
-    formData
-  )
+  const { success, errors, fatalError, message, action } =
+    await handleFormAction(signInWithEmail, state, formData)
   if (success) redirect(PRIVATE_HOME_PATH)
   // React resets the form after the action, so the typed email comes back as the default on an
   // error. The password is left out, so it never travels back to the client (#56)
-  return { success, errors, fatalError, values: { email } }
+  return { success, errors, fatalError, message, action, values: { email } }
 }

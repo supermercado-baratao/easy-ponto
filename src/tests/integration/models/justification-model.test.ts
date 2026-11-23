@@ -242,7 +242,9 @@ describe('Justification Model', () => {
         startDate: '2026-11-20',
         endDate: '2026-11-20'
       })
-    ).rejects.toThrow(`User ${otherUserId} not found in company ${companyId}`)
+    ).rejects.toMatchObject({
+      cause: `User ${otherUserId} not found in company ${companyId}`
+    })
     await expect(
       justificationModel.create({
         companyId,
@@ -251,14 +253,14 @@ describe('Justification Model', () => {
         startDate: '2026-11-20',
         endDate: '2026-11-20'
       })
-    ).rejects.toThrow(
-      `JustificationType ${otherType.id} not found in company ${companyId}`
-    )
+    ).rejects.toMatchObject({
+      cause: `JustificationType ${otherType.id} not found in company ${companyId}`
+    })
     await expect(
       justificationModel.remove({ id: otherJustification.id, companyId })
-    ).rejects.toThrow(
-      `Justification ${otherJustification.id} not found in company ${companyId}`
-    )
+    ).rejects.toMatchObject({
+      cause: `Justification ${otherJustification.id} not found in company ${companyId}`
+    })
     await expect(
       justificationTypeModel.update({
         id: otherType.id,
@@ -267,8 +269,8 @@ describe('Justification Model', () => {
         description: 'Outro',
         effect: 'excuse'
       })
-    ).rejects.toThrow(
-      `JustificationType ${otherType.id} not found in company ${companyId}`
-    )
+    ).rejects.toMatchObject({
+      cause: `JustificationType ${otherType.id} not found in company ${companyId}`
+    })
   })
 })

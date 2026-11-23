@@ -134,7 +134,9 @@ describe('Vacation Plan Model', () => {
         year: YEAR,
         month: '3'
       })
-    ).rejects.toThrow(`User ${otherUser.id} not found in company ${companyId}`)
+    ).rejects.toMatchObject({
+      cause: `User ${otherUser.id} not found in company ${companyId}`
+    })
     expect(
       await vacationPlanModel.findManyByYear({
         companyId: otherCompanyId,
@@ -179,9 +181,9 @@ describe('Vacation Plan Model', () => {
         endDate: '2027-08-31',
         note: ''
       })
-    ).rejects.toThrow(
-      `The vacation of user ${first.id} in ${YEAR} is already registered`
-    )
+    ).rejects.toMatchObject({
+      cause: `The vacation of user ${first.id} in ${YEAR} is already registered`
+    })
   })
 
   test('Keeps the month of a registered vacation until its justification is removed', async () => {
@@ -227,7 +229,9 @@ describe('Vacation Plan Model', () => {
         endDate: '2027-01-31',
         note: ''
       })
-    ).rejects.toThrow(`User ${second.id} has no vacation planned in ${YEAR}`)
+    ).rejects.toMatchObject({
+      cause: `User ${second.id} has no vacation planned in ${YEAR}`
+    })
   })
 
   test('Rejects a justification type of another company and keeps the vacation unregistered', async () => {
@@ -247,9 +251,9 @@ describe('Vacation Plan Model', () => {
         endDate: '2027-05-31',
         note: ''
       })
-    ).rejects.toThrow(
-      `JustificationType ${typeId} not found in company ${otherCompanyId}`
-    )
+    ).rejects.toMatchObject({
+      cause: `JustificationType ${typeId} not found in company ${otherCompanyId}`
+    })
     const [{ plan }] = await vacationPlanModel.findManyByYear({
       companyId: otherCompanyId,
       year: YEAR

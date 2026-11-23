@@ -1,8 +1,3 @@
-import type { TState } from '@/entry/form-action'
+import type { TActionState } from '@/entry/action'
 
-export type TClosingState = Pick<
-  TState<never, never>,
-  'success' | 'fatalError' | 'message'
-> & {
-  action?: string
-}
+export type TClosingState = TActionState<never>
