@@ -4,14 +4,11 @@ import type {
   Company,
   DeviceCredentials,
   HoursBankClosing,
-  JustificationType,
-  PunchRecord,
-  User
+  JustificationType
 } from '@/infra/database/types'
-import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
+import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 
 import type { TAfdQuery } from '../device/types'
-import type { TScheduleSaveData } from '../schedule/types'
 import type { codeResolutionSchema } from './schema'
 
 export type TCompanySynchronizationParams = {
@@ -43,6 +40,7 @@ export type TCodeResolution = z.input<typeof codeResolutionSchema>
 
 export type TFileSynchronizationParams = {
   file: File
+  format: TTimeCardReportFormat
   company: Company
   credentials: DeviceCredentials
   resolutions?: Record<string, TCodeResolution>
@@ -60,67 +58,9 @@ export type TFileImportResult =
       skippedJustifications: number
     }
 
-export type TCompanyInJson = Pick<Company, 'name' | 'cpfCnpj' | 'registration'>
-
-export type TUserInJson = Pick<
-  User,
-  | 'department'
-  | 'position'
-  | 'admissionDate'
-  | 'payrollNumber'
-  | 'cpf'
-  | 'name'
-  | 'registration'
->
-
-export type TPunchRecordInJson = Pick<
-  PunchRecord,
-  'afdDatetime' | 'datetime'
-> & {
-  userName: string
-}
-
-export type TScheduleInJson = Omit<
-  TScheduleSaveData,
-  'companyId' | 'userId'
-> & {
-  userName: string
-}
-
-export type TJustificationInJson = {
-  userName: string
-  code: string
-  startDate: string
-  endDate: string
-  startTime: string
-  endTime: string
-}
-
-export type TDataInJson = {
-  company: TCompanyInJson
-  users: TUserInJson[]
-  punchRecords: TPunchRecordInJson[]
-  schedules: TScheduleInJson[]
-}
-
-export type TPeriodInJson = {
-  startDate: string
-  endDate: string
-}
-
-export type THoursBankBalanceInJson = Omit<
-  THoursBankInitialBalanceItem,
-  'userId'
-> & {
-  userName: string
-}
-
-export type THoursBankInJson = TPeriodInJson & {
-  balances: THoursBankBalanceInJson[]
-}
-
 export type TInitialBalanceImportParams = {
   file: File
+  format: TTimeCardReportFormat
   companyId: string
 }
 

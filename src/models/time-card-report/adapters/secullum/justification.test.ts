@@ -2,6 +2,8 @@
 
 import { describe, expect, test } from 'vitest'
 
+import { InvalidExcelFileError } from '@/models/time-card-report/errors'
+import type { TReportJustification } from '@/models/time-card-report/types'
 import {
   createDayRow,
   createEmployee,
@@ -11,8 +13,6 @@ import {
   type TRow
 } from '@/tests/_utils/secullum-report'
 
-import { InvalidExcelFileError } from '../errors'
-import type { TJustificationInJson } from '../types'
 import { extractDataFromJson, parseXlsToJson } from './file'
 import { extractJustificationsFromJson } from './justification'
 
@@ -27,7 +27,7 @@ const wholeDay = (code: string): Record<string, string> => ({
 
 const extract = async (
   employees: TEmployee[]
-): Promise<TJustificationInJson[]> => {
+): Promise<TReportJustification[]> => {
   const json = await parseXlsToJson(
     createReportFile(createReportRows({ employees }))
   )
@@ -37,7 +37,7 @@ const extract = async (
   )
 }
 
-const extractDays = async (days: TRow[]): Promise<TJustificationInJson[]> =>
+const extractDays = async (days: TRow[]): Promise<TReportJustification[]> =>
   await extract([createEmployee({ days })])
 
 describe('extractJustificationsFromJson', () => {

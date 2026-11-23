@@ -8,6 +8,7 @@ import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
 import type { TFileSynchronizationParams } from '@/models/synchronization/types'
+import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 
 import type { TImportFileState } from './types'
 
@@ -47,6 +48,7 @@ export const importFile = async (
     }
     const result = await synchronizationModel.importFile({
       file: formData.get('file') as File,
+      format: formData.get('format') as TTimeCardReportFormat,
       company,
       credentials: deviceCredentials,
       resolutions: parseResolutions(formData.get(RESOLUTIONS_PATH))

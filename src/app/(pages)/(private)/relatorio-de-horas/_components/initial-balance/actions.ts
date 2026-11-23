@@ -5,6 +5,7 @@ import { refresh } from 'next/cache'
 import { requireEditor } from '@/entry/session'
 import { ValidationError } from '@/infra/errors'
 import { synchronizationModel } from '@/models/synchronization/model'
+import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 
 import type { TInitialBalanceState } from './types'
 
@@ -19,6 +20,7 @@ export const importInitialBalance = async (
     const { closing, unmatchedNames } =
       await synchronizationModel.importInitialBalance({
         file: formData.get('file') as File,
+        format: formData.get('format') as TTimeCardReportFormat,
         companyId
       })
     refresh()

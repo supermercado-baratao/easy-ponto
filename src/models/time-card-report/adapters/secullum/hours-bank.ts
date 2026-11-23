@@ -1,9 +1,5 @@
-import type { User } from '@/infra/database/types'
-import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
-
-import { InvalidExcelFileError } from '../errors'
-import type { THoursBankBalanceInJson, THoursBankInJson } from '../types'
-import { extractPeriod } from './file'
+import { InvalidExcelFileError } from '@/models/time-card-report/errors'
+import type { TReportBalance } from '@/models/time-card-report/types'
 
 // The store's rules for the Secullum balance, from the spreadsheet it used before the migration:
 // a day off (FOLGA) is deducted from the hours bank, and a worked holiday credits a whole
@@ -40,7 +36,7 @@ const mapColumns = (header: Record<string, unknown>): Map<string, string> =>
 const readTotals = (
   totals: Record<string, unknown>,
   columns: Map<string, string>
-): Omit<THoursBankBalanceInJson, 'userName' | 'dayOff'> => {
+): Omit<TReportBalance, 'userName' | 'dayOff'> => {
   const result = { absence: 0, overtime60: 0, overtime100: 0, adjustment: 0 }
   for (const [field, label] of Object.entries(TOTAL_COLUMNS)) {
     const key = columns.get(label)
@@ -51,7 +47,7 @@ const readTotals = (
 }
 
 const applyDay = (
-  balance: THoursBankBalanceInJson,
+  balance: TReportBalance,
   row: Record<string, unknown>,
   columns: Map<string, string>
 ): void => {
@@ -72,9 +68,9 @@ const applyDay = (
   else if (daysOff.length === 2) balance.dayOff += HALF_DAY_OFF_MINUTES
 }
 
-export const extractHoursBankFromJson = (json: any[]): THoursBankInJson => {
+export const extractHoursBankFromJson = (json: any[]): TReportBalance[] => {
   try {
-    const balances: THoursBankBalanceInJson[] = []
+    const balances: TReportBalance[] = []
     let columns = new Map<string, string>()
 
     for (const [index, row] of json.entries()) {
@@ -96,27 +92,8 @@ export const extractHoursBankFromJson = (json: any[]): THoursBankInJson => {
       if (balance) applyDay(balance, row, columns)
     }
 
-    return { ...extractPeriod(json), balances }
+    return balances
   } catch (error) {
     throw new InvalidExcelFileError(error as Error)
   }
-}
-
-export const getInitialBalancesToSave = (
-  balancesInJson: THoursBankBalanceInJson[],
-  users: User[]
-): {
-  balances: THoursBankInitialBalanceItem[]
-  unmatchedNames: string[]
-} => {
-  const balances: THoursBankInitialBalanceItem[] = []
-  const unmatchedNames: string[] = []
-
-  for (const { userName, ...balance } of balancesInJson) {
-    const user = users.find(({ name }) => name === userName)
-    if (user) balances.push({ userId: user.id, ...balance })
-    else unmatchedNames.push(userName)
-  }
-
-  return { balances, unmatchedNames }
 }

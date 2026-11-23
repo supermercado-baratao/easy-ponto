@@ -18,6 +18,7 @@ import { findOverlappingJustification } from '@/models/justification/utils'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
+import { timeCardReportModel } from '@/models/time-card-report/model'
 import { userModel } from '@/models/user/model'
 import { justificationRepository } from '@/repositories/justification-repository'
 import { synchronizationRepository } from '@/repositories/synchronization-repository'
@@ -28,18 +29,11 @@ import {
   parseAfd
 } from './_utils/afd'
 import {
-  extractDataFromJson,
-  extractPeriod,
+  getInitialBalancesToSave,
   getPunchRecordsToCreate,
   getSchedulesToSave,
-  getUsersToUpdate,
-  parseXlsToJson
-} from './_utils/file'
-import {
-  extractHoursBankFromJson,
-  getInitialBalancesToSave
-} from './_utils/hours-bank'
-import { extractJustificationsFromJson } from './_utils/justification'
+  getUsersToUpdate
+} from './_utils/report'
 import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
 import { importFileSchema } from './schema'
 import {
@@ -198,6 +192,7 @@ const isSameJustification = (
 
 const importFile = async ({
   file,
+  format,
   company,
   credentials,
   resolutions
@@ -205,18 +200,16 @@ const importFile = async ({
   const { resolutions: validResolutions } = importFileSchema.parse({
     resolutions
   })
-  const [json, users, savedTypes] = await Promise.all([
-    parseXlsToJson(file),
+  const [report, users, savedTypes] = await Promise.all([
+    timeCardReportModel.read(format, file),
     synchronizeUsers({ companyId: company.id, credentials }),
     justificationTypeModel.findManyByCompanyId(company.id)
   ])
-  const dataInJson = extractDataFromJson(json)
-  const justificationsInJson = extractJustificationsFromJson(
-    json,
-    dataInJson.schedules
-  ).filter(({ userName }) => users.some((user) => user.name === userName))
+  const reportJustifications = report.justifications.filter(({ userName }) =>
+    users.some((user) => user.name === userName)
+  )
 
-  const codes = [...new Set(justificationsInJson.map(({ code }) => code))]
+  const codes = [...new Set(reportJustifications.map(({ code }) => code))]
   const unknownCodes = codes.filter(
     (code) =>
       savedTypes.every((type) => type.code !== code) &&
@@ -240,7 +233,7 @@ const importFile = async ({
     savedTypes,
     company.id
   )
-  const { startDate, endDate } = extractPeriod(json)
+  const { startDate, endDate } = report.period
   const savedJustifications =
     await justificationRepository.findManyInPeriodByUserIds({
       userIds: users.map(({ id }) => id),
@@ -250,7 +243,7 @@ const importFile = async ({
 
   let skippedJustifications = 0
   const justificationsToCreate: TInputData<Justification>[] = []
-  for (const { userName, code, ...period } of justificationsInJson) {
+  for (const { userName, code, ...period } of reportJustifications) {
     const user = users.find(({ name }) => name === userName)!
     const { userId, typeId, startDate, endDate, startTime, endTime, note } =
       justificationCreateSchema.parse({
@@ -283,24 +276,22 @@ const importFile = async ({
 
   const updatedCompany = await synchronizationRepository.importFile({
     company:
-      company.registration === dataInJson.company.registration
+      company.registration === report.company.registration
         ? null
         : toCompanyUpdate(
             companyUpdateSchema.parse({
               id: company.id,
-              registration: dataInJson.company.registration
+              registration: report.company.registration
             })
           ),
-    users: getUsersToUpdate(users, dataInJson.users),
+    users: getUsersToUpdate(users, report.users),
     punchRecords: await punchRecordModel.findNewNonExistentInAfd(
-      getPunchRecordsToCreate(dataInJson.punchRecords, users)
+      getPunchRecordsToCreate(report.punchRecords, users)
     ),
-    schedules: getSchedulesToSave(dataInJson.schedules, users).map(
-      (schedule) => {
-        const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
-        return { userId, startDate, days }
-      }
-    ),
+    schedules: getSchedulesToSave(report.schedules, users).map((schedule) => {
+      const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
+      return { userId, startDate, days }
+    }),
     justificationTypes: typesToCreate,
     justifications: justificationsToCreate
   })
@@ -316,20 +307,20 @@ const importFile = async ({
 
 const importInitialBalance = async ({
   file,
+  format,
   companyId
 }: TInitialBalanceImportParams): Promise<TInitialBalanceImportResult> => {
-  const [json, users] = await Promise.all([
-    parseXlsToJson(file),
+  const [report, users] = await Promise.all([
+    timeCardReportModel.read(format, file),
     userModel.findManyByCompanyId(companyId)
   ])
-  const { balances: balancesInJson, ...period } = extractHoursBankFromJson(json)
   const { balances, unmatchedNames } = getInitialBalancesToSave(
-    balancesInJson,
+    report.balances,
     users
   )
   const closing = await hoursBankModel.createInitialBalance({
     companyId,
-    ...period,
+    ...report.period,
     balances
   })
   return { closing, unmatchedNames }

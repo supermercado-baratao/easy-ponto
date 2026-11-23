@@ -1,8 +1,10 @@
 'use client'
 
+import { UploadIcon } from 'lucide-react'
 import { startTransition, useActionState, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
+import { ReportFormatSelect } from '@/app/components/blocks/report-format-select'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
@@ -23,6 +25,7 @@ export const ImportFileButton = () => {
   const formReference = useRef<HTMLFormElement>(null)
   const inputReference = useRef<HTMLInputElement>(null)
   const fileReference = useRef<File | null>(null)
+  const formatReference = useRef<FormDataEntryValue | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   // Remounts the dialog for each unresolved import, so it never keeps the choices of a cancelled one
   const [dialogKey, setDialogKey] = useState(0)
@@ -61,22 +64,29 @@ export const ImportFileButton = () => {
 
   const submitFile = (formData: FormData): void => {
     fileReference.current = formData.get('file') as File
+    formatReference.current = formData.get('format')
     formAction(formData)
   }
 
   const submitResolutions = (
     resolutions: Record<string, Partial<TCodeResolution>>
   ): void => {
-    if (!fileReference.current) return
+    if (!fileReference.current || !formatReference.current) return
     const formData = new FormData()
     formData.set('file', fileReference.current)
+    formData.set('format', formatReference.current)
     formData.set('resolutions', JSON.stringify(resolutions))
     startTransition(() => formAction(formData))
   }
 
   return (
     <>
-      <form action={submitFile} ref={formReference}>
+      <form
+        action={submitFile}
+        ref={formReference}
+        className="flex items-center gap-2"
+      >
+        <ReportFormatSelect disabled={pending} />
         <Button
           type="button"
           variant="outline"
@@ -84,7 +94,9 @@ export const ImportFileButton = () => {
           focusableWhenDisabled
           onClick={() => inputReference.current?.click()}
         >
-          Importar Arquivo
+          {/* On phones, the header has no room for both the source system select and the button label */}
+          <UploadIcon aria-hidden className="sm:hidden" />
+          <span className="max-sm:sr-only">Importar Arquivo</span>
         </Button>
         <Input
           ref={inputReference}
