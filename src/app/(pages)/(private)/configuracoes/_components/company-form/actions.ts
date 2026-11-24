@@ -46,7 +46,7 @@ export const loadDeviceChanges = async (): Promise<
   )
 }
 
-export const importFromDevice = async (
+export const synchronizeFromDevice = async (
   fields: TDeviceCompanyField[]
 ): Promise<TActionState<Company>> => {
   const {

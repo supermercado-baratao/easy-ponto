@@ -9,14 +9,14 @@ import type {
   TDeviceCompanyField
 } from '@/models/company/types'
 
-import { importFromDevice, loadDeviceChanges } from './actions'
-import { ImportDialog } from './import-dialog'
+import { loadDeviceChanges, synchronizeFromDevice } from './actions'
+import { SyncDialog } from './sync-dialog'
 
-export const ImportButton = ({ isFormPending }: { isFormPending: boolean }) => {
+export const SyncButton = ({ isFormPending }: { isFormPending: boolean }) => {
   const [changes, setChanges] = useState<TCompanyChange[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, startLoading] = useTransition()
-  const [isImporting, startImporting] = useTransition()
+  const [isSaving, startSaving] = useTransition()
 
   const loadChanges = (): void => {
     startLoading(async () => {
@@ -35,14 +35,14 @@ export const ImportButton = ({ isFormPending }: { isFormPending: boolean }) => {
   }
 
   const applyChanges = (fields: TDeviceCompanyField[]): void => {
-    startImporting(async () => {
-      const result = await importFromDevice(fields)
+    startSaving(async () => {
+      const result = await synchronizeFromDevice(fields)
       if (!result.success) {
         showActionError(result)
         return
       }
       setIsDialogOpen(false)
-      toast.success('Dados importados com sucesso!')
+      toast.success('Dados sincronizados com sucesso!')
     })
   }
 
@@ -55,16 +55,19 @@ export const ImportButton = ({ isFormPending }: { isFormPending: boolean }) => {
         type="button"
         disabled={isPending}
         focusableWhenDisabled
-        className="w-1/5 min-w-20"
         onClick={loadChanges}
       >
-        {isPending ? <Loader mode="inline" label="Importar" /> : 'Importar'}
+        {isPending ? (
+          <Loader mode="inline" label="Sincronizar" />
+        ) : (
+          'Sincronizar'
+        )}
       </Button>
-      <ImportDialog
+      <SyncDialog
         key={changes.map(({ field, device }) => `${field}:${device}`).join(',')}
         open={isDialogOpen}
         changes={changes}
-        pending={isImporting}
+        pending={isSaving}
         onSubmit={applyChanges}
         onCancel={() => setIsDialogOpen(false)}
       />

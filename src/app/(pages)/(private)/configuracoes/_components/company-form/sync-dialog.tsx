@@ -20,7 +20,7 @@ import type {
 
 const EMPTY_VALUE = 'Vazio'
 
-export const ImportDialog = ({
+export const SyncDialog = ({
   open,
   changes,
   pending,

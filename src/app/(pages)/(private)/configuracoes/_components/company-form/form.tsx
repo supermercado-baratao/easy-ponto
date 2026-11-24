@@ -10,8 +10,8 @@ import { showActionError } from '@/app/utils/action-error'
 import type { Company } from '@/infra/database/types'
 
 import { save } from './actions'
-import { ImportButton } from './import-button'
 import { SubmitButton } from './submit-button'
+import { SyncButton } from './sync-button'
 import type { TCompanyFormValues, TCompanyState } from './types'
 
 type TCompanyFormProps = {
@@ -126,7 +126,7 @@ export const CompanyForm = ({ company, hasDevice }: TCompanyFormProps) => {
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
-          {hasDevice && <ImportButton isFormPending={pending} />}
+          {hasDevice && <SyncButton isFormPending={pending} />}
           <SubmitButton pending={pending} />
         </Field>
       </CardFooter>

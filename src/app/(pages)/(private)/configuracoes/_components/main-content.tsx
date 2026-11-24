@@ -31,8 +31,8 @@ export const MainContent = ({
           <AlertTitle>Configure o Easy Ponto para começar</AlertTitle>
           <AlertDescription>
             {deviceCredentials
-              ? 'Importe os dados da empresa do relógio de ponto.'
-              : 'Cadastre o relógio de ponto e, em seguida, importe os dados da empresa.'}
+              ? 'Sincronize os dados da empresa com o relógio de ponto.'
+              : 'Cadastre o relógio de ponto e, em seguida, sincronize os dados da empresa.'}
           </AlertDescription>
         </Alert>
       )}
