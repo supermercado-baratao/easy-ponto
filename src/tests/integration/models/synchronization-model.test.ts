@@ -177,8 +177,7 @@ const createJustificationsFile = (): File =>
 
 const INSS_RESOLUTION: Extract<TCodeResolution, { action: 'create' }> = {
   action: 'create',
-  code: 'INSS',
-  description: 'Afastamento pelo INSS',
+  name: 'Afastamento pelo INSS',
   effect: 'excuse'
 }
 
@@ -478,8 +477,7 @@ describe('Synchronization Model', () => {
       const data = await populate()
       await justificationTypeModel.create({
         companyId: data.company.id,
-        code: 'FOLGA',
-        description: 'Folga do banco de horas',
+        name: 'FOLGA',
         effect: 'deduct'
       })
 
@@ -492,7 +490,7 @@ describe('Synchronization Model', () => {
         status: 'unresolved',
         unknownCodes: ['INSS'],
         types: expect.arrayContaining([
-          expect.objectContaining({ code: 'FOLGA' })
+          expect.objectContaining({ name: 'FOLGA' })
         ])
       })
       const [user] = await userModel.findManyByCompanyId(data.company.id)
@@ -509,8 +507,7 @@ describe('Synchronization Model', () => {
       const data = await populate()
       const compensation = await justificationTypeModel.create({
         companyId: data.company.id,
-        code: 'FOLGA DO BANCO',
-        description: 'Folga do banco de horas',
+        name: 'Folga do banco de horas',
         effect: 'deduct'
       })
 
@@ -519,7 +516,6 @@ describe('Synchronization Model', () => {
         data,
         {
           ...RESOLUTIONS,
-          INSS: { ...INSS_RESOLUTION, code: 'AFASTAMENTO' },
           FOLGA: { action: 'associate', typeId: compensation.id }
         }
       )
@@ -531,8 +527,11 @@ describe('Synchronization Model', () => {
       const types = await justificationTypeModel.findManyByCompanyId(
         data.company.id
       )
-      expect(types.map(({ code }) => code)).toEqual(
-        expect.arrayContaining(['AFASTAMENTO', 'FOLGA DO BANCO'])
+      expect(types.map(({ name }) => name)).toEqual(
+        expect.arrayContaining([
+          'Afastamento pelo INSS',
+          'Folga do banco de horas'
+        ])
       )
       expect(await findJustifications(data.company.id)).toEqual([
         expect.objectContaining({
@@ -541,8 +540,7 @@ describe('Synchronization Model', () => {
           startTime: null,
           endTime: null,
           type: expect.objectContaining({
-            code: 'AFASTAMENTO',
-            description: 'Afastamento pelo INSS',
+            name: 'Afastamento pelo INSS',
             effect: 'excuse'
           })
         }),
@@ -561,9 +559,9 @@ describe('Synchronization Model', () => {
       const types = await justificationTypeModel.findManyByCompanyId(
         data.company.id
       )
-      const compensation = types.find(({ code }) => code === 'COMPENSACAO')!
+      const compensation = types.find(({ name }) => name === 'Compensação')!
       await importFileWithResolutions(createJustificationsFile(), data, {
-        INSS: { ...INSS_RESOLUTION, code: 'AFASTAMENTO' },
+        ...RESOLUTIONS,
         FOLGA: { action: 'associate', typeId: compensation.id }
       })
       const [user] = await userModel.findManyByCompanyId(data.company.id)
@@ -583,7 +581,7 @@ describe('Synchronization Model', () => {
         expect.objectContaining({
           userId: user.id,
           startDate: '2025-10-06',
-          type: expect.objectContaining({ code: 'AFASTAMENTO' })
+          type: expect.objectContaining({ name: 'Afastamento pelo INSS' })
         }),
         expect.objectContaining({
           startDate: '2025-10-08',
@@ -609,14 +607,32 @@ describe('Synchronization Model', () => {
       })
     })
 
+    test('Matches a code to a type name only with the same case', async () => {
+      const data = await populate()
+      await justificationTypeModel.create({
+        companyId: data.company.id,
+        name: 'FOLGA',
+        effect: 'deduct'
+      })
+
+      const result = await importFileWithResolutions(
+        createDaysFile([createDayRow('06/10/25 - seg', REST_DAY)]),
+        data
+      )
+
+      expect(result).toMatchObject({
+        status: 'unresolved',
+        unknownCodes: ['Folga']
+      })
+    })
+
     test('Does not duplicate the justifications when the same file is imported again', async () => {
       const data = await populate()
       const resolutions: Record<string, TCodeResolution> = {
         ...RESOLUTIONS,
         FOLGA: {
           action: 'create',
-          code: 'FOLGA',
-          description: 'Folga do banco de horas',
+          name: 'Folga do banco de horas',
           effect: 'deduct'
         }
       }
@@ -641,11 +657,10 @@ describe('Synchronization Model', () => {
     test('Skips and counts the justifications that overlap a different saved one', async () => {
       const data = await populate()
       const types = await Promise.all(
-        ['INSS', 'FOLGA'].map((code) =>
+        ['INSS', 'FOLGA'].map((name) =>
           justificationTypeModel.create({
             companyId: data.company.id,
-            code,
-            description: code,
+            name,
             effect: 'excuse'
           })
         )
@@ -671,29 +686,28 @@ describe('Synchronization Model', () => {
       })
       const justifications = await findJustifications(data.company.id)
       expect(
-        justifications.map(({ startDate, type }) => [startDate, type.code])
+        justifications.map(({ startDate, type }) => [startDate, type.name])
       ).toEqual([
         ['2025-10-07', 'FOLGA'],
         ['2025-10-08', 'FOLGA']
       ])
     })
 
-    test('Refuses a new type with the code of a saved one, saving nothing', async () => {
+    test('Refuses a new type with the name of a saved one, whatever the case, saving nothing', async () => {
       const data = await populate()
       await justificationTypeModel.create({
         companyId: data.company.id,
-        code: 'FOLGA',
-        description: 'Folga do banco de horas',
+        name: 'FOLGA',
         effect: 'deduct'
       })
 
       await expect(
         importFileWithResolutions(createJustificationsFile(), data, {
-          INSS: { ...INSS_RESOLUTION, code: 'FOLGA' }
+          INSS: { ...INSS_RESOLUTION, name: 'folga' }
         })
       ).rejects.toMatchObject({
         issues: [
-          expect.objectContaining({ path: ['resolutions', 'INSS', 'code'] })
+          expect.objectContaining({ path: ['resolutions', 'INSS', 'name'] })
         ]
       })
       const [user] = await userModel.findManyByCompanyId(data.company.id)
@@ -749,7 +763,10 @@ describe('Synchronization Model', () => {
       const types = await justificationTypeModel.findManyByCompanyId(
         data.company.id
       )
-      const compensation = types.find(({ code }) => code === 'COMPENSACAO')!
+      const compensation = types.find(({ name }) => name === 'Compensação')!
+      const medicalCertificate = types.find(
+        ({ name }) => name === 'Atestado médico'
+      )!
       const file = createDaysFile([
         createDayRow('06/10/25 - seg', WHOLE_DAY_FOLGA),
         createDayRow('07/10/25 - ter', {
@@ -774,12 +791,15 @@ describe('Synchronization Model', () => {
       const unresolved = await synchronizationModel.importInitialBalance(params)
       const imported = await synchronizationModel.importInitialBalance({
         ...params,
-        resolutions: { FOLGA: { action: 'associate', typeId: compensation.id } }
+        resolutions: {
+          FOLGA: { action: 'associate', typeId: compensation.id },
+          ATESTADO: { action: 'associate', typeId: medicalCertificate.id }
+        }
       })
 
       expect(unresolved).toMatchObject({
         status: 'unresolved',
-        unknownCodes: ['FOLGA']
+        unknownCodes: ['FOLGA', 'ATESTADO']
       })
       expect(imported).toMatchObject({ status: 'imported' })
       const report = await hoursBankModel.generate({

@@ -49,7 +49,7 @@ beforeAll(async () => {
   otherCompanyId = other.companyId
   otherUser = other.users[0]
   const types = await justificationTypeModel.findManyByCompanyId(companyId)
-  typeId = types.find(({ code }) => code === 'FERIAS')!.id
+  typeId = types.find(({ name }) => name === 'Férias')!.id
 })
 
 const findPlans = async (): Promise<Record<string, number | undefined>> => {
@@ -164,7 +164,7 @@ describe('Vacation Plan Model', () => {
       endDate: '2027-08-31',
       startTime: null,
       endTime: null,
-      type: { code: 'FERIAS' }
+      type: { name: 'Férias' }
     })
 
     await expect(

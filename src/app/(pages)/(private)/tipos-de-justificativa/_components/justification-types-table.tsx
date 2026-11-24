@@ -22,8 +22,7 @@ export const JustificationTypesTable = ({
   <Table aria-label="Tipos de justificativa">
     <TableHeader>
       <TableRow>
-        <TableHead>Código</TableHead>
-        <TableHead>Descrição</TableHead>
+        <TableHead>Nome</TableHead>
         <TableHead>Efeito</TableHead>
         {canEdit && (
           <TableHead>
@@ -35,10 +34,9 @@ export const JustificationTypesTable = ({
     <TableBody>
       {types.map((type) => (
         <TableRow key={type.id}>
-          <TableHead scope="row" className="font-mono font-normal">
-            {type.code}
+          <TableHead scope="row" className="font-normal">
+            {type.name}
           </TableHead>
-          <TableCell>{type.description}</TableCell>
           <TableCell>{getEffectLabel(type.effect)}</TableCell>
           {canEdit && (
             <TableCell>
@@ -47,8 +45,7 @@ export const JustificationTypesTable = ({
                   type={type}
                   defaultValues={{
                     id: type.id,
-                    code: type.code,
-                    description: type.description,
+                    name: type.name,
                     effect: type.effect
                   }}
                 />

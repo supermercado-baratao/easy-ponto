@@ -36,7 +36,7 @@ export const JustificationTypeSheet = ({
             <Button
               variant="ghost"
               size="icon"
-              aria-label={`Editar ${type.code}`}
+              aria-label={`Editar ${type.name}`}
             />
           }
         >
@@ -55,7 +55,7 @@ export const JustificationTypeSheet = ({
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>
             {type
-              ? `${type.code} – ${type.description}`
+              ? type.name
               : 'O efeito diz se a ausência desconta do banco de horas ou é abonada.'}
           </SheetDescription>
         </SheetHeader>

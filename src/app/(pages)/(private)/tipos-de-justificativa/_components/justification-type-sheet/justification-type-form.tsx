@@ -68,18 +68,11 @@ export const JustificationTypeForm = ({
       >
         {values.id && <input type="hidden" name="id" value={values.id} />}
         <FormField
-          id={`${id}-code`}
-          name="code"
-          label="Código"
-          defaultValue={values.code}
-          error={state.errors?.code}
-        />
-        <FormField
-          id={`${id}-description`}
-          name="description"
-          label="Descrição"
-          defaultValue={values.description}
-          error={state.errors?.description}
+          id={`${id}-name`}
+          name="name"
+          label="Nome"
+          defaultValue={values.name}
+          error={state.errors?.name}
         />
         <Select
           id={`${id}-effect`}

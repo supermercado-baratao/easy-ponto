@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 
+import { sql } from 'drizzle-orm'
 import {
   boolean,
   date,
@@ -9,7 +10,8 @@ import {
   pgTable,
   text,
   timestamp,
-  unique
+  unique,
+  uniqueIndex
 } from 'drizzle-orm/pg-core'
 
 const id = () =>
@@ -370,16 +372,16 @@ export const justificationTypes = pgTable(
   'justification_types',
   {
     id: id(),
-    code: text('code').notNull(),
-    description: text('description').notNull(),
+    name: text('name').notNull(),
     effect: text('effect').notNull(),
     companyId: text('company_id').notNull(),
     ...timestamps()
   },
   (table) => [
-    unique('justification_types_company_id_code_key').on(
+    // The name is how the user tells the types apart, so a case difference doesn't make a new one
+    uniqueIndex('justification_types_company_id_name_key').on(
       table.companyId,
-      table.code
+      sql`lower(${table.name})`
     ),
     index('justification_types_company_id_idx_1303a718').on(table.companyId),
     foreignKey({

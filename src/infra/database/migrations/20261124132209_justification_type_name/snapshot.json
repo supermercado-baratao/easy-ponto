@@ -1,0 +1,140 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "37621a92-74b6-48b0-9205-11a04866dc7a",
+  "prevIds": [
+    "dc454f1e-44d4-4d56-bbf8-f434d0729b10"
+  ],
+  "footprints": [
+    {
+      "statementType": "rename_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "justification_types",
+        "description"
+      ],
+      "writes": [
+        "s|col|public.justification_types.description",
+        "n|col|public.justification_types.description",
+        "s|col|public.justification_types.name",
+        "n|col|public.justification_types.name"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "justification_types"
+      ],
+      "writes": [
+        "s|uq|public.justification_types.justification_types_company_id_code_key",
+        "n|uq|public.justification_types.justification_types_company_id_code_key",
+        "e|uq|public.justification_types.justification_types_company_id_code_key",
+        "n|con|public.justification_types.justification_types_company_id_code_key",
+        "n|rel|public.justification_types_company_id_code_key"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public",
+        "e|col|public.justification_types.company_id",
+        "e|col|public.justification_types.code"
+      ],
+      "sharedWrites": [
+        "e|uniqueness|public.justification_types.code.company_id"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "justification_types",
+        "code"
+      ],
+      "writes": [
+        "s|col|public.justification_types.code",
+        "n|col|public.justification_types.code",
+        "e|col|public.justification_types.code"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "justification_types",
+        "justification_types_company_id_name_key"
+      ],
+      "writes": [
+        "s|idx|public.justification_types_company_id_name_key",
+        "n|idx|public.justification_types_company_id_name_key",
+        "e|idx|public.justification_types_company_id_name_key",
+        "n|rel|public.justification_types_company_id_name_key"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public",
+        "n|col|public.justification_types.company_id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "rename",
+      "key": "columns\u0000[\"public\",\"justification_types\",\"description\"]",
+      "set": {
+        "name": "name"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_types",
+        "name": "justification_types_company_id_name_key",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "lower(\"name\")",
+            "isExpression": true,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": true,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"justification_types\",\"code\"]"
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"justification_types\",\"justification_types_company_id_code_key\"]"
+    }
+  ]
+}

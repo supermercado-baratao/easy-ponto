@@ -49,7 +49,7 @@ export type TFileSynchronizationParams = {
 export type TUnresolvedImport = {
   status: 'unresolved'
   unknownCodes: string[]
-  types: Pick<JustificationType, 'id' | 'code' | 'description'>[]
+  types: Pick<JustificationType, 'id' | 'name'>[]
 }
 
 export type TFileImportResult =

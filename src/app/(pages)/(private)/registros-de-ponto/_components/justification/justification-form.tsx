@@ -33,7 +33,7 @@ export const JustificationForm = ({
   const formReference = useRef<HTMLFormElement>(null)
   const typeOptions = types.map((type) => ({
     value: type.id,
-    label: `${type.code} – ${type.description}`
+    label: type.name
   }))
 
   useEffect(() => {

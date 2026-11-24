@@ -23,7 +23,7 @@ const VacationStatus = ({ plan }: Pick<TVacationPlanRow, 'plan'>) => {
   const { startDate, endDate, type } = plan.justification
   return (
     <>
-      Registradas ({type.code}): {formatDate(startDate)} a {formatDate(endDate)}
+      Registradas ({type.name}): {formatDate(startDate)} a {formatDate(endDate)}
     </>
   )
 }

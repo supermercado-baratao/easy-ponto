@@ -4,8 +4,7 @@ import { JUSTIFICATION_EFFECTS } from './utils'
 
 const dataSchema = z.object({
   companyId: z.uuidv4(),
-  code: z.string().trim().min(1, 'Informe o código'),
-  description: z.string().trim().min(1, 'Informe a descrição'),
+  name: z.string().trim().min(1, 'Informe o nome'),
   effect: z.enum(JUSTIFICATION_EFFECTS, { error: 'Selecione o efeito' })
 })
 

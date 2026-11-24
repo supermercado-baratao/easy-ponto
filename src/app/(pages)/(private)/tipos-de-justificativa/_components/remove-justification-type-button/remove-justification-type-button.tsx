@@ -59,7 +59,7 @@ export const RemoveJustificationTypeButton = ({
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`Remover ${type.code}`}
+            aria-label={`Remover ${type.name}`}
           />
         }
       >
@@ -75,7 +75,7 @@ export const RemoveJustificationTypeButton = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Remover tipo de justificativa?</AlertDialogTitle>
           <AlertDialogDescription>
-            {`${type.code} – ${type.description} não poderá mais ser usado nas justificativas.`}
+            {`O tipo ${type.name} não poderá mais ser usado nas justificativas.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

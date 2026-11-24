@@ -2,7 +2,7 @@ import type { TState } from '@/entry/form-action'
 import type { TJustificationTypeUpdateData } from '@/models/justification-type/types'
 
 export type TJustificationTypeFormValues = Partial<
-  Record<'id' | 'code' | 'description' | 'effect', string>
+  Record<'id' | 'name' | 'effect', string>
 >
 
 export type TJustificationTypeFormState = Omit<

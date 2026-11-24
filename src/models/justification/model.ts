@@ -71,7 +71,7 @@ const assertSavable = async ({
     {
       code: 'custom',
       path: ['startDate'],
-      message: `Já existe uma justificativa nesse período: ${overlapping.type.code} (${dayjs(overlapping.startDate).format('DD/MM/YYYY')})`,
+      message: `Já existe uma justificativa nesse período: ${overlapping.type.name} (${dayjs(overlapping.startDate).format('DD/MM/YYYY')})`,
       input: justification.startDate
     }
   ])

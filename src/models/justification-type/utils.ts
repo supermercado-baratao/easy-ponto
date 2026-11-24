@@ -12,14 +12,17 @@ export const getEffectLabel = (effect: string): string =>
 
 // A product organization, not a legal one: the CLT review (#65) may change it
 export const DEFAULT_JUSTIFICATION_TYPES: {
-  code: string
-  description: string
+  name: string
   effect: TJustificationEffect
 }[] = [
-  { code: 'COMPENSACAO', description: 'Compensação', effect: 'deduct' },
-  { code: 'ABONO', description: 'Abono', effect: 'excuse' },
-  { code: 'ATESTADO', description: 'Atestado médico', effect: 'excuse' },
-  { code: 'AUSENCIA LEGAL', description: 'Ausência legal', effect: 'excuse' },
-  { code: 'FERIAS', description: 'Férias', effect: 'excuse' },
-  { code: 'LICENCA', description: 'Licença', effect: 'excuse' }
+  { name: 'Compensação', effect: 'deduct' },
+  { name: 'Abono', effect: 'excuse' },
+  { name: 'Atestado médico', effect: 'excuse' },
+  { name: 'Ausência legal', effect: 'excuse' },
+  { name: 'Férias', effect: 'excuse' },
+  { name: 'Licença', effect: 'excuse' }
 ]
+
+// Matches the unique index of justification_types, so "Abono" and "abono" are the same type
+export const isSameTypeName = (a: string, b: string): boolean =>
+  a.toLowerCase() === b.toLowerCase()

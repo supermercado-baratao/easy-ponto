@@ -30,6 +30,7 @@ import { hoursBankModel } from '@/models/hours-bank/model'
 import { createSchema as justificationCreateSchema } from '@/models/justification/schema'
 import { findOverlappingJustification } from '@/models/justification/utils'
 import { justificationTypeModel } from '@/models/justification-type/model'
+import { isSameTypeName } from '@/models/justification-type/utils'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
 import { timeCardReportModel } from '@/models/time-card-report/model'
@@ -205,13 +206,14 @@ const resolveCodes = async ({
     justificationCodeMappingRepository.findManyByFormat({ companyId, format })
   ])
   const savedTypesById = new Map(savedTypes.map((type) => [type.id, type]))
-  const savedTypesByCode = new Map(savedTypes.map((type) => [type.code, type]))
+  // A report code spelled exactly like a type name needs no question, so the match is case-sensitive like the codes (FOLGA is not Folga)
+  const savedTypesByName = new Map(savedTypes.map((type) => [type.name, type]))
   const mappedTypeIds = new Map(
     mappings.map(({ code, typeId }) => [code, typeId])
   )
   const findSavedType = (code: string): JustificationType | undefined => {
     const typeId = mappedTypeIds.get(code)
-    return typeId ? savedTypesById.get(typeId) : savedTypesByCode.get(code)
+    return typeId ? savedTypesById.get(typeId) : savedTypesByName.get(code)
   }
 
   const unknownCodes = codes.filter(
@@ -221,11 +223,7 @@ const resolveCodes = async ({
     return {
       status: 'unresolved',
       unknownCodes,
-      types: savedTypes.map(({ id, code, description }) => ({
-        id,
-        code,
-        description
-      }))
+      types: savedTypes.map(({ id, name }) => ({ id, name }))
     }
   }
 
@@ -253,26 +251,24 @@ const resolveCodes = async ({
         })
       }
     } else {
-      const { code: typeCode, description, effect } = resolution
+      const { name, effect } = resolution
       if (
-        savedTypesByCode.has(typeCode) ||
-        codeResolutions.justificationTypes.some(
-          (created) => created.code === typeCode
+        [...savedTypes, ...codeResolutions.justificationTypes].some((type) =>
+          isSameTypeName(type.name, name)
         )
       ) {
         issues.push({
           code: 'custom',
-          path: ['resolutions', code, 'code'],
-          message: 'Já existe um tipo com esse código',
-          input: typeCode
+          path: ['resolutions', code, 'name'],
+          message: 'Já existe um tipo com esse nome',
+          input: name
         })
         continue
       }
       type = { id: crypto.randomUUID(), effect }
       codeResolutions.justificationTypes.push({
         id: type.id,
-        code: typeCode,
-        description,
+        name,
         effect,
         companyId
       })

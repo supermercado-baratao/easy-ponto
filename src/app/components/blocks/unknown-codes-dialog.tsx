@@ -39,8 +39,7 @@ const readResolutions = (
           code,
           {
             action: 'create',
-            code: String(formData.get(`code-${index}`)),
-            description: String(formData.get(`description-${index}`)),
+            name: String(formData.get(`name-${index}`)),
             effect: String(formData.get(`effect-${index}`))
           }
         ]
@@ -65,7 +64,7 @@ export const UnknownCodesDialog = ({
 }: {
   open: boolean
   codes: string[]
-  types: { id: string; code: string; description: string }[]
+  types: { id: string; name: string }[]
   errors?: Record<string, string>
   pending: boolean
   onSubmit: (resolutions: Record<string, Partial<TCodeResolution>>) => void
@@ -78,7 +77,7 @@ export const UnknownCodesDialog = ({
     { value: CREATE_CHOICE, label: 'Cadastrar um novo tipo' },
     ...types.map((type) => ({
       value: type.id,
-      label: `${type.code} - ${type.description}`
+      label: type.name
     }))
   ]
 
@@ -128,17 +127,11 @@ export const UnknownCodesDialog = ({
                 {choices[code] === CREATE_CHOICE && (
                   <>
                     <FormField
-                      id={`${id}-code-${index}`}
-                      name={`code-${index}`}
-                      label="Código"
+                      id={`${id}-name-${index}`}
+                      name={`name-${index}`}
+                      label="Nome"
                       defaultValue={code}
-                      error={errorOf('code')}
-                    />
-                    <FormField
-                      id={`${id}-description-${index}`}
-                      name={`description-${index}`}
-                      label="Descrição"
-                      error={errorOf('description')}
+                      error={errorOf('name')}
                     />
                     <Select
                       id={`${id}-effect-${index}`}
