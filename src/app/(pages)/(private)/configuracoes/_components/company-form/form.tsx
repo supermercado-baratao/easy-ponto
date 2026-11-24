@@ -68,6 +68,7 @@ export const CompanyForm = ({ company, hasDevice }: TCompanyFormProps) => {
           ref={formReference}
           key={updatedAt}
           id="company-form"
+          className="flex flex-col gap-4"
           action={formAction}
           noValidate
         >
