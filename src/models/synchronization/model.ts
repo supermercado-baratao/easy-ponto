@@ -4,15 +4,28 @@ import type {
   Company,
   Justification,
   JustificationType,
+  TCompanyWithDeviceCredentials,
   TInputData,
   User
 } from '@/infra/database/types'
-import { NotFoundError } from '@/infra/errors'
+import { NotFoundError, ValidationError } from '@/infra/errors'
 import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
 import { updateSchema as companyUpdateSchema } from '@/models/company/schema'
+import type {
+  TCompanyChange,
+  TDeviceCompanyField
+} from '@/models/company/types'
+import {
+  DEVICE_COMPANY_FIELDS,
+  diffDeviceCompany
+} from '@/models/company/utils'
 import { deviceModel } from '@/models/device/model'
-import type { TDeviceAdapter, TDeviceUser } from '@/models/device/types'
+import type {
+  TDeviceAdapter,
+  TDeviceCompany,
+  TDeviceUser
+} from '@/models/device/types'
 import { hoursBankModel } from '@/models/hours-bank/model'
 import { createSchema as justificationCreateSchema } from '@/models/justification/schema'
 import { findOverlappingJustification } from '@/models/justification/utils'
@@ -41,7 +54,7 @@ import {
   getUsersToUpdate
 } from './_utils/report'
 import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
-import { importFileSchema } from './schema'
+import { companySynchronizationSchema, importFileSchema } from './schema'
 import {
   TAfdSynchronizationParams,
   TCompanySynchronizationParams,
@@ -53,16 +66,57 @@ import {
   TUserSynchronizationParams
 } from './types'
 
-const synchronizeCompany = async ({
+const loadCompanies = async ({
   companyId,
   credentials
-}: TCompanySynchronizationParams): Promise<Company> => {
-  const deviceCompany = await deviceModel.connect(credentials).loadCompany()
-  return await companyModel.save({
-    ...deviceCompany,
-    registration: null,
-    id: companyId
-  })
+}: TCompanySynchronizationParams): Promise<
+  [TCompanyWithDeviceCredentials, TDeviceCompany]
+> =>
+  await Promise.all([
+    companyModel.findUniqueById(companyId),
+    deviceModel.connect(credentials).loadCompany()
+  ])
+
+const loadCompanyChanges = async (
+  params: TCompanySynchronizationParams
+): Promise<TCompanyChange[]> => {
+  const [company, deviceCompany] = await loadCompanies(params)
+  return diffDeviceCompany(company, deviceCompany)
+}
+
+// The device has no registration, so the saved one is kept like every field the user chose to keep
+const synchronizeCompany = async ({
+  fields = DEVICE_COMPANY_FIELDS,
+  ...params
+}: TCompanySynchronizationParams & {
+  fields?: readonly TDeviceCompanyField[]
+}): Promise<Company> => {
+  const input = companySynchronizationSchema.parse({ fields })
+  const [company, deviceCompany] = await loadCompanies(params)
+  const chosen = Object.fromEntries(
+    input.fields.map((field) => [field, deviceCompany[field]])
+  )
+  try {
+    return await companyModel.save({
+      id: company.id,
+      name: company.name,
+      address: company.address ?? '',
+      cpf: company.cpf ?? '',
+      tipoDoc: company.tipoDoc ?? '',
+      cpfCnpj: company.cpfCnpj ?? '',
+      cei: company.cei ?? '',
+      registration: company.registration,
+      ...chosen
+    })
+  } catch (error) {
+    if (!(error instanceof z.ZodError)) throw error
+    throw new ValidationError({
+      cause: error,
+      message: 'Os dados escolhidos não formam um cadastro válido.',
+      action:
+        'Use os dados do relógio nos campos vazios ou inválidos, ou corrija-os no formulário da empresa.'
+    })
+  }
 }
 
 const saveDeviceUsers = async (
@@ -399,6 +453,7 @@ const importInitialBalance = async ({
 }
 
 export const synchronizationModel = {
+  loadCompanyChanges,
   synchronizeCompany,
   synchronizeUsers,
   synchronizeAfd,

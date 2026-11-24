@@ -13,6 +13,7 @@ import {
 } from 'vitest'
 
 import { database } from '@/infra/database/client'
+import { ValidationError } from '@/infra/errors'
 import { accountModel } from '@/models/account/model'
 import {
   EMPLOYEE_ROLE,
@@ -229,6 +230,81 @@ afterEach(() => {
 })
 
 describe('Synchronization Model', () => {
+  describe('synchronizeCompany', () => {
+    const deviceCompany = {
+      name: 'MERCADO DO RELOGIO',
+      address: 'RUA DO RELOGIO, 1',
+      cpf: CPF.fake().value,
+      tipoDoc: 0,
+      cpfCnpj: CPF.fake().value,
+      cei: '0'
+    }
+
+    test('Lists the fields that differ from the device without saving them', async () => {
+      const populated = await populate()
+      mockDeviceAdapter({ loadCompany: async () => deviceCompany })
+      const changes = await synchronizationModel.loadCompanyChanges({
+        companyId: populated.company.id,
+        credentials: populated.credentials
+      })
+      expect(changes.map(({ field }) => field)).toEqual([
+        'name',
+        'address',
+        'cpf',
+        'tipoDoc',
+        'cpfCnpj',
+        'cei'
+      ])
+      const company = await companyModel.findUniqueById(populated.company.id)
+      expect(company.name).toBe(populated.company.name)
+    })
+
+    test('Saves only the chosen fields and keeps the registration', async () => {
+      const populated = await populate()
+      mockDeviceAdapter({ loadCompany: async () => deviceCompany })
+      const company = await synchronizationModel.synchronizeCompany({
+        companyId: populated.company.id,
+        credentials: populated.credentials,
+        fields: ['name', 'address']
+      })
+      expect(company).toMatchObject({
+        name: deviceCompany.name,
+        address: deviceCompany.address,
+        cpf: populated.company.cpf,
+        tipoDoc: populated.company.tipoDoc,
+        cpfCnpj: populated.company.cpfCnpj,
+        cei: populated.company.cei,
+        registration: populated.company.registration
+      })
+    })
+
+    test('Saves every field of the device when none is chosen', async () => {
+      const populated = await populate()
+      mockDeviceAdapter({ loadCompany: async () => deviceCompany })
+      const company = await synchronizationModel.synchronizeCompany({
+        companyId: populated.company.id,
+        credentials: populated.credentials
+      })
+      expect(company).toMatchObject({
+        ...deviceCompany,
+        registration: populated.company.registration
+      })
+    })
+
+    test('Refuses a choice that leaves the company invalid', async () => {
+      const populated = await populate()
+      mockDeviceAdapter({ loadCompany: async () => deviceCompany })
+      // The device's CPF document type doesn't match the saved CNPJ
+      await expect(
+        synchronizationModel.synchronizeCompany({
+          companyId: populated.company.id,
+          credentials: populated.credentials,
+          fields: ['tipoDoc']
+        })
+      ).rejects.toBeInstanceOf(ValidationError)
+    })
+  })
+
   describe('synchronizeUsers', () => {
     test('Creates the users found on the device', async () => {
       const data = await populate()

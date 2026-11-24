@@ -2,10 +2,15 @@
 
 import { refresh } from 'next/cache'
 
-import { handleAction } from '@/entry/action'
+import { handleAction, type TActionState } from '@/entry/action'
 import { handleFormAction } from '@/entry/form-action'
 import { requireEditor } from '@/entry/session'
+import type { Company } from '@/infra/database/types'
 import { companyModel } from '@/models/company/model'
+import type {
+  TCompanyChange,
+  TDeviceCompanyField
+} from '@/models/company/types'
 import { synchronizationModel } from '@/models/synchronization/model'
 
 import type { TCompanyFormValues, TCompanyState } from './types'
@@ -27,19 +32,33 @@ export const save = async (
   return { ...result, values }
 }
 
-export const importFromDevice = async (
-  state: TCompanyState
-): Promise<TCompanyState> => {
+export const loadDeviceChanges = async (): Promise<
+  TActionState<TCompanyChange[]>
+> => {
   const {
     company: { id: companyId, deviceCredentials }
   } = await requireEditor()
-  const result = await handleAction(async () => {
-    const data = await synchronizationModel.synchronizeCompany({
+  return await handleAction(() =>
+    synchronizationModel.loadCompanyChanges({
       companyId,
       credentials: deviceCredentials
+    })
+  )
+}
+
+export const importFromDevice = async (
+  fields: TDeviceCompanyField[]
+): Promise<TActionState<Company>> => {
+  const {
+    company: { id: companyId, deviceCredentials }
+  } = await requireEditor()
+  return await handleAction(async () => {
+    const data = await synchronizationModel.synchronizeCompany({
+      companyId,
+      credentials: deviceCredentials,
+      fields
     })
     refresh()
     return data
   })
-  return { ...state, ...result, data: result.data ?? state.data }
 }
