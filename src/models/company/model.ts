@@ -2,6 +2,7 @@ import type {
   Company,
   TCompanyWithDeviceCredentials
 } from '@/infra/database/types'
+import { DEFAULT_JOURNEY_RULES } from '@/models/journey-rules/utils'
 import { DEFAULT_JUSTIFICATION_TYPES } from '@/models/justification-type/utils'
 import { companyRepository } from '@/repositories/company-repository'
 
@@ -17,7 +18,8 @@ const create = async (data: TCompanyCreateData): Promise<Company> => {
   const company = createSchema.parse(data)
   return await companyRepository.create({
     company: { ...company, slug: toSlug(company.name) },
-    justificationTypes: DEFAULT_JUSTIFICATION_TYPES
+    justificationTypes: DEFAULT_JUSTIFICATION_TYPES,
+    journeyRules: DEFAULT_JOURNEY_RULES
   })
 }
 

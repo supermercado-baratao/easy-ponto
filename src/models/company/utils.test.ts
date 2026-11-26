@@ -3,25 +3,29 @@ import { describe, expect, test } from 'vitest'
 import { diffDeviceCompany, isCompanyConfigured } from './utils'
 
 describe('isCompanyConfigured', () => {
+  const device = { deviceCredentialsId: 'device', cpfCnpj: '12345678000190' }
+  const overtimeBands = [
+    { dayKind: 'workday' },
+    { dayKind: 'day-off' },
+    { dayKind: 'holiday' }
+  ]
+
   test('Requires the device credentials and the data imported from the device', () => {
+    expect(isCompanyConfigured(device, overtimeBands)).toBe(true)
     expect(
-      isCompanyConfigured({
-        deviceCredentialsId: 'device',
-        cpfCnpj: '12345678000190'
-      })
-    ).toBe(true)
-    expect(
-      isCompanyConfigured({
-        deviceCredentialsId: null,
-        cpfCnpj: '12345678000190'
-      })
+      isCompanyConfigured(
+        { ...device, deviceCredentialsId: null },
+        overtimeBands
+      )
     ).toBe(false)
     expect(
-      isCompanyConfigured({ deviceCredentialsId: 'device', cpfCnpj: null })
+      isCompanyConfigured({ ...device, cpfCnpj: null }, overtimeBands)
     ).toBe(false)
-    expect(
-      isCompanyConfigured({ deviceCredentialsId: null, cpfCnpj: null })
-    ).toBe(false)
+  })
+
+  test('Requires the overtime percentages of every day kind', () => {
+    expect(isCompanyConfigured(device, [])).toBe(false)
+    expect(isCompanyConfigured(device, overtimeBands.slice(0, 2))).toBe(false)
   })
 })
 

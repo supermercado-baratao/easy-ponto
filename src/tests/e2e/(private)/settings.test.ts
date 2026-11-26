@@ -61,4 +61,53 @@ test.describe('Settings', () => {
 
     await fileChooser
   })
+
+  test('Keeps the typed journey rules and focuses the invalid field after a validation error', async ({
+    page
+  }) => {
+    await page.goto('/configuracoes')
+    const form = page.locator('#journey-rules-form')
+    const card = page.locator('[data-slot="card"]').filter({ has: form })
+
+    await form.getByLabel('Tolerância por batida (minutos)').fill('10')
+    await form.getByLabel('Tolerância por dia (minutos)').fill('5')
+    await card.getByRole('button', { name: 'Salvar' }).click()
+
+    const daily = form.getByLabel('Tolerância por dia (minutos)')
+    await expect(daily).toHaveAttribute('aria-invalid', 'true')
+    await expect(daily).toBeFocused()
+    await expect(daily).toHaveValue('5')
+    await expect(
+      form.getByLabel('Tolerância por batida (minutos)')
+    ).toHaveValue('10')
+  })
+
+  test('Saves the overtime bands of a day kind', async ({ page }) => {
+    await page.goto('/configuracoes')
+    const form = page.locator('#overtime-bands-form')
+    const card = page.locator('[data-slot="card"]').filter({ has: form })
+    const workday = form.getByRole('group', { name: 'Dia útil' })
+
+    await workday
+      .getByRole('button', { name: 'Adicionar faixa (Dia útil)' })
+      .click()
+    await workday
+      .getByLabel('1ª faixa: até quantas horas extras no dia')
+      .fill('02:00')
+    await workday.getByLabel('Adicional da 1ª faixa (%)').fill('50')
+    await workday.getByLabel('Adicional das demais horas (%)').fill('100')
+    await card.getByRole('button', { name: 'Salvar' }).click()
+    await expect(page.getByText('Adicionais salvos com sucesso!')).toBeVisible()
+
+    await page.reload()
+    await expect(
+      workday.getByLabel('1ª faixa: até quantas horas extras no dia')
+    ).toHaveValue('02:00')
+    await expect(workday.getByLabel('Adicional da 1ª faixa (%)')).toHaveValue(
+      '50'
+    )
+    await expect(
+      workday.getByLabel('Adicional das demais horas (%)')
+    ).toHaveValue('100')
+  })
 })

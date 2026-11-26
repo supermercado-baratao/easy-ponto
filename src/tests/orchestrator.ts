@@ -11,6 +11,7 @@ import { accountModel } from '@/models/account/model'
 import { companyModel } from '@/models/company/model'
 import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
+import { journeyRulesModel } from '@/models/journey-rules/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { statusModel } from '@/models/status/model'
 import { mapParsedAfdToPunchRecordCreateMany } from '@/models/synchronization/_utils/afd'
@@ -76,6 +77,15 @@ const populateDatabaseWithRealData = async () => {
   })
 }
 
+// Any percentages: the mocked company only needs them to count as configured
+const createOvertimeBands = async (companyId: string) =>
+  await journeyRulesModel.saveOvertimeBands({
+    companyId,
+    'workday-1-percentage': '50',
+    'day-off-1-percentage': '100',
+    'holiday-1-percentage': '100'
+  })
+
 const populateDatabaseWithMockedData = async () => {
   const { company: createdCompany } = await accountModel.setup({
     ...MOCKED_ADMIN,
@@ -93,6 +103,7 @@ const populateDatabaseWithMockedData = async () => {
     name: MOCKED_ADMIN.companyName,
     id: createdCompany.id
   })
+  await createOvertimeBands(company.id)
   await userModel.createMany(mapDeviceUserToUser(deviceUsers, company.id))
   await punchRecordModel.createManyExistentsInAfd(
     mapParsedAfdToPunchRecordCreateMany(parsedAfd, company.id)
@@ -153,6 +164,7 @@ const orchestrator = {
   clearDatabase,
   createCompanyData,
   populateDatabaseWithRealData,
+  createOvertimeBands,
   populateDatabaseWithMockedData,
   findMockedCompanyId,
   createMember

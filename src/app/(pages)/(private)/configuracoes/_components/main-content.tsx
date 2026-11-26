@@ -7,17 +7,40 @@ import {
   AlertDescription,
   AlertTitle
 } from '@/app/components/ui/shadcn/alert'
-import type { TCompanyWithDeviceCredentials } from '@/infra/database/types'
+import type {
+  JourneyRules,
+  OvertimeBand,
+  TCompanyWithDeviceCredentials
+} from '@/infra/database/types'
 import { isCompanyConfigured } from '@/models/company/utils'
+import { hasOvertimeBands } from '@/models/journey-rules/utils'
 
 import { CompanyForm } from './company-form/form'
 import { DeviceForm } from './device-form/device-form'
 import { ImportFileButton } from './import-file-button/import-file-button'
+import { JourneyRulesForm } from './journey-rules-form/journey-rules-form'
+import { OvertimeBandsForm } from './overtime-bands-form/overtime-bands-form'
+
+const getPendingSteps = (
+  company: Pick<TCompanyWithDeviceCredentials, 'cpfCnpj' | 'deviceCredentials'>,
+  overtimeBands: OvertimeBand[]
+): string[] =>
+  [
+    !company.deviceCredentials && 'Cadastre o relógio de ponto.',
+    !company.cpfCnpj &&
+      'Sincronize os dados da empresa com o relógio de ponto.',
+    !hasOvertimeBands(overtimeBands) &&
+      'Informe os adicionais de hora extra de cada tipo de dia.'
+  ].filter((step) => typeof step === 'string')
 
 export const MainContent = ({
-  company: { deviceCredentials, ...company }
+  company: { deviceCredentials, ...company },
+  journeyRules,
+  overtimeBands
 }: {
   company: TCompanyWithDeviceCredentials
+  journeyRules: JourneyRules
+  overtimeBands: OvertimeBand[]
 }) => (
   <>
     <Header title="Configurações">
@@ -25,14 +48,19 @@ export const MainContent = ({
     </Header>
 
     <_MainContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {!isCompanyConfigured(company) && (
+      {!isCompanyConfigured(company, overtimeBands) && (
         <Alert role="status" className="lg:col-span-2">
           <Info aria-hidden="true" />
           <AlertTitle>Configure o Easy Ponto para começar</AlertTitle>
           <AlertDescription>
-            {deviceCredentials
-              ? 'Sincronize os dados da empresa com o relógio de ponto.'
-              : 'Cadastre o relógio de ponto e, em seguida, sincronize os dados da empresa.'}
+            <ul className="list-inside list-disc">
+              {getPendingSteps(
+                { ...company, deviceCredentials },
+                overtimeBands
+              ).map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ul>
           </AlertDescription>
         </Alert>
       )}
@@ -47,6 +75,8 @@ export const MainContent = ({
         }
       />
       <CompanyForm company={company} hasDevice={!!deviceCredentials} />
+      <JourneyRulesForm journeyRules={journeyRules} />
+      <OvertimeBandsForm overtimeBands={overtimeBands} />
     </_MainContent>
   </>
 )

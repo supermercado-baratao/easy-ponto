@@ -4,6 +4,7 @@ import type {
   TJustificationWithType
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
+import { DEFAULT_JOURNEY_RULES } from '@/models/journey-rules/utils'
 import { TIME_PAIRS } from '@/models/schedule/utils'
 
 import type {
@@ -16,16 +17,12 @@ import type {
   TScheduleDaySummary
 } from './types'
 
-// CLT art. 58, § 1º: variations of up to 5 minutes per punch, limited to 10 minutes a day, are neither
-// discounted nor paid as overtime. Provisional until the CLT review of the journey rules (#65)
-export const PUNCH_TOLERANCE = 5
-export const DAILY_TOLERANCE = 10
-
-// CLT art. 71 (a break of at most 2 hours, required after 6 hours in a row) and art. 58 (8 hours a day).
-// Provisional until the CLT review of the journey rules (#65)
-export const MAX_LUNCH = 120
-export const MAX_CONTINUOUS_WORK = 360
-export const MAX_DAILY_JOURNEY = 480
+// Read from the company's rules in #108
+export const PUNCH_TOLERANCE = DEFAULT_JOURNEY_RULES.punchTolerance
+export const DAILY_TOLERANCE = DEFAULT_JOURNEY_RULES.dailyTolerance
+export const MAX_LUNCH = DEFAULT_JOURNEY_RULES.maxLunch
+export const MAX_CONTINUOUS_WORK = DEFAULT_JOURNEY_RULES.maxContinuousWork
+export const MAX_DAILY_JOURNEY = DEFAULT_JOURNEY_RULES.maxDailyJourney
 
 // The store's planned workload: 7:20 in the middle of the month and 8:00 at its start and end, when
 // sales peak. Provisional until the CLT review of the journey rules (#65)

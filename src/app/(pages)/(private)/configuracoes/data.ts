@@ -1,8 +1,20 @@
 import { requireEditor } from '@/entry/session'
-import type { TCompanyWithDeviceCredentials } from '@/infra/database/types'
+import type {
+  JourneyRules,
+  OvertimeBand,
+  TCompanyWithDeviceCredentials
+} from '@/infra/database/types'
+import { journeyRulesModel } from '@/models/journey-rules/model'
 
-export const getSettingsPageData =
-  async (): Promise<TCompanyWithDeviceCredentials> => {
-    const { company } = await requireEditor()
-    return company
-  }
+type TSettingsPageData = {
+  company: TCompanyWithDeviceCredentials
+  journeyRules: JourneyRules
+  overtimeBands: OvertimeBand[]
+}
+
+export const getSettingsPageData = async (): Promise<TSettingsPageData> => {
+  const { company } = await requireEditor()
+  const { journeyRules, overtimeBands } =
+    await journeyRulesModel.findByCompanyId(company.id)
+  return { company, journeyRules, overtimeBands }
+}
