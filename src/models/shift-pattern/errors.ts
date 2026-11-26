@@ -23,3 +23,17 @@ export class LastShiftPatternVersionError extends ValidationError {
     this.name = 'LastShiftPatternVersionError'
   }
 }
+
+export class ShiftPatternInUseError extends ValidationError {
+  constructor(name: string, count: number) {
+    super({
+      message:
+        count === 1
+          ? `A escala ${name} está ligada a 1 funcionário.`
+          : `A escala ${name} está ligada a ${count} funcionários.`,
+      action:
+        'Remova os vínculos em Funcionários antes: o histórico deles depende da escala.'
+    })
+    this.name = 'ShiftPatternInUseError'
+  }
+}

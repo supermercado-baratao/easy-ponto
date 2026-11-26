@@ -22,6 +22,8 @@ export type ShiftPatternVersion =
   typeof schema.shiftPatternVersions.$inferSelect
 export type ShiftPatternVersionDay =
   typeof schema.shiftPatternVersionDays.$inferSelect
+export type ShiftAdjustment = typeof schema.shiftAdjustments.$inferSelect
+export type ShiftAssignment = typeof schema.shiftAssignments.$inferSelect
 export type User = typeof schema.users.$inferSelect
 export type VacationPlan = typeof schema.vacationPlans.$inferSelect
 
@@ -53,6 +55,10 @@ export type TShiftPatternVersionWithDays = ShiftPatternVersion & {
 
 export type TShiftPatternWithVersions = ShiftPattern & {
   versions: TShiftPatternVersionWithDays[]
+}
+
+export type TShiftAssignmentWithPattern = ShiftAssignment & {
+  shiftPattern: TShiftPatternWithVersions
 }
 
 export type TJustificationWithType = Justification & {

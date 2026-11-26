@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { deviceUsers } from '@/tests/_mocks/device-users'
+
 test.describe('Shift patterns', () => {
   test('Creates a pattern from a template, adds a version and removes them', async ({
     page
@@ -111,6 +113,114 @@ test.describe('Shift patterns', () => {
     await expect(
       page.getByRole('button', { name: 'Cadastrar escala' })
     ).toBeFocused()
+    await expect(page.getByText('Nenhuma escala cadastrada')).toBeVisible()
+  })
+
+  // The page of the patterns expects none saved, so linking one runs in this file, after it, and removes it
+  test('Links an employee to a pattern, keeps the pattern while linked and unlinks', async ({
+    page
+  }) => {
+    const { name } = deviceUsers[0]
+    await page.goto('/escalas')
+    await page.getByRole('button', { name: 'Cadastrar escala' }).click()
+    const createSheet = page.getByRole('dialog', { name: 'Cadastrar escala' })
+    await createSheet.getByLabel('Nome').fill('Plantão 12x36')
+    await createSheet.getByRole('combobox', { name: 'Modelo' }).click()
+    await page.getByRole('option', { name: '12x36' }).click()
+    await createSheet.getByRole('button', { name: 'Salvar' }).click()
+    await expect(createSheet).toBeHidden()
+
+    await page.goto('/funcionarios')
+    const table = page.getByRole('table', { name: 'Funcionários' })
+    await table.getByRole('button', { name: `Escalas de ${name}` }).click()
+    const sheet = page.getByRole('dialog')
+    await expect(
+      sheet.getByText('Nenhuma escala ligada a este funcionário')
+    ).toBeVisible()
+    await sheet.getByRole('button', { name: 'Ligar a uma escala' }).click()
+    await expect(sheet.getByRole('combobox', { name: 'Escala' })).toBeFocused()
+    await sheet.getByRole('combobox', { name: 'Escala' }).click()
+    await page.getByRole('option', { name: 'Plantão 12x36' }).click()
+    await sheet.getByLabel('Início', { exact: true }).fill('2020-01-06')
+    await sheet
+      .getByRole('combobox', { name: 'Dia do ciclo no início' })
+      .click()
+    await page.getByRole('option', { name: 'Dia 2: folga' }).click()
+    await sheet.getByRole('button', { name: 'Salvar' }).click()
+    await expect(
+      page.getByText('Escala do funcionário salva com sucesso!')
+    ).toBeVisible()
+    const history = sheet.getByRole('list', { name: 'Histórico de escalas' })
+    await expect(history.getByRole('listitem')).toHaveText([
+      /Plantão 12x36\s*Desde 06\/01\/2020, a partir do dia 2 do ciclo/
+    ])
+
+    await sheet
+      .getByRole('button', {
+        name: 'Editar a escala Plantão 12x36 (Desde 06/01/2020)'
+      })
+      .click()
+    await sheet.getByLabel('Fim (opcional)').fill('2020-01-01')
+    await sheet.getByRole('button', { name: 'Salvar' }).click()
+    await expect(
+      sheet.getByText('O fim deve ser depois do início')
+    ).toBeVisible()
+    await expect(sheet.getByLabel('Fim (opcional)')).toBeFocused()
+    await sheet.getByRole('button', { name: 'Cancelar' }).click()
+    await expect(
+      sheet.getByRole('button', {
+        name: 'Editar a escala Plantão 12x36 (Desde 06/01/2020)'
+      })
+    ).toBeFocused()
+    await page.keyboard.press('Escape')
+    await expect(sheet).toBeHidden()
+    await expect(
+      table.getByRole('row', { name: new RegExp(name) })
+    ).toContainText('Plantão 12x36')
+
+    await page.goto('/escalas')
+    await page
+      .getByRole('region', { name: 'Plantão 12x36' })
+      .getByRole('button', { name: 'Remover Plantão 12x36' })
+      .click()
+    await page
+      .getByRole('alertdialog', { name: 'Remover escala?' })
+      .getByRole('button', { name: 'Remover' })
+      .click()
+    await expect(
+      page.getByText('A escala Plantão 12x36 está ligada a 1 funcionário.')
+    ).toBeVisible()
+
+    await page.goto('/funcionarios')
+    await table.getByRole('button', { name: `Escalas de ${name}` }).click()
+    await sheet
+      .getByRole('button', {
+        name: 'Remover a escala Plantão 12x36 (Desde 06/01/2020)'
+      })
+      .click()
+    await page
+      .getByRole('alertdialog', { name: 'Remover a escala do funcionário?' })
+      .getByRole('button', { name: 'Remover' })
+      .click()
+    await expect(
+      page.getByText('Escala removida do funcionário com sucesso!')
+    ).toBeVisible()
+    await expect(
+      sheet.getByRole('button', { name: 'Ligar a uma escala' })
+    ).toBeFocused()
+    await expect(
+      sheet.getByText('Nenhuma escala ligada a este funcionário')
+    ).toBeVisible()
+
+    await page.goto('/escalas')
+    await page
+      .getByRole('region', { name: 'Plantão 12x36' })
+      .getByRole('button', { name: 'Remover Plantão 12x36' })
+      .click()
+    await page
+      .getByRole('alertdialog', { name: 'Remover escala?' })
+      .getByRole('button', { name: 'Remover' })
+      .click()
     await expect(page.getByText('Nenhuma escala cadastrada')).toBeVisible()
   })
 })

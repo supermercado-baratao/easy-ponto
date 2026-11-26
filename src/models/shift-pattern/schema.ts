@@ -1,7 +1,12 @@
 import { z } from 'zod'
 
 import { timeSchema } from '@/models/schedule/schema'
-import { TIME_PAIRS, timeToMinutes } from '@/models/schedule/utils'
+import {
+  TIME_FIELDS,
+  TIME_PAIRS,
+  timeToMinutes,
+  type TScheduleTimeField
+} from '@/models/schedule/utils'
 
 import {
   CYCLE_DAYS,
@@ -12,6 +17,7 @@ import {
   MIN_CYCLE_LENGTH,
   MINUTES_PER_DAY,
   type TCycleDay,
+  type TCycleDayTimes,
   type TShiftPatternTimeFieldName
 } from './utils'
 
@@ -117,6 +123,32 @@ const parseDay = (times: TCycleTimes, cycleDay: number): TParsedDay => {
   }
 
   return { day }
+}
+
+// A day of its own, such as an employee's adjustment, follows the rules of a cycle day
+export const parseDayTimes = (
+  times: Record<TScheduleTimeField, string>
+): { day: TCycleDayTimes } | { field: TScheduleTimeField; message: string } => {
+  const parsed = parseDay(
+    {
+      cycleLength: 1,
+      ...Object.fromEntries(
+        TIME_FIELDS.map((field) => [
+          getDayTimeFieldName(1, field),
+          times[field]
+        ])
+      )
+    } as TCycleTimes,
+    1
+  )
+  if ('day' in parsed) {
+    const { entry1, exit1, entry2, exit2, entry3, exit3 } = parsed.day
+    return { day: { entry1, exit1, entry2, exit2, entry3, exit3 } }
+  }
+  const field = TIME_FIELDS.find(
+    (field) => getDayTimeFieldName(1, field) === parsed.issue.path[0]
+  )!
+  return { field, message: parsed.issue.message }
 }
 
 const parseCycle = (

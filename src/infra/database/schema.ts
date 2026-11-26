@@ -423,6 +423,69 @@ export const shiftPatternVersionDays = pgTable(
   ]
 )
 
+// An employee may follow several patterns at once, so the links have no unique start date per user
+export const shiftAssignments = pgTable(
+  'shift_assignments',
+  {
+    id: id(),
+    startDate: dateOnly('start_date').notNull(),
+    endDate: dateOnly('end_date'),
+    cycleStartDay: integer('cycle_start_day').notNull(),
+    userId: text('user_id').notNull(),
+    shiftPatternId: text('shift_pattern_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    index('shift_assignments_user_id_idx').on(table.userId),
+    index('shift_assignments_shift_pattern_id_idx').on(table.shiftPatternId),
+    foreignKey({
+      name: 'shift_assignments_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [users.id]
+    }).onDelete('cascade'),
+    // Removing a pattern would erase the history of the employees who followed it
+    foreignKey({
+      name: 'shift_assignments_shift_pattern_id_fkey',
+      columns: [table.shiftPatternId],
+      foreignColumns: [shiftPatterns.id]
+    }).onDelete('restrict')
+  ]
+)
+
+export const shiftAdjustments = pgTable(
+  'shift_adjustments',
+  {
+    id: id(),
+    date: dateOnly('date').notNull(),
+    kind: text('kind').notNull(),
+    entry1: integer('entry_1'),
+    exit1: integer('exit_1'),
+    entry2: integer('entry_2'),
+    exit2: integer('exit_2'),
+    entry3: integer('entry_3'),
+    exit3: integer('exit_3'),
+    userId: text('user_id').notNull(),
+    shiftAssignmentId: text('shift_assignment_id'),
+    ...timestamps()
+  },
+  (table) => [
+    unique('shift_adjustments_user_id_date_key').on(table.userId, table.date),
+    index('shift_adjustments_shift_assignment_id_idx').on(
+      table.shiftAssignmentId
+    ),
+    foreignKey({
+      name: 'shift_adjustments_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [users.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'shift_adjustments_shift_assignment_id_fkey',
+      columns: [table.shiftAssignmentId],
+      foreignColumns: [shiftAssignments.id]
+    }).onDelete('cascade')
+  ]
+)
+
 export const holidays = pgTable(
   'holidays',
   {

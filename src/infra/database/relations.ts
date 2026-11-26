@@ -44,6 +44,13 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.shiftPatternVersionDays.versionId
     })
   },
+  shiftAssignments: {
+    shiftPattern: r.one.shiftPatterns({
+      from: r.shiftAssignments.shiftPatternId,
+      to: r.shiftPatterns.id,
+      optional: false
+    })
+  },
   justifications: {
     type: r.one.justificationTypes({
       from: r.justifications.typeId,
