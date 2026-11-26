@@ -3,7 +3,11 @@
 import { useActionState, useEffect, useId, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { FormField, Select } from '@/app/components/ui/custom/form'
+import {
+  FormField,
+  FormTextarea,
+  Select
+} from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
@@ -126,7 +130,11 @@ export const JustificationForm = ({
             />
           </div>
         </fieldset>
-        <FormField {...getFieldProps('note')} label="Observação" />
+        <FormTextarea
+          {...getFieldProps('note')}
+          label="Observação"
+          placeholder="O motivo da ausência"
+        />
       </form>
       <SheetFooter className="flex-row justify-end">
         <SheetClose render={<Button variant="outline" />}>Cancelar</SheetClose>

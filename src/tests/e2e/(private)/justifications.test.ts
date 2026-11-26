@@ -143,11 +143,15 @@ test.describe('Justifications', () => {
     await editSheet.getByLabel('Data final').fill('2025-10-06')
     await editSheet.getByLabel('Horário de início').fill('14:00')
     await editSheet.getByLabel('Horário de fim').fill('15:40')
+    await editSheet.getByLabel('Observação').fill('Testemunha em audiência')
     await editSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(editSheet).toBeHidden()
-    await expect(getJustificationCell('06/10/2025')).toHaveAccessibleName(
-      'Declaração de horas, 06/10/2025, 14:00–15:40'
-    )
+    const label =
+      'Declaração de horas, 06/10/2025, 14:00–15:40, Testemunha em audiência'
+    await expect(getJustificationCell('06/10/2025')).toHaveAccessibleName(label)
+    await expect(
+      getJustificationCell('06/10/2025').getByTitle(label)
+    ).toHaveText('Declaração de horas 14:00–15:40')
     await expect(getJustificationCell('07/10/2025')).toHaveText('')
 
     await page.goto('/tipos-de-justificativa')

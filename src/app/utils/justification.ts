@@ -31,7 +31,8 @@ export const getJustificationLabel = (
   [
     justification.type.name,
     getJustificationPeriodLabel(justification),
-    formatTimes(justification)
+    formatTimes(justification),
+    justification.note
   ]
     .filter(Boolean)
     .join(', ')
