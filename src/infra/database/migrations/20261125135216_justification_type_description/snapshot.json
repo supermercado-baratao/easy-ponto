@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "36461bd8-f9f5-48c1-b119-f0eba168e33b",
+  "prevIds": [
+    "37621a92-74b6-48b0-9205-11a04866dc7a"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "justification_types",
+        "description"
+      ],
+      "writes": [
+        "s|col|public.justification_types.description",
+        "n|col|public.justification_types.description",
+        "e|col|public.justification_types.description"
+      ],
+      "reads": [
+        "n|tbl|public.justification_types",
+        "n|sch|public"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "justification_types",
+        "name": "description",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

@@ -373,6 +373,7 @@ export const justificationTypes = pgTable(
   {
     id: id(),
     name: text('name').notNull(),
+    description: text('description'),
     effect: text('effect').notNull(),
     companyId: text('company_id').notNull(),
     ...timestamps()

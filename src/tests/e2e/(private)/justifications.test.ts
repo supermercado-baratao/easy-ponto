@@ -21,7 +21,7 @@ test.describe('Justifications', () => {
   test('Adds, edits and removes the justification types', async ({ page }) => {
     await page.goto('/tipos-de-justificativa')
     const table = page.getByRole('table', { name: 'Tipos de justificativa' })
-    await expect(table.locator('tbody tr th')).toHaveText([
+    await expect(table.locator('tbody tr th > span:first-child')).toHaveText([
       'Abono',
       'Atestado médico',
       'Ausência legal',
@@ -60,11 +60,18 @@ test.describe('Justifications', () => {
       .click()
     const editSheet = page.getByRole('dialog', { name: 'Editar tipo' })
     await editSheet.getByLabel('Nome').fill('Declaração de horas')
+    await editSheet
+      .getByLabel('Descrição')
+      .fill('Horas na Justiça como testemunha.')
     await editSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(editSheet).toBeHidden()
     await expect(
       table.getByRole('row', { name: 'Declaração de horas' }).locator('th, td')
-    ).toHaveText(['Declaração de horas', 'Abona', ''])
+    ).toHaveText([
+      'Declaração de horasHoras na Justiça como testemunha.',
+      'Abona',
+      ''
+    ])
 
     await page.getByRole('button', { name: 'Remover Folga' }).click()
     const dialog = page.getByRole('alertdialog', {

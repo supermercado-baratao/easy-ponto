@@ -3,7 +3,11 @@
 import { useActionState, useEffect, useId, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { FormField, Select } from '@/app/components/ui/custom/form'
+import {
+  FormField,
+  FormTextarea,
+  Select
+} from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
@@ -73,6 +77,14 @@ export const JustificationTypeForm = ({
           label="Nome"
           defaultValue={values.name}
           error={state.errors?.name}
+        />
+        <FormTextarea
+          id={`${id}-description`}
+          name="description"
+          label="Descrição"
+          placeholder="O que é e quando usar"
+          defaultValue={values.description}
+          error={state.errors?.description}
         />
         <Select
           id={`${id}-effect`}

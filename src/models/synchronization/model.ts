@@ -251,7 +251,7 @@ const resolveCodes = async ({
         })
       }
     } else {
-      const { name, effect } = resolution
+      const { name, description, effect } = resolution
       if (
         [...savedTypes, ...codeResolutions.justificationTypes].some((type) =>
           isSameTypeName(type.name, name)
@@ -269,6 +269,7 @@ const resolveCodes = async ({
       codeResolutions.justificationTypes.push({
         id: type.id,
         name,
+        description,
         effect,
         companyId
       })

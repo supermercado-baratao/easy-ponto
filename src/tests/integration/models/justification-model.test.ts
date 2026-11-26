@@ -58,7 +58,13 @@ describe('Justification Type Model', () => {
   test('Creates the default types with the company', async () => {
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
 
-    expect(types.map(({ name, effect }) => ({ name, effect }))).toEqual(
+    expect(
+      types.map(({ name, description, effect }) => ({
+        name,
+        description,
+        effect
+      }))
+    ).toEqual(
       DEFAULT_JUSTIFICATION_TYPES.toSorted((a, b) =>
         a.name.localeCompare(b.name)
       )
@@ -69,8 +75,10 @@ describe('Justification Type Model', () => {
     const type = await justificationTypeModel.create({
       companyId,
       name: 'Declaração',
+      description: '  ',
       effect: 'excuse'
     })
+    expect(type.description).toBeNull()
     typeId = type.id
     await justificationTypeModel.create({
       companyId,
@@ -82,15 +90,21 @@ describe('Justification Type Model', () => {
       id: type.id,
       companyId,
       name: 'Declaração de comparecimento',
+      description: ' Comparecimento a uma consulta, sem atestado. ',
       effect: 'excuse'
     })
 
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
     const created = types.filter(({ name }) => !DEFAULT_NAMES.has(name))
-    expect(created.map(({ name }) => name)).toEqual([
-      'Declaração de comparecimento',
-      'Folga'
-    ])
+    expect(created.map(({ name, description }) => [name, description])).toEqual(
+      [
+        [
+          'Declaração de comparecimento',
+          'Comparecimento a uma consulta, sem atestado.'
+        ],
+        ['Folga', null]
+      ]
+    )
     const otherTypes =
       await justificationTypeModel.findManyByCompanyId(otherCompanyId)
     expect(otherTypes.map(({ name }) => name)).not.toContain(

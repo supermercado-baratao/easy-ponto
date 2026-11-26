@@ -34,8 +34,13 @@ export const JustificationTypesTable = ({
     <TableBody>
       {types.map((type) => (
         <TableRow key={type.id}>
-          <TableHead scope="row" className="font-normal">
-            {type.name}
+          <TableHead scope="row" className="font-normal whitespace-normal">
+            <span className="block">{type.name}</span>
+            {type.description && (
+              <span className="block text-muted-foreground">
+                {type.description}
+              </span>
+            )}
           </TableHead>
           <TableCell>{getEffectLabel(type.effect)}</TableCell>
           {canEdit && (
@@ -46,6 +51,7 @@ export const JustificationTypesTable = ({
                   defaultValues={{
                     id: type.id,
                     name: type.name,
+                    description: type.description ?? '',
                     effect: type.effect
                   }}
                 />
