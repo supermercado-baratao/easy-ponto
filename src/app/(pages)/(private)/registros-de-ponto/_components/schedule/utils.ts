@@ -3,20 +3,10 @@ import {
   getTimeFieldName,
   minutesToTime,
   TIME_FIELDS,
-  type TScheduleTimeField,
   WEEKDAYS
 } from '@/models/schedule/utils'
 
 import type { TScheduleFormValues } from './types'
-
-export const TIME_FIELD_LABELS: Record<TScheduleTimeField, string> = {
-  entry1: 'Entrada 1',
-  exit1: 'Saída 1',
-  entry2: 'Entrada 2',
-  exit2: 'Saída 2',
-  entry3: 'Entrada 3',
-  exit3: 'Saída 3'
-}
 
 export const formatMinutes = (minutes: number | null): string =>
   minutes === null ? '' : minutesToTime(minutes)

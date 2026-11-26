@@ -346,6 +346,83 @@ export const schedulesDays = pgTable(
   ]
 )
 
+export const shiftPatterns = pgTable(
+  'shift_patterns',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    // The name is how the user tells the patterns apart, so a case difference doesn't make a new one
+    uniqueIndex('shift_patterns_company_id_name_key').on(
+      table.companyId,
+      sql`lower(${table.name})`
+    ),
+    index('shift_patterns_company_id_idx').on(table.companyId),
+    foreignKey({
+      name: 'shift_patterns_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade')
+  ]
+)
+
+export const shiftPatternVersions = pgTable(
+  'shift_pattern_versions',
+  {
+    id: id(),
+    startDate: dateOnly('start_date').notNull(),
+    cycleLength: integer('cycle_length').notNull(),
+    shiftPatternId: text('shift_pattern_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('shift_pattern_versions_shift_pattern_id_start_date_key').on(
+      table.shiftPatternId,
+      table.startDate
+    ),
+    index('shift_pattern_versions_shift_pattern_id_idx').on(
+      table.shiftPatternId
+    ),
+    foreignKey({
+      name: 'shift_pattern_versions_shift_pattern_id_fkey',
+      columns: [table.shiftPatternId],
+      foreignColumns: [shiftPatterns.id]
+    }).onDelete('cascade')
+  ]
+)
+
+// A time past midnight is saved above 1440 minutes, so a night shift stays in the day it starts
+export const shiftPatternVersionDays = pgTable(
+  'shift_pattern_version_days',
+  {
+    id: id(),
+    cycleDay: integer('cycle_day').notNull(),
+    entry1: integer('entry_1'),
+    exit1: integer('exit_1'),
+    entry2: integer('entry_2'),
+    exit2: integer('exit_2'),
+    entry3: integer('entry_3'),
+    exit3: integer('exit_3'),
+    versionId: text('version_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('shift_pattern_version_days_version_id_cycle_day_key').on(
+      table.versionId,
+      table.cycleDay
+    ),
+    index('shift_pattern_version_days_version_id_idx').on(table.versionId),
+    foreignKey({
+      name: 'shift_pattern_version_days_version_id_fkey',
+      columns: [table.versionId],
+      foreignColumns: [shiftPatternVersions.id]
+    }).onDelete('cascade')
+  ]
+)
+
 export const holidays = pgTable(
   'holidays',
   {
