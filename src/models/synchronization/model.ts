@@ -64,7 +64,7 @@ import {
   TUserSynchronizationParams
 } from './types'
 
-const loadCompanies = async ({
+const loadSavedAndDeviceCompany = async ({
   companyId,
   credentials
 }: TCompanySynchronizationParams): Promise<
@@ -78,7 +78,7 @@ const loadCompanies = async ({
 const loadCompanyChanges = async (
   params: TCompanySynchronizationParams
 ): Promise<TCompanyChange[]> => {
-  const [company, deviceCompany] = await loadCompanies(params)
+  const [company, deviceCompany] = await loadSavedAndDeviceCompany(params)
   return diffDeviceCompany(company, deviceCompany)
 }
 
@@ -90,7 +90,7 @@ const synchronizeCompany = async ({
   fields?: readonly TDeviceCompanyField[]
 }): Promise<Company> => {
   const input = companySynchronizationSchema.parse({ fields })
-  const [company, deviceCompany] = await loadCompanies(params)
+  const [company, deviceCompany] = await loadSavedAndDeviceCompany(params)
   const chosen = Object.fromEntries(
     input.fields.map((field) => [field, deviceCompany[field]])
   )

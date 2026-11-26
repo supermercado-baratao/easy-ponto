@@ -43,7 +43,7 @@ export const DEFAULT_JUSTIFICATION_TYPES: {
   {
     name: 'Férias',
     description:
-      'Período de férias do funcionário. Não desconta do banco de horas. É criada ao registrar as férias planejadas em Férias.',
+      'Período de férias do funcionário. Não desconta do banco de horas. Use ao registrar as férias planejadas na tela Férias.',
     effect: 'excuse'
   },
   {

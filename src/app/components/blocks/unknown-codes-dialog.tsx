@@ -139,7 +139,7 @@ export const UnknownCodesDialog = ({
             <DialogHeader>
               <DialogTitle>Cadastrar tipo</DialogTitle>
               <DialogDescription>
-                O tipo novo fica escolhido para o código {creatingCode}.
+                O novo tipo fica escolhido para o código {creatingCode}.
               </DialogDescription>
             </DialogHeader>
             {creatingCode !== null && (
