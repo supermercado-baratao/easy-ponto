@@ -27,6 +27,23 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.schedulesDays.scheduleId
     })
   },
+  shiftPatterns: {
+    versions: r.many.shiftPatternVersions({
+      from: r.shiftPatterns.id,
+      to: r.shiftPatternVersions.shiftPatternId
+    })
+  },
+  shiftPatternVersions: {
+    shiftPattern: r.one.shiftPatterns({
+      from: r.shiftPatternVersions.shiftPatternId,
+      to: r.shiftPatterns.id,
+      optional: false
+    }),
+    days: r.many.shiftPatternVersionDays({
+      from: r.shiftPatternVersions.id,
+      to: r.shiftPatternVersionDays.versionId
+    })
+  },
   justifications: {
     type: r.one.justificationTypes({
       from: r.justifications.typeId,

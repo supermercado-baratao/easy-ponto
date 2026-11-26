@@ -17,6 +17,11 @@ export type Member = typeof schema.members.$inferSelect
 export type PunchRecord = typeof schema.punchRecords.$inferSelect
 export type Schedule = typeof schema.schedules.$inferSelect
 export type ScheduleDay = typeof schema.schedulesDays.$inferSelect
+export type ShiftPattern = typeof schema.shiftPatterns.$inferSelect
+export type ShiftPatternVersion =
+  typeof schema.shiftPatternVersions.$inferSelect
+export type ShiftPatternVersionDay =
+  typeof schema.shiftPatternVersionDays.$inferSelect
 export type User = typeof schema.users.$inferSelect
 export type VacationPlan = typeof schema.vacationPlans.$inferSelect
 
@@ -40,6 +45,14 @@ export type TMemberWithUser = Member & {
 
 export type TScheduleWithDays = Schedule & {
   days: ScheduleDay[]
+}
+
+export type TShiftPatternVersionWithDays = ShiftPatternVersion & {
+  days: ShiftPatternVersionDay[]
+}
+
+export type TShiftPatternWithVersions = ShiftPattern & {
+  versions: TShiftPatternVersionWithDays[]
 }
 
 export type TJustificationWithType = Justification & {

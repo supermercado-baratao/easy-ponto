@@ -1,6 +1,7 @@
 import {
   Calendar,
   CalendarDays,
+  CalendarSync,
   ChartColumn,
   ClipboardCheck,
   Clock,
@@ -69,6 +70,11 @@ export const navItems: TNavItem[] = [
             title: 'Funcionários',
             path: '/funcionarios',
             icon: Users
+          },
+          {
+            title: 'Escalas',
+            path: '/escalas',
+            icon: CalendarSync
           },
           {
             title: 'Expedientes',

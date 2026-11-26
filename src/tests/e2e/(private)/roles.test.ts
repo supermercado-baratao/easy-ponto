@@ -52,7 +52,7 @@ test.describe('Viewer', () => {
     )
   })
 
-  test('Sees the employees and the holidays without the editing actions', async ({
+  test('Sees the employees, the holidays and the shift patterns without the editing actions', async ({
     page
   }) => {
     await page.goto('/funcionarios')
@@ -68,6 +68,12 @@ test.describe('Viewer', () => {
     ).toHaveCount(0)
     await expect(
       page.getByRole('button', { name: /^Adicionar feriados nacionais/ })
+    ).toHaveCount(0)
+
+    await page.goto('/escalas')
+    await expect(page.getByRole('heading', { name: 'Escalas' })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: 'Cadastrar escala' })
     ).toHaveCount(0)
   })
 
