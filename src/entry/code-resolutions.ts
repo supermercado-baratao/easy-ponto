@@ -1,12 +1,12 @@
 import type { z } from 'zod'
 
-import type { TCodeResolution } from '@/models/synchronization/types'
+import type { TCodeResolutions } from '@/models/synchronization/types'
 
 export const RESOLUTIONS_FIELD = 'resolutions'
 
 export const parseCodeResolutions = (
   value: FormDataEntryValue | null
-): Record<string, TCodeResolution> | undefined =>
+): TCodeResolutions | undefined =>
   typeof value === 'string' ? JSON.parse(value) : undefined
 
 export const parseCodeResolutionErrors = (
@@ -17,8 +17,7 @@ export const parseCodeResolutionErrors = (
   }
   const errors: Record<string, string> = {}
   for (const { path, message } of error.issues) {
-    const [, code, field = 'action'] = path.map(String)
-    errors[`${code}.${field}`] ??= message
+    errors[String(path[1])] ??= message
   }
   return errors
 }

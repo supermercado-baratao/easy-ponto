@@ -16,7 +16,7 @@ import { Input } from '@/app/components/ui/shadcn/input'
 import { showActionError } from '@/app/utils/action-error'
 import type { TActionError } from '@/entry/action'
 import type {
-  TCodeResolution,
+  TCodeResolutions,
   TUnresolvedImport
 } from '@/models/synchronization/types'
 
@@ -70,9 +70,7 @@ export const ReportImportForm = <TState extends TReportImportState>({
     formAction(formData)
   }
 
-  const submitResolutions = (
-    resolutions: Record<string, Partial<TCodeResolution>>
-  ): void => {
+  const submitResolutions = (resolutions: TCodeResolutions): void => {
     if (!fileReference.current || !formatReference.current) return
     const formData = new FormData()
     formData.set('file', fileReference.current)

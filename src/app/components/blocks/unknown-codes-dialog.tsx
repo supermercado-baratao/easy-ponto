@@ -2,7 +2,9 @@
 
 import { type FormEvent, useId, useState } from 'react'
 
-import { FormField, Select } from '@/app/components/ui/custom/form'
+import { JustificationTypeForm } from '@/app/components/blocks/justification-type-form/justification-type-form'
+import type { TSavedJustificationType } from '@/app/components/blocks/justification-type-form/types'
+import { Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
 import {
@@ -14,44 +16,9 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/app/components/ui/shadcn/dialog'
-import {
-  EFFECT_LABELS,
-  JUSTIFICATION_EFFECTS
-} from '@/models/justification-type/utils'
-import type { TCodeResolution } from '@/models/synchronization/types'
+import type { TCodeResolutions } from '@/models/synchronization/types'
 
 const CREATE_CHOICE = 'create'
-
-const EFFECT_OPTIONS = JUSTIFICATION_EFFECTS.map((effect) => ({
-  value: effect,
-  label: EFFECT_LABELS[effect]
-}))
-
-const readResolutions = (
-  formData: FormData,
-  codes: string[]
-): Record<string, Partial<TCodeResolution>> =>
-  Object.fromEntries(
-    codes.map((code, index) => {
-      const choice = formData.get(`choice-${index}`)
-      if (choice === CREATE_CHOICE) {
-        return [
-          code,
-          {
-            action: 'create',
-            name: String(formData.get(`name-${index}`)),
-            effect: String(formData.get(`effect-${index}`))
-          }
-        ]
-      }
-      return [
-        code,
-        typeof choice === 'string' && choice !== ''
-          ? { action: 'associate', typeId: choice }
-          : {}
-      ]
-    })
-  )
 
 export const UnknownCodesDialog = ({
   open,
@@ -64,26 +31,54 @@ export const UnknownCodesDialog = ({
 }: {
   open: boolean
   codes: string[]
-  types: { id: string; name: string }[]
+  types: TSavedJustificationType[]
   errors?: Record<string, string>
   pending: boolean
-  onSubmit: (resolutions: Record<string, Partial<TCodeResolution>>) => void
+  onSubmit: (resolutions: TCodeResolutions) => void
   onCancel: () => void
 }) => {
   const id = useId()
   const formId = `${id}-form`
-  const [choices, setChoices] = useState<Record<string, string | null>>({})
+  const [createdTypes, setCreatedTypes] = useState<TSavedJustificationType[]>(
+    []
+  )
+  const [choices, setChoices] = useState<Record<string, string>>({})
+  // Remounts the select of a code after the new type dialog, so it shows the created type or the previous choice
+  const [revisions, setRevisions] = useState<Record<string, number>>({})
+  const [creatingCode, setCreatingCode] = useState<string | null>(null)
   const choiceOptions = [
     { value: CREATE_CHOICE, label: 'Cadastrar um novo tipo' },
-    ...types.map((type) => ({
-      value: type.id,
-      label: type.name
-    }))
+    ...[...types, ...createdTypes]
+      .toSorted((first, second) => first.name.localeCompare(second.name))
+      .map((type) => ({ value: type.id, label: type.name }))
   ]
+
+  const chooseType = (code: string, value: string | null): void => {
+    if (value === CREATE_CHOICE) {
+      setCreatingCode(code)
+      return
+    }
+    setChoices((current) => ({ ...current, [code]: value ?? '' }))
+  }
+
+  const closeCreation = (type?: TSavedJustificationType): void => {
+    if (!creatingCode) return
+    if (type) {
+      setCreatedTypes((current) => [...current, type])
+      setChoices((current) => ({ ...current, [creatingCode]: type.id }))
+    }
+    setRevisions((current) => ({
+      ...current,
+      [creatingCode]: (current[creatingCode] ?? 0) + 1
+    }))
+    setCreatingCode(null)
+  }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault()
-    onSubmit(readResolutions(new FormData(event.currentTarget), codes))
+    onSubmit(
+      Object.fromEntries(codes.map((code) => [code, choices[code] ?? '']))
+    )
   }
 
   return (
@@ -96,9 +91,8 @@ export const UnknownCodesDialog = ({
           <DialogTitle>Códigos de justificativa desconhecidos</DialogTitle>
           <DialogDescription>
             O relatório tem códigos sem um tipo de justificativa cadastrado.
-            Escolha, para cada um, se ele vira um tipo novo ou se corresponde a
-            um tipo já cadastrado. A escolha fica salva para as próximas
-            importações.
+            Escolha, para cada um, o tipo que corresponde a ele ou cadastre um
+            novo. A escolha fica salva para as próximas importações.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -107,45 +101,22 @@ export const UnknownCodesDialog = ({
           onSubmit={handleSubmit}
           className="-mx-4 flex flex-col gap-6 overflow-y-auto px-4"
         >
-          {codes.map((code, index) => {
-            const errorOf = (field: string): string | undefined =>
-              errors?.[`${code}.${field}`]
-            return (
-              <fieldset key={code} className="flex flex-col gap-4">
-                <legend className="mb-3 font-medium">Código {code}</legend>
-                <Select
-                  id={`${id}-choice-${index}`}
-                  name={`choice-${index}`}
-                  label="Tipo"
-                  placeholder="Selecione o tipo"
-                  options={choiceOptions}
-                  onValueChange={(value) =>
-                    setChoices((current) => ({ ...current, [code]: value }))
-                  }
-                  error={errorOf('action') ?? errorOf('typeId')}
-                />
-                {choices[code] === CREATE_CHOICE && (
-                  <>
-                    <FormField
-                      id={`${id}-name-${index}`}
-                      name={`name-${index}`}
-                      label="Nome"
-                      defaultValue={code}
-                      error={errorOf('name')}
-                    />
-                    <Select
-                      id={`${id}-effect-${index}`}
-                      name={`effect-${index}`}
-                      label="Efeito"
-                      placeholder="Selecione o efeito"
-                      options={EFFECT_OPTIONS}
-                      error={errorOf('effect')}
-                    />
-                  </>
-                )}
-              </fieldset>
-            )
-          })}
+          {codes.map((code, index) => (
+            <fieldset key={code} className="flex flex-col gap-4">
+              <legend className="mb-3 font-medium">Código {code}</legend>
+              <Select
+                key={revisions[code] ?? 0}
+                id={`${id}-choice-${index}`}
+                name={`choice-${index}`}
+                label="Tipo"
+                placeholder="Selecione o tipo"
+                options={choiceOptions}
+                defaultValue={choices[code]}
+                onValueChange={(value) => chooseType(code, value)}
+                error={errors?.[code]}
+              />
+            </fieldset>
+          ))}
         </form>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />} disabled={pending}>
@@ -160,6 +131,34 @@ export const UnknownCodesDialog = ({
             {pending ? <Loader mode="inline" label="Importar" /> : 'Importar'}
           </Button>
         </DialogFooter>
+        <Dialog
+          open={creatingCode !== null}
+          onOpenChange={(isOpen) => !isOpen && closeCreation()}
+        >
+          <DialogContent className="max-h-[90dvh] grid-rows-[auto_1fr_auto] sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Cadastrar tipo</DialogTitle>
+              <DialogDescription>
+                O tipo novo fica escolhido para o código {creatingCode}.
+              </DialogDescription>
+            </DialogHeader>
+            {creatingCode !== null && (
+              <JustificationTypeForm
+                defaultValues={{ name: creatingCode }}
+                onSaved={closeCreation}
+                className="-mx-4 px-4"
+                renderFooter={(submitButton) => (
+                  <DialogFooter>
+                    <DialogClose render={<Button variant="outline" />}>
+                      Cancelar
+                    </DialogClose>
+                    {submitButton}
+                  </DialogFooter>
+                )}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   )

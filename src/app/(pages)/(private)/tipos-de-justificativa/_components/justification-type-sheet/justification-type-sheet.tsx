@@ -3,11 +3,15 @@
 import { Pencil } from 'lucide-react'
 import { useState } from 'react'
 
+import { JustificationTypeForm } from '@/app/components/blocks/justification-type-form/justification-type-form'
+import type { TJustificationTypeFormValues } from '@/app/components/blocks/justification-type-form/types'
 import { Button } from '@/app/components/ui/shadcn/button'
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger
@@ -15,8 +19,6 @@ import {
 import type { JustificationType } from '@/infra/database/types'
 
 import { CREATE_TYPE_BUTTON_ID } from '../utils'
-import { JustificationTypeForm } from './justification-type-form'
-import type { TJustificationTypeFormValues } from './types'
 
 export const JustificationTypeSheet = ({
   type,
@@ -62,6 +64,15 @@ export const JustificationTypeSheet = ({
         <JustificationTypeForm
           defaultValues={defaultValues}
           onSaved={() => setOpen(false)}
+          className="px-4"
+          renderFooter={(submitButton) => (
+            <SheetFooter className="flex-row justify-end">
+              <SheetClose render={<Button variant="outline" />}>
+                Cancelar
+              </SheetClose>
+              {submitButton}
+            </SheetFooter>
+          )}
         />
       </SheetContent>
     </Sheet>

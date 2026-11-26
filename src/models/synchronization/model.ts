@@ -3,6 +3,7 @@ import { z } from 'zod'
 import type {
   Company,
   Justification,
+  JustificationCodeMapping,
   JustificationType,
   TCompanyWithDeviceCredentials,
   TInputData,
@@ -30,16 +31,12 @@ import { hoursBankModel } from '@/models/hours-bank/model'
 import { createSchema as justificationCreateSchema } from '@/models/justification/schema'
 import { findOverlappingJustification } from '@/models/justification/utils'
 import { justificationTypeModel } from '@/models/justification-type/model'
-import { isSameTypeName } from '@/models/justification-type/utils'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
 import { timeCardReportModel } from '@/models/time-card-report/model'
 import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 import { userModel } from '@/models/user/model'
-import {
-  justificationCodeMappingRepository,
-  type TCodeResolutionsSaveData
-} from '@/repositories/justification-code-mapping-repository'
+import { justificationCodeMappingRepository } from '@/repositories/justification-code-mapping-repository'
 import { justificationRepository } from '@/repositories/justification-repository'
 import { synchronizationRepository } from '@/repositories/synchronization-repository'
 
@@ -185,11 +182,11 @@ const synchronizeAfd = async ({
 
 type TResolvedCodes = {
   typesByCode: Map<string, Pick<JustificationType, 'id' | 'effect'>>
-  codeResolutions: TCodeResolutionsSaveData
+  codeMappings: TInputData<JustificationCodeMapping>[]
 }
 
 // A code is resolved by the user's choice in this import, then by the choice of an earlier one,
-// then by a type with the same code. The choices are saved, so each code is asked only once (#98)
+// then by a type named like the code. The choices are saved, so each code is asked only once (#98)
 const resolveCodes = async ({
   codes,
   format,
@@ -228,58 +225,24 @@ const resolveCodes = async ({
   }
 
   const typesByCode: TResolvedCodes['typesByCode'] = new Map()
-  const codeResolutions: TCodeResolutionsSaveData = {
-    justificationTypes: [],
-    mappings: []
-  }
-  const issues: z.core.$ZodIssue[] = []
-
+  const codeMappings: TResolvedCodes['codeMappings'] = []
   for (const code of codes) {
-    const resolution = resolutions[code]
-    if (!resolution) {
+    const typeId = resolutions[code]
+    if (!typeId) {
       typesByCode.set(code, findSavedType(code)!)
       continue
     }
-
-    let type: Pick<JustificationType, 'id' | 'effect'> | undefined
-    if (resolution.action === 'associate') {
-      type = savedTypesById.get(resolution.typeId)
-      if (!type) {
-        throw new NotFoundError({
-          message: 'O tipo de justificativa não foi encontrado.',
-          cause: `JustificationType ${resolution.typeId} not found in company ${companyId}`
-        })
-      }
-    } else {
-      const { name, description, effect } = resolution
-      if (
-        [...savedTypes, ...codeResolutions.justificationTypes].some((type) =>
-          isSameTypeName(type.name, name)
-        )
-      ) {
-        issues.push({
-          code: 'custom',
-          path: ['resolutions', code, 'name'],
-          message: 'Já existe um tipo com esse nome',
-          input: name
-        })
-        continue
-      }
-      type = { id: crypto.randomUUID(), effect }
-      codeResolutions.justificationTypes.push({
-        id: type.id,
-        name,
-        description,
-        effect,
-        companyId
+    const type = savedTypesById.get(typeId)
+    if (!type) {
+      throw new NotFoundError({
+        message: 'O tipo de justificativa não foi encontrado.',
+        cause: `JustificationType ${typeId} not found in company ${companyId}`
       })
     }
     typesByCode.set(code, type)
-    codeResolutions.mappings.push({ companyId, format, code, typeId: type.id })
+    codeMappings.push({ companyId, format, code, typeId })
   }
-
-  if (issues.length > 0) throw new z.ZodError(issues)
-  return { typesByCode, codeResolutions }
+  return { typesByCode, codeMappings }
 }
 
 const toCompanyUpdate = ({
@@ -325,7 +288,7 @@ const importFile = async ({
     resolutions: validResolutions
   })
   if ('status' in resolved) return resolved
-  const { typesByCode, codeResolutions } = resolved
+  const { typesByCode, codeMappings } = resolved
   const { startDate, endDate } = report.period
   const savedJustifications =
     await justificationRepository.findManyInPeriodByUserIds({
@@ -385,7 +348,7 @@ const importFile = async ({
       const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
       return { userId, startDate, days }
     }),
-    codeResolutions,
+    codeMappings,
     justifications: justificationsToCreate
   })
   // The report may fill the CPF of an employee the device saved without one
@@ -438,9 +401,7 @@ const importInitialBalance = async ({
     users,
     deductedCodes
   )
-  await justificationCodeMappingRepository.saveResolutions(
-    resolved.codeResolutions
-  )
+  await justificationCodeMappingRepository.saveMany(resolved.codeMappings)
   const closing = await hoursBankModel.createInitialBalance({
     companyId,
     ...report.period,
