@@ -11,6 +11,7 @@ import { dayjs } from '@/infra/dayjs'
 import { isCompanyConfigured } from '@/models/company/utils'
 import { journeyModel } from '@/models/journey/model'
 import type { TJourneyDay } from '@/models/journey/types'
+import { journeyRulesModel } from '@/models/journey-rules/model'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
@@ -40,7 +41,15 @@ export const getPunchRecordsPageData = async ({
 }): Promise<TPunchRecordsPageData> => {
   const { company, canEdit } = await requireCompany()
   // Every way into the app lands here, so it sends the editor of a new company to set it up (#94)
-  if (canEdit && !isCompanyConfigured(company)) redirect('/configuracoes')
+  if (
+    canEdit &&
+    !isCompanyConfigured(
+      company,
+      await journeyRulesModel.findOvertimeBands(company.id)
+    )
+  ) {
+    redirect('/configuracoes')
+  }
   const users = await userModel.findManyByCompanyId(company.id)
   const user = users.find((user) => user.pis === pis) ?? users[0] ?? null
   const period = punchRecordModel.resolvePeriod({ initialDate, finalDate })

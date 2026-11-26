@@ -9,11 +9,13 @@ export type HoursBankAdjustment =
   typeof schema.hoursBankAdjustments.$inferSelect
 export type HoursBankBalance = typeof schema.hoursBankBalances.$inferSelect
 export type HoursBankClosing = typeof schema.hoursBankClosings.$inferSelect
+export type JourneyRules = typeof schema.journeyRules.$inferSelect
 export type Justification = typeof schema.justifications.$inferSelect
 export type JustificationType = typeof schema.justificationTypes.$inferSelect
 export type JustificationCodeMapping =
   typeof schema.justificationCodeMappings.$inferSelect
 export type Member = typeof schema.members.$inferSelect
+export type OvertimeBand = typeof schema.overtimeBands.$inferSelect
 export type PunchRecord = typeof schema.punchRecords.$inferSelect
 export type Schedule = typeof schema.schedules.$inferSelect
 export type ScheduleDay = typeof schema.schedulesDays.$inferSelect

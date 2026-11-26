@@ -5,9 +5,14 @@ import {
   runInTransaction,
   type TTransaction
 } from '@/infra/database/client'
-import { companies, justificationTypes } from '@/infra/database/schema'
+import {
+  companies,
+  journeyRules,
+  justificationTypes
+} from '@/infra/database/schema'
 import type {
   Company,
+  JourneyRules,
   JustificationType,
   TCompanyWithDeviceCredentials,
   TInputData
@@ -19,11 +24,16 @@ type TCompanyInsert = Pick<Company, 'name' | 'slug'> &
 export type TCompanyCreateData = {
   company: TCompanyInsert
   justificationTypes: Omit<TInputData<JustificationType>, 'companyId'>[]
+  journeyRules: Omit<TInputData<JourneyRules>, 'companyId'>
 }
 
 export const companyRepository = {
   create: async (
-    { company, justificationTypes: types }: TCompanyCreateData,
+    {
+      company,
+      justificationTypes: types,
+      journeyRules: rules
+    }: TCompanyCreateData,
     transaction?: TTransaction
   ): Promise<Company> =>
     await runInTransaction(transaction, async (tx) => {
@@ -33,6 +43,7 @@ export const companyRepository = {
           .insert(justificationTypes)
           .values(types.map((type) => ({ ...type, companyId: created.id })))
       }
+      await tx.insert(journeyRules).values({ ...rules, companyId: created.id })
       return created
     }),
 

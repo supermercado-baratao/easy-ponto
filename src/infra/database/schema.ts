@@ -73,6 +73,53 @@ export const companies = pgTable(
   ]
 )
 
+// One row per company, created with it from the CLT values of src/models/journey-rules/utils.ts (#105)
+export const journeyRules = pgTable(
+  'journey_rules',
+  {
+    id: id(),
+    punchTolerance: integer('punch_tolerance').notNull(),
+    dailyTolerance: integer('daily_tolerance').notNull(),
+    maxLunch: integer('max_lunch').notNull(),
+    maxDailyJourney: integer('max_daily_journey').notNull(),
+    maxContinuousWork: integer('max_continuous_work').notNull(),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('journey_rules_company_id_key').on(table.companyId),
+    foreignKey({
+      name: 'journey_rules_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade')
+  ]
+)
+
+// The band without an upper limit holds the remaining hours of the day kind, so a kind has one at most
+export const overtimeBands = pgTable(
+  'overtime_bands',
+  {
+    id: id(),
+    dayKind: text('day_kind').notNull(),
+    upTo: integer('up_to'),
+    percentage: integer('percentage').notNull(),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('overtime_bands_company_id_day_kind_up_to_key')
+      .on(table.companyId, table.dayKind, table.upTo)
+      .nullsNotDistinct(),
+    index('overtime_bands_company_id_idx').on(table.companyId),
+    foreignKey({
+      name: 'overtime_bands_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade')
+  ]
+)
+
 export const devicesSessions = pgTable(
   'devices_sessions',
   {

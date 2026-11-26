@@ -7,6 +7,14 @@ export const relations = defineRelations(schema, (r) => ({
     deviceCredentials: r.one.devicesCredentials({
       from: r.companies.deviceCredentialsId,
       to: r.devicesCredentials.id
+    }),
+    journeyRules: r.one.journeyRules({
+      from: r.companies.id,
+      to: r.journeyRules.companyId
+    }),
+    overtimeBands: r.many.overtimeBands({
+      from: r.companies.id,
+      to: r.overtimeBands.companyId
     })
   },
   members: {

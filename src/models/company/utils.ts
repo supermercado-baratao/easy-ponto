@@ -1,5 +1,6 @@
-import type { Company } from '@/infra/database/types'
+import type { Company, OvertimeBand } from '@/infra/database/types'
 import type { TDeviceCompany } from '@/models/device/types'
+import { hasOvertimeBands } from '@/models/journey-rules/utils'
 
 import type { TCompanyChange, TDeviceCompanyField } from './types'
 
@@ -18,12 +19,16 @@ export const toSlug = (name: string): string => {
   return base ? `${base}-${suffix}` : suffix
 }
 
-// A company starts without the device and with only its name (#94): the rest is read from the device
-export const isCompanyConfigured = ({
-  deviceCredentialsId,
-  cpfCnpj
-}: Pick<Company, 'deviceCredentialsId' | 'cpfCnpj'>): boolean =>
-  Boolean(deviceCredentialsId && cpfCnpj)
+// A company starts without the device and with only its name (#94): the rest is read from the device,
+// except the overtime percentages of its agreement (#105)
+export const isCompanyConfigured = (
+  {
+    deviceCredentialsId,
+    cpfCnpj
+  }: Pick<Company, 'deviceCredentialsId' | 'cpfCnpj'>,
+  overtimeBands: Pick<OvertimeBand, 'dayKind'>[]
+): boolean =>
+  Boolean(deviceCredentialsId && cpfCnpj) && hasOvertimeBands(overtimeBands)
 
 export const DEVICE_COMPANY_FIELDS = [
   'name',
