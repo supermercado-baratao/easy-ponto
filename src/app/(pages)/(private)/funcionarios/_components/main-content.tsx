@@ -7,7 +7,11 @@ import {
 } from '@/app/components/blocks/users-filter'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
-import type { User } from '@/infra/database/types'
+import type {
+  ShiftAssignment,
+  TShiftPatternWithVersions,
+  User
+} from '@/infra/database/types'
 
 import { UsersTable } from './users-table'
 
@@ -16,12 +20,18 @@ export const MainContent = ({
   total,
   positions,
   filters,
+  shiftPatterns,
+  assignments,
+  today,
   canEdit
 }: {
   users: User[]
   total: number
   positions: string[]
   filters: TUsersFilterValues
+  shiftPatterns: TShiftPatternWithVersions[]
+  assignments: ShiftAssignment[]
+  today: string
   canEdit: boolean
 }) => (
   <>
@@ -35,7 +45,13 @@ export const MainContent = ({
             filters={filters}
           />
           {users.length > 0 ? (
-            <UsersTable users={users} canEdit={canEdit} />
+            <UsersTable
+              users={users}
+              shiftPatterns={shiftPatterns}
+              assignments={assignments}
+              today={today}
+              canEdit={canEdit}
+            />
           ) : (
             <p className="text-sm text-muted-foreground">
               Nenhum funcionário encontrado com esses filtros

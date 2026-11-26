@@ -33,6 +33,8 @@ import { findOverlappingJustification } from '@/models/justification/utils'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
 import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
+import { shiftAssignmentModel } from '@/models/shift-assignment/model'
+import { shiftPatternModel } from '@/models/shift-pattern/model'
 import { timeCardReportModel } from '@/models/time-card-report/model'
 import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 import { userModel } from '@/models/user/model'
@@ -51,6 +53,7 @@ import {
   getSchedulesToSave,
   getUsersToUpdate
 } from './_utils/report'
+import { getShiftPatternsToImport } from './_utils/shift-pattern'
 import { mapDeviceUserToUser, mapDeviceUserToUserFields } from './_utils/user'
 import { companySynchronizationSchema, importFileSchema } from './schema'
 import {
@@ -297,6 +300,18 @@ const importFile = async ({
       finalDate: endDate
     })
 
+  const [savedPatterns, savedAssignments] = await Promise.all([
+    shiftPatternModel.findManyByCompanyId(company.id),
+    shiftAssignmentModel.findManyByUserIds(users.map(({ id }) => id))
+  ])
+  const { shiftPatterns, shiftAssignments } = getShiftPatternsToImport({
+    companyId: company.id,
+    reportSchedules: report.schedules,
+    users,
+    savedPatterns,
+    savedAssignments
+  })
+
   let skippedJustifications = 0
   const justificationsToCreate: TInputData<Justification>[] = []
   for (const { userName, code, ...period } of reportJustifications) {
@@ -348,6 +363,11 @@ const importFile = async ({
       const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
       return { userId, startDate, days }
     }),
+    shiftPatterns: shiftPatterns.map((shiftPattern) => ({
+      ...shiftPattern,
+      companyId: company.id
+    })),
+    shiftAssignments,
     codeMappings,
     justifications: justificationsToCreate
   })

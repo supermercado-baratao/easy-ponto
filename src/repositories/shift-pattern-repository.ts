@@ -1,6 +1,10 @@
 import { and, eq } from 'drizzle-orm'
 
-import { database, type TTransaction } from '@/infra/database/client'
+import {
+  database,
+  runInTransaction,
+  type TTransaction
+} from '@/infra/database/client'
 import {
   shiftPatterns,
   shiftPatternVersionDays,
@@ -15,7 +19,7 @@ import type {
 
 type TCompanyScopedId = { id: string; companyId: string }
 
-type TVersionData = {
+export type TShiftPatternVersionData = {
   id?: string
   startDate: string
   cycleLength: number
@@ -41,7 +45,7 @@ const findUnique = async (
 const saveVersion = async (
   tx: TTransaction,
   shiftPatternId: string,
-  { id, startDate, cycleLength, days }: TVersionData
+  { id, startDate, cycleLength, days }: TShiftPatternVersionData
 ): Promise<void> => {
   const [{ id: versionId }] = id
     ? await tx
@@ -106,14 +110,17 @@ export const shiftPatternRepository = {
       : null
   },
 
-  create: async ({
-    companyId,
-    name,
-    version
-  }: TInputData<ShiftPattern> & {
-    version: TVersionData
-  }): Promise<TShiftPatternWithVersions> =>
-    await database.transaction(async (tx) => {
+  create: async (
+    {
+      companyId,
+      name,
+      version
+    }: TInputData<ShiftPattern> & {
+      version: TShiftPatternVersionData
+    },
+    transaction?: TTransaction
+  ): Promise<TShiftPatternWithVersions> =>
+    await runInTransaction(transaction, async (tx) => {
       const [{ id }] = await tx
         .insert(shiftPatterns)
         .values({ companyId, name })
@@ -129,7 +136,7 @@ export const shiftPatternRepository = {
     version
   }: TInputData<ShiftPattern> & {
     id: string
-    version: TVersionData
+    version: TShiftPatternVersionData
   }): Promise<TShiftPatternWithVersions> =>
     await database.transaction(async (tx) => {
       await tx

@@ -29,6 +29,8 @@ import { hoursBankModel } from '@/models/hours-bank/model'
 import { justificationModel } from '@/models/justification/model'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { scheduleModel } from '@/models/schedule/model'
+import { shiftAssignmentModel } from '@/models/shift-assignment/model'
+import { shiftPatternModel } from '@/models/shift-pattern/model'
 import { synchronizationModel } from '@/models/synchronization/model'
 import type { TCodeResolutions } from '@/models/synchronization/types'
 import { userModel } from '@/models/user/model'
@@ -468,6 +470,93 @@ describe('Synchronization Model', () => {
       })
       expect(schedule?.days).toHaveLength(7)
       expect(schedule?.days[1]).toMatchObject({ entry1: 540, exit1: 720 })
+    })
+
+    test('Links the users to a weekly pattern from the first day of the period', async () => {
+      const data = await populate()
+
+      await importFile(createScheduleFile('8:00'), data)
+
+      const [user] = await userModel.findManyByCompanyId(data.company.id)
+      const [shiftPattern] = await shiftPatternModel.findManyByCompanyId(
+        data.company.id
+      )
+      expect(shiftPattern.name).toBe('Seg 08:00–12:00')
+      expect(shiftPattern.versions[0]).toMatchObject({
+        startDate: '2025-10-01',
+        cycleLength: 7
+      })
+      const assignments = await shiftAssignmentModel.findManyByUserId({
+        userId: user.id,
+        companyId: data.company.id
+      })
+      expect(assignments).toMatchObject([
+        {
+          shiftPatternId: shiftPattern.id,
+          startDate: '2025-10-01',
+          endDate: null,
+          cycleStartDay: 3
+        }
+      ])
+      const days = await shiftAssignmentModel.findUserDays({
+        userId: user.id,
+        companyId: data.company.id,
+        initialDate: '2025-09-30',
+        finalDate: '2025-10-07'
+      })
+      expect(days.map(({ kind }) => kind)).toEqual([
+        'unassigned',
+        'off',
+        'off',
+        'off',
+        'off',
+        'off',
+        'work',
+        'off'
+      ])
+      expect(days[6].pairs).toEqual([{ entry: 480, exit: 720 }])
+    })
+
+    test('Keeps one pattern and one link when the same file is imported again', async () => {
+      const data = await populate()
+      await importFile(createScheduleFile('8:00'), data)
+
+      await importFile(createScheduleFile('8:00'), data)
+
+      const [user] = await userModel.findManyByCompanyId(data.company.id)
+      expect(
+        await shiftPatternModel.findManyByCompanyId(data.company.id)
+      ).toHaveLength(1)
+      expect(
+        await shiftAssignmentModel.findManyByUserId({
+          userId: user.id,
+          companyId: data.company.id
+        })
+      ).toHaveLength(1)
+    })
+
+    test('Replaces the link from the first day of the period when the schedule changes', async () => {
+      const data = await populate()
+      await importFile(createScheduleFile('8:00'), data)
+
+      await importFile(createScheduleFile('9:00'), data)
+
+      const [user] = await userModel.findManyByCompanyId(data.company.id)
+      const shiftPatterns = await shiftPatternModel.findManyByCompanyId(
+        data.company.id
+      )
+      expect(shiftPatterns.map(({ name }) => name)).toEqual([
+        'Seg 08:00–12:00',
+        'Seg 09:00–12:00'
+      ])
+      expect(
+        await shiftAssignmentModel.findManyByUserId({
+          userId: user.id,
+          companyId: data.company.id
+        })
+      ).toMatchObject([
+        { shiftPatternId: shiftPatterns[1].id, startDate: '2025-10-01' }
+      ])
     })
   })
 

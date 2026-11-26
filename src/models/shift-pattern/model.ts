@@ -4,10 +4,12 @@ import type {
   ShiftPattern,
   TShiftPatternWithVersions
 } from '@/infra/database/types'
+import { shiftAssignmentRepository } from '@/repositories/shift-assignment-repository'
 import { shiftPatternRepository } from '@/repositories/shift-pattern-repository'
 
 import {
   LastShiftPatternVersionError,
+  ShiftPatternInUseError,
   ShiftPatternNotFoundError,
   ShiftPatternVersionNotFoundError
 } from './errors'
@@ -131,6 +133,14 @@ const remove = async (
   params: TShiftPatternRemoveParams
 ): Promise<ShiftPattern> => {
   const validParams = removeSchema.parse(params)
+  const saved = await shiftPatternRepository.findUnique(validParams)
+  if (saved) {
+    const userCount =
+      await shiftAssignmentRepository.countUsersByShiftPatternId(saved.id)
+    if (userCount > 0) {
+      throw new ShiftPatternInUseError(saved.name, userCount)
+    }
+  }
   const shiftPattern = await shiftPatternRepository.remove(validParams)
   if (!shiftPattern) {
     throw new ShiftPatternNotFoundError(

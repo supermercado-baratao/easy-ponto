@@ -37,6 +37,7 @@ test.describe('Users', () => {
       'Repositor',
       '—',
       '03/02/2025',
+      '—',
       'Desligado',
       ''
     ])
