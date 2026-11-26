@@ -21,27 +21,22 @@ test.describe('Justifications', () => {
   test('Adds, edits and removes the justification types', async ({ page }) => {
     await page.goto('/tipos-de-justificativa')
     const table = page.getByRole('table', { name: 'Tipos de justificativa' })
-    await expect(table.locator('tbody tr th')).toHaveText([
-      'ABONO',
-      'ATESTADO',
-      'AUSENCIA LEGAL',
-      'COMPENSACAO',
-      'FERIAS',
-      'LICENCA'
+    await expect(table.locator('tbody tr th > span:first-child')).toHaveText([
+      'Abono',
+      'Atestado médico',
+      'Ausência legal',
+      'Compensação',
+      'Férias',
+      'Licença'
     ])
 
-    for (const { code, description, effect } of [
-      { code: 'ATEST', description: 'Atestado', effect: 'Abona' },
-      {
-        code: 'FOLGA',
-        description: 'Folga',
-        effect: 'Desconta do banco de horas'
-      }
+    for (const { name, effect } of [
+      { name: 'Declaração', effect: 'Abona' },
+      { name: 'Folga', effect: 'Desconta do banco de horas' }
     ]) {
       await page.getByRole('button', { name: 'Cadastrar tipo' }).click()
       const sheet = page.getByRole('dialog', { name: 'Cadastrar tipo' })
-      await sheet.getByLabel('Código').fill(code)
-      await sheet.getByLabel('Descrição').fill(description)
+      await sheet.getByLabel('Nome').fill(name)
       await sheet.getByRole('combobox', { name: 'Efeito' }).click()
       await page.getByRole('option', { name: effect }).click()
       await sheet.getByRole('button', { name: 'Salvar' }).click()
@@ -50,29 +45,35 @@ test.describe('Justifications', () => {
 
     await page.getByRole('button', { name: 'Cadastrar tipo' }).click()
     const createSheet = page.getByRole('dialog', { name: 'Cadastrar tipo' })
-    await createSheet.getByLabel('Código').fill('FOLGA')
-    await createSheet.getByLabel('Descrição').fill('Outra folga')
+    await createSheet.getByLabel('Nome').fill('FOLGA')
     await createSheet.getByRole('combobox', { name: 'Efeito' }).click()
     await page.getByRole('option', { name: 'Abona' }).click()
     await createSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(
-      createSheet.getByText('Já existe um tipo com esse código')
+      createSheet.getByText('Já existe um tipo com esse nome')
     ).toBeVisible()
-    await expect(createSheet.getByLabel('Código')).toBeFocused()
+    await expect(createSheet.getByLabel('Nome')).toBeFocused()
     await createSheet.getByRole('button', { name: 'Cancelar' }).click()
 
     await page
-      .getByRole('button', { name: 'Editar ATEST', exact: true })
+      .getByRole('button', { name: 'Editar Declaração', exact: true })
       .click()
     const editSheet = page.getByRole('dialog', { name: 'Editar tipo' })
-    await editSheet.getByLabel('Descrição').fill('Atestado médico')
+    await editSheet.getByLabel('Nome').fill('Declaração de horas')
+    await editSheet
+      .getByLabel('Descrição')
+      .fill('Horas na Justiça como testemunha.')
     await editSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(editSheet).toBeHidden()
-    await expect(table.locator('tbody tr').nth(1).locator('th, td')).toHaveText(
-      ['ATEST', 'Atestado médico', 'Abona', '']
-    )
+    await expect(
+      table.getByRole('row', { name: 'Declaração de horas' }).locator('th, td')
+    ).toHaveText([
+      'Declaração de horasHoras na Justiça como testemunha.',
+      'Abona',
+      ''
+    ])
 
-    await page.getByRole('button', { name: 'Remover FOLGA' }).click()
+    await page.getByRole('button', { name: 'Remover Folga' }).click()
     const dialog = page.getByRole('alertdialog', {
       name: 'Remover tipo de justificativa?'
     })
@@ -103,7 +104,7 @@ test.describe('Justifications', () => {
       '2025-10-06'
     )
     await createSheet.getByRole('combobox', { name: 'Tipo' }).click()
-    await page.getByRole('option', { name: 'ATEST – Atestado médico' }).click()
+    await page.getByRole('option', { name: 'Declaração de horas' }).click()
     await createSheet.getByLabel('Data final').fill('2025-10-08')
     await createSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(createSheet).toBeHidden()
@@ -112,7 +113,7 @@ test.describe('Justifications', () => {
     ).toBeFocused()
     for (const date of ['06/10/2025', '07/10/2025', '08/10/2025']) {
       await expect(getJustificationCell(date)).toHaveAccessibleName(
-        'ATEST – Atestado médico, 06/10/2025 a 08/10/2025'
+        'Declaração de horas, 06/10/2025 a 08/10/2025'
       )
     }
     await expect(getJustificationCell('09/10/2025')).toHaveText('')
@@ -120,49 +121,59 @@ test.describe('Justifications', () => {
     await page.getByRole('button', { name: 'Ações de 08/10/2025' }).click()
     await page.getByRole('menuitem', { name: 'Justificar' }).click()
     await createSheet.getByRole('combobox', { name: 'Tipo' }).click()
-    await page.getByRole('option', { name: 'ATEST – Atestado médico' }).click()
+    await page.getByRole('option', { name: 'Declaração de horas' }).click()
     await createSheet.getByLabel('Horário de início').fill('14:00')
     await createSheet.getByLabel('Horário de fim').fill('15:40')
     await createSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(
       createSheet.getByText(
-        'Já existe uma justificativa nesse período: ATEST (06/10/2025)'
+        'Já existe uma justificativa nesse período: Declaração de horas (06/10/2025)'
       )
     ).toBeVisible()
     await expect(createSheet.getByLabel('Horário de fim')).toHaveValue('15:40')
     await createSheet.getByRole('button', { name: 'Cancelar' }).click()
 
     await page.getByRole('button', { name: 'Ações de 07/10/2025' }).click()
-    await page.getByRole('menuitem', { name: 'Editar ATEST' }).click()
+    await page
+      .getByRole('menuitem', { name: 'Editar Declaração de horas' })
+      .click()
     const editSheet = page.getByRole('dialog', {
       name: 'Editar justificativa'
     })
     await editSheet.getByLabel('Data final').fill('2025-10-06')
     await editSheet.getByLabel('Horário de início').fill('14:00')
     await editSheet.getByLabel('Horário de fim').fill('15:40')
+    await editSheet.getByLabel('Observação').fill('Testemunha em audiência')
     await editSheet.getByRole('button', { name: 'Salvar' }).click()
     await expect(editSheet).toBeHidden()
-    await expect(getJustificationCell('06/10/2025')).toHaveAccessibleName(
-      'ATEST – Atestado médico, 06/10/2025, 14:00–15:40'
-    )
+    const label =
+      'Declaração de horas, 06/10/2025, 14:00–15:40, Testemunha em audiência'
+    await expect(getJustificationCell('06/10/2025')).toHaveAccessibleName(label)
+    await expect(
+      getJustificationCell('06/10/2025').getByTitle(label)
+    ).toHaveText('Declaração de horas 14:00–15:40')
     await expect(getJustificationCell('07/10/2025')).toHaveText('')
 
     await page.goto('/tipos-de-justificativa')
     await page
-      .getByRole('button', { name: 'Remover ATEST', exact: true })
+      .getByRole('button', { name: 'Remover Declaração de horas', exact: true })
       .click()
     await page
       .getByRole('alertdialog', { name: 'Remover tipo de justificativa?' })
       .getByRole('button', { name: 'Remover' })
       .click()
     await expect(
-      page.getByText('O tipo ATEST está em uso em justificativas.')
+      page.getByText(
+        'O tipo Declaração de horas está em uso em justificativas.'
+      )
     ).toBeVisible()
     await page.goBack()
 
     await page.getByRole('button', { name: 'Ações de 06/10/2025' }).click()
     await page
-      .getByRole('menuitem', { name: 'Remover ATEST 14:00–15:40' })
+      .getByRole('menuitem', {
+        name: 'Remover Declaração de horas 14:00–15:40'
+      })
       .click()
     const dialog = page.getByRole('alertdialog', {
       name: 'Remover justificativa?'
@@ -194,12 +205,12 @@ test.describe('Justifications', () => {
     await expect(sheet.getByLabel('Data inicial')).toHaveValue('2030-07-01')
     await expect(sheet.getByLabel('Data final')).toHaveValue('2030-07-31')
     await sheet.getByRole('combobox', { name: 'Tipo de justificativa' }).click()
-    await page.getByRole('option', { name: 'ATEST – Atestado médico' }).click()
+    await page.getByRole('option', { name: 'Declaração de horas' }).click()
     await sheet.getByLabel('Data inicial').fill('2030-07-08')
     await sheet.getByRole('button', { name: 'Registrar' }).click()
     await expect(sheet).toBeHidden()
     await expect(row.getByRole('cell').nth(2)).toHaveText(
-      'Registradas (ATEST): 08/07/2030 a 31/07/2030'
+      'Registradas (Declaração de horas): 08/07/2030 a 31/07/2030'
     )
     await expect(
       row.getByRole('button', { name: `Registrar as férias de ${user.name}` })
@@ -231,6 +242,6 @@ test.describe('Justifications', () => {
         .filter({ hasText: '08/07/2030' })
         .getByRole('cell')
         .nth(-2)
-    ).toHaveAccessibleName('ATEST – Atestado médico, 08/07/2030 a 31/07/2030')
+    ).toHaveAccessibleName('Declaração de horas, 08/07/2030 a 31/07/2030')
   })
 })

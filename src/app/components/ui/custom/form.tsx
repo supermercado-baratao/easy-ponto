@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/app/components/ui/shadcn/select'
+import { Textarea } from '@/app/components/ui/shadcn/textarea'
 
 type TFormCardProps = {
   title: string
@@ -99,6 +100,43 @@ export const FormField = (props: TFormFieldProps) => {
           {description}
         </p>
       )}
+      {error && (
+        <p id={errorId} className="relative bottom-3 text-destructive">
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+type TFormTextareaProps = ComponentProps<'textarea'> & {
+  name: string
+  label: string
+  error?: string
+}
+
+export const FormTextarea = ({
+  name,
+  label,
+  error,
+  className,
+  id = name,
+  ...textareaProps
+}: TFormTextareaProps) => {
+  const errorId = `${id}-error`
+
+  return (
+    <div className={cn('grid gap-3', className)}>
+      <Label htmlFor={id} className={error ? 'text-destructive' : undefined}>
+        {label}
+      </Label>
+      <Textarea
+        {...textareaProps}
+        id={id}
+        name={name}
+        aria-describedby={error ? errorId : undefined}
+        aria-invalid={!!error}
+      />
       {error && (
         <p id={errorId} className="relative bottom-3 text-destructive">
           {error}

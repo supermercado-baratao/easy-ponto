@@ -1,4 +1,7 @@
 import type { Company } from '@/infra/database/types'
+import type { TDeviceCompany } from '@/models/device/types'
+
+import type { TCompanyChange, TDeviceCompanyField } from './types'
 
 const SLUG_SUFFIX_LENGTH = 6
 
@@ -21,3 +24,52 @@ export const isCompanyConfigured = ({
   cpfCnpj
 }: Pick<Company, 'deviceCredentialsId' | 'cpfCnpj'>): boolean =>
   Boolean(deviceCredentialsId && cpfCnpj)
+
+export const DEVICE_COMPANY_FIELDS = [
+  'name',
+  'address',
+  'cpf',
+  'tipoDoc',
+  'cpfCnpj',
+  'cei'
+] as const satisfies readonly (keyof TDeviceCompany)[]
+
+export const DEVICE_COMPANY_FIELD_LABELS: Record<TDeviceCompanyField, string> =
+  {
+    name: 'Nome',
+    address: 'Endereço',
+    cpf: 'CPF do Responsável',
+    tipoDoc: 'Tipo de Documento',
+    cpfCnpj: 'CPF/CNPJ',
+    cei: 'CEI'
+  }
+
+export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  '0': '0 - CPF',
+  '1': '1 - CNPJ'
+}
+
+const toText = (value: string | number | null): string =>
+  value === null ? '' : String(value)
+
+const formatValue = (
+  field: TDeviceCompanyField,
+  value: string | number | null
+): string | null => {
+  const text = toText(value)
+  if (!text) return null
+  return field === 'tipoDoc' ? (DOCUMENT_TYPE_LABELS[text] ?? text) : text
+}
+
+export const diffDeviceCompany = (
+  company: Pick<Company, TDeviceCompanyField>,
+  deviceCompany: TDeviceCompany
+): TCompanyChange[] =>
+  DEVICE_COMPANY_FIELDS.filter(
+    (field) => toText(company[field]) !== toText(deviceCompany[field])
+  ).map((field) => ({
+    field,
+    label: DEVICE_COMPANY_FIELD_LABELS[field],
+    current: formatValue(field, company[field]),
+    device: formatValue(field, deviceCompany[field])
+  }))

@@ -55,7 +55,7 @@ Abra `http://<IP do servidor>:3003/entrar`. Na primeira vez, o app mostra a conf
 
 ## 5. Configure o relógio de ponto
 
-Em `Configurações`, cadastre o IP, o login e a senha do relógio de ponto e importe a empresa. Para o endereço do relógio e o do servidor não mudarem, reserve um IP fixo para os dois no roteador.
+Em `Configurações`, cadastre o IP, o login e a senha do relógio de ponto e clique em `Sincronizar`, no quadro da empresa, para trazer os dados dela do relógio. Para o endereço do relógio e o do servidor não mudarem, reserve um IP fixo para os dois no roteador.
 
 Ao sincronizar os registros de ponto, cada funcionário com um CPF válido cadastrado no relógio ganha uma conta. Ele entra pela aba CPF da página de entrada com a senha padrão: os cinco primeiros dígitos do CPF seguidos do último nome, em minúsculas e sem acentos. No primeiro acesso, o app pede uma senha nova. Se ele esquecer a senha, redefina-a em `Funcionários`.
 

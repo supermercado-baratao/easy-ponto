@@ -56,6 +56,7 @@ export const DeviceForm = ({
           key={deviceCredentials?.updatedAt.toISOString()}
           ref={formReference}
           id="device-form"
+          className="flex flex-col gap-4"
           action={formAction}
           noValidate
         >

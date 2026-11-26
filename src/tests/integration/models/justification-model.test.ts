@@ -50,8 +50,8 @@ beforeAll(async () => {
     await createCompanyWithUser(1))
 })
 
-const DEFAULT_CODES = new Set(
-  DEFAULT_JUSTIFICATION_TYPES.map(({ code }) => code)
+const DEFAULT_NAMES = new Set(
+  DEFAULT_JUSTIFICATION_TYPES.map(({ name }) => name)
 )
 
 describe('Justification Type Model', () => {
@@ -59,74 +59,97 @@ describe('Justification Type Model', () => {
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
 
     expect(
-      types.map(({ code, description, effect }) => ({
-        code,
+      types.map(({ name, description, effect }) => ({
+        name,
         description,
         effect
       }))
     ).toEqual(
       DEFAULT_JUSTIFICATION_TYPES.toSorted((a, b) =>
-        a.code.localeCompare(b.code)
+        a.name.localeCompare(b.name)
       )
     )
   })
 
-  test('Creates, updates and lists the types of the company ordered by code', async () => {
+  test('Creates, updates and lists the types of the company ordered by name', async () => {
     const type = await justificationTypeModel.create({
       companyId,
-      code: 'ATEST',
-      description: 'Atestado',
+      name: 'Declaração',
+      description: '  ',
       effect: 'excuse'
     })
+    expect(type.description).toBeNull()
     typeId = type.id
     await justificationTypeModel.create({
       companyId,
-      code: 'FOLGA',
-      description: 'Folga',
+      name: 'Folga',
       effect: 'deduct'
     })
 
     await justificationTypeModel.update({
       id: type.id,
       companyId,
-      code: 'ATEST',
-      description: 'Atestado médico',
+      name: 'Declaração de comparecimento',
+      description: ' Comparecimento a uma consulta, sem atestado. ',
       effect: 'excuse'
     })
 
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
-    const created = types.filter(({ code }) => !DEFAULT_CODES.has(code))
-    expect(created.map(({ code, description }) => [code, description])).toEqual(
+    const created = types.filter(({ name }) => !DEFAULT_NAMES.has(name))
+    expect(created.map(({ name, description }) => [name, description])).toEqual(
       [
-        ['ATEST', 'Atestado médico'],
-        ['FOLGA', 'Folga']
+        [
+          'Declaração de comparecimento',
+          'Comparecimento a uma consulta, sem atestado.'
+        ],
+        ['Folga', null]
       ]
     )
     const otherTypes =
       await justificationTypeModel.findManyByCompanyId(otherCompanyId)
-    expect(otherTypes.map(({ code }) => code)).not.toContain('ATEST')
+    expect(otherTypes.map(({ name }) => name)).not.toContain(
+      'Declaração de comparecimento'
+    )
   })
 
-  test('Rejects a code already used in the company', async () => {
+  test('Rejects a name already used in the company, whatever the case', async () => {
     const promise = justificationTypeModel.create({
       companyId,
-      code: ' FOLGA ',
-      description: 'Outra folga',
+      name: ' FOLGA ',
       effect: 'deduct'
     })
 
     await expect(promise).rejects.toBeInstanceOf(z.ZodError)
     await expect(promise).rejects.toMatchObject({
-      issues: [{ path: ['code'], message: 'Já existe um tipo com esse código' }]
+      issues: [{ path: ['name'], message: 'Já existe um tipo com esse nome' }]
     })
     await expect(
       justificationTypeModel.create({
         companyId: otherCompanyId,
-        code: 'FOLGA',
-        description: 'Folga',
+        name: 'Folga',
         effect: 'deduct'
       })
-    ).resolves.toMatchObject({ code: 'FOLGA' })
+    ).resolves.toMatchObject({ name: 'Folga' })
+  })
+
+  test('Keeps the name of a type on its own update', async () => {
+    const types = await justificationTypeModel.findManyByCompanyId(companyId)
+    const folga = types.find(({ name }) => name === 'Folga')!
+
+    await expect(
+      justificationTypeModel.update({
+        id: folga.id,
+        companyId,
+        name: 'folga',
+        effect: 'deduct'
+      })
+    ).resolves.toMatchObject({ name: 'folga' })
+    await justificationTypeModel.update({
+      id: folga.id,
+      companyId,
+      name: 'Folga',
+      effect: 'deduct'
+    })
   })
 })
 
@@ -165,7 +188,7 @@ describe('Justification Model', () => {
       finalDate: '2026-11-30'
     })
     expect(justifications).toMatchObject([
-      { id: justification.id, type: { code: 'ATEST' } }
+      { id: justification.id, type: { name: 'Declaração de comparecimento' } }
     ])
 
     await justificationModel.remove({ id: justification.id, companyId })
@@ -213,7 +236,7 @@ describe('Justification Model', () => {
         {
           path: ['startDate'],
           message:
-            'Já existe uma justificativa nesse período: ATEST (01/12/2026)'
+            'Já existe uma justificativa nesse período: Declaração de comparecimento (01/12/2026)'
         }
       ]
     })
@@ -236,15 +259,15 @@ describe('Justification Model', () => {
     const promise = justificationTypeModel.remove({ id: typeId, companyId })
     await expect(promise).rejects.toBeInstanceOf(JustificationTypeInUseError)
     await expect(promise).rejects.toThrow(
-      'O tipo ATEST está em uso em justificativas.'
+      'O tipo Declaração de comparecimento está em uso em justificativas.'
     )
 
     const types = await justificationTypeModel.findManyByCompanyId(companyId)
-    const compensation = types.find(({ code }) => code === 'FOLGA')!
+    const compensation = types.find(({ name }) => name === 'Folga')!
     await justificationTypeModel.remove({ id: compensation.id, companyId })
     const remaining =
       await justificationTypeModel.findManyByCompanyId(companyId)
-    expect(remaining.map(({ code }) => code)).not.toContain('FOLGA')
+    expect(remaining.map(({ name }) => name)).not.toContain('Folga')
   })
 
   test('Does not use or change the data of another company', async () => {
@@ -289,8 +312,7 @@ describe('Justification Model', () => {
       justificationTypeModel.update({
         id: otherType.id,
         companyId,
-        code: 'OUTRO',
-        description: 'Outro',
+        name: 'Outro',
         effect: 'excuse'
       })
     ).rejects.toMatchObject({

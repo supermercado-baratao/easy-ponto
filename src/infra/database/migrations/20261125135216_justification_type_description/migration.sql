@@ -1,0 +1,1 @@
+ALTER TABLE "justification_types" ADD COLUMN "description" text;

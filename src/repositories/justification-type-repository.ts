@@ -21,7 +21,7 @@ export const justificationTypeRepository = {
   ): Promise<JustificationType[]> =>
     await database.query.justificationTypes.findMany({
       where: { companyId },
-      orderBy: { code: 'asc' }
+      orderBy: { name: 'asc' }
     }),
 
   findUnique: async ({

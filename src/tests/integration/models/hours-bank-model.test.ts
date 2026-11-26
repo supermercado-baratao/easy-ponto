@@ -96,8 +96,7 @@ beforeAll(async () => {
   })
   const compensationType = await justificationTypeModel.create({
     companyId,
-    code: 'FOLGA',
-    description: 'Folga',
+    name: 'Folga',
     effect: 'deduct'
   })
   await justificationModel.create({

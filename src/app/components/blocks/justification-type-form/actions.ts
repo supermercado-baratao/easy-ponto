@@ -18,7 +18,9 @@ export const save = async (
   const { company } = await requireEditor()
   const values = Object.fromEntries(formData) as TJustificationTypeFormValues
   formData.set('companyId', company.id)
-  const { success, errors, fatalError, message, action } = formData.get('id')
+  const { data, success, errors, fatalError, message, action } = formData.get(
+    'id'
+  )
     ? await handleFormAction(justificationTypeModel.update, state, formData)
     : await handleFormAction(justificationTypeModel.create, state, formData)
   if (success) refresh()
@@ -29,6 +31,7 @@ export const save = async (
     fatalError,
     message,
     action,
+    type: data ? { id: data.id, name: data.name } : undefined,
     values: success ? undefined : values
   }
 }

@@ -1,12 +1,16 @@
 'use client'
 
-import { useActionState, useEffect, useId, useRef } from 'react'
+import { cn } from 'cn'
+import { type ReactNode, useActionState, useEffect, useId, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { FormField, Select } from '@/app/components/ui/custom/form'
+import {
+  FormField,
+  FormTextarea,
+  Select
+} from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
-import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
 import { showActionError } from '@/app/utils/action-error'
 import {
   EFFECT_LABELS,
@@ -16,7 +20,8 @@ import {
 import { save } from './actions'
 import type {
   TJustificationTypeFormState,
-  TJustificationTypeFormValues
+  TJustificationTypeFormValues,
+  TSavedJustificationType
 } from './types'
 
 const EFFECT_OPTIONS = JUSTIFICATION_EFFECTS.map((effect) => ({
@@ -26,10 +31,14 @@ const EFFECT_OPTIONS = JUSTIFICATION_EFFECTS.map((effect) => ({
 
 export const JustificationTypeForm = ({
   defaultValues,
-  onSaved
+  onSaved,
+  renderFooter,
+  className
 }: {
   defaultValues: TJustificationTypeFormValues
-  onSaved: () => void
+  onSaved: (type: TSavedJustificationType) => void
+  renderFooter: (submitButton: ReactNode) => ReactNode
+  className?: string
 }) => {
   const initialState: TJustificationTypeFormState = {}
   const [state, formAction, pending] = useActionState(save, initialState)
@@ -41,9 +50,9 @@ export const JustificationTypeForm = ({
   useEffect(() => {
     if (pending) return
 
-    if (state.success) {
+    if (state.success && state.type) {
       toast.success('Tipo de justificativa salvo com sucesso!')
-      onSaved()
+      onSaved(state.type)
       return
     }
 
@@ -64,20 +73,21 @@ export const JustificationTypeForm = ({
         id={formId}
         action={formAction}
         noValidate
-        className="flex flex-col gap-4 overflow-y-auto px-4"
+        className={cn('flex flex-col gap-4 overflow-y-auto', className)}
       >
         {values.id && <input type="hidden" name="id" value={values.id} />}
         <FormField
-          id={`${id}-code`}
-          name="code"
-          label="Código"
-          defaultValue={values.code}
-          error={state.errors?.code}
+          id={`${id}-name`}
+          name="name"
+          label="Nome"
+          defaultValue={values.name}
+          error={state.errors?.name}
         />
-        <FormField
+        <FormTextarea
           id={`${id}-description`}
           name="description"
           label="Descrição"
+          placeholder="O que é e quando usar"
           defaultValue={values.description}
           error={state.errors?.description}
         />
@@ -91,8 +101,7 @@ export const JustificationTypeForm = ({
           error={state.errors?.effect}
         />
       </form>
-      <SheetFooter className="flex-row justify-end">
-        <SheetClose render={<Button variant="outline" />}>Cancelar</SheetClose>
+      {renderFooter(
         <Button
           type="submit"
           form={formId}
@@ -101,7 +110,7 @@ export const JustificationTypeForm = ({
         >
           {pending ? <Loader mode="inline" label="Salvar" /> : 'Salvar'}
         </Button>
-      </SheetFooter>
+      )}
     </>
   )
 }

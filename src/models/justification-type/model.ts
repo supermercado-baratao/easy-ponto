@@ -17,23 +17,25 @@ import type {
   TJustificationTypeRemoveParams,
   TJustificationTypeUpdateData
 } from './types'
+import { isSameTypeName } from './utils'
 
-const assertUniqueCode = async ({
+const assertUniqueName = async ({
   id,
   companyId,
-  code
-}: Pick<JustificationType, 'companyId' | 'code'> & {
+  name
+}: Pick<JustificationType, 'companyId' | 'name'> & {
   id?: string
 }): Promise<void> => {
   const types = await justificationTypeRepository.findManyByCompanyId(companyId)
-  if (types.every((type) => type.code !== code || type.id === id)) return
+  if (types.every((type) => !isSameTypeName(type.name, name) || type.id === id))
+    return
 
   throw new z.ZodError([
     {
       code: 'custom',
-      path: ['code'],
-      message: 'Já existe um tipo com esse código',
-      input: code
+      path: ['name'],
+      message: 'Já existe um tipo com esse nome',
+      input: name
     }
   ])
 }
@@ -49,7 +51,7 @@ const create = async (
   data: TJustificationTypeCreateData
 ): Promise<JustificationType> => {
   const validData = createSchema.parse(data)
-  await assertUniqueCode(validData)
+  await assertUniqueName(validData)
   return await justificationTypeRepository.create(validData)
 }
 
@@ -57,7 +59,7 @@ const update = async (
   data: TJustificationTypeUpdateData
 ): Promise<JustificationType> => {
   const validData = updateSchema.parse(data)
-  await assertUniqueCode(validData)
+  await assertUniqueName(validData)
   const type = await justificationTypeRepository.update(validData)
   if (!type) {
     throw new NotFoundError({
@@ -80,7 +82,7 @@ const remove = async (
     })
   }
   if (await justificationRepository.existsByTypeId(type.id)) {
-    throw new JustificationTypeInUseError(type.code)
+    throw new JustificationTypeInUseError(type.name)
   }
   await justificationTypeRepository.remove(validParams)
   return type

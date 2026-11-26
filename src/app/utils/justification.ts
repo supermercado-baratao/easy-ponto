@@ -13,7 +13,7 @@ const formatTimes = ({
 export const getJustificationShortLabel = (
   justification: TJustificationWithType
 ): string =>
-  [justification.type.code, formatTimes(justification)]
+  [justification.type.name, formatTimes(justification)]
     .filter(Boolean)
     .join(' ')
 
@@ -29,9 +29,10 @@ export const getJustificationLabel = (
   justification: TJustificationWithType
 ): string =>
   [
-    `${justification.type.code} – ${justification.type.description}`,
+    justification.type.name,
     getJustificationPeriodLabel(justification),
-    formatTimes(justification)
+    formatTimes(justification),
+    justification.note
   ]
     .filter(Boolean)
     .join(', ')

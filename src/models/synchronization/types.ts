@@ -1,5 +1,3 @@
-import type { z } from 'zod'
-
 import type {
   Company,
   DeviceCredentials,
@@ -9,7 +7,6 @@ import type {
 import type { TTimeCardReportFormat } from '@/models/time-card-report/types'
 
 import type { TAfdQuery } from '../device/types'
-import type { codeResolutionSchema } from './schema'
 
 export type TCompanySynchronizationParams = {
   companyId: string
@@ -36,20 +33,20 @@ export type TParsedAfdRecord = {
   hexadecimalCheckDigit: string
 }
 
-export type TCodeResolution = z.input<typeof codeResolutionSchema>
+export type TCodeResolutions = Record<string, string>
 
 export type TFileSynchronizationParams = {
   file: File
   format: TTimeCardReportFormat
   company: Company
   credentials: DeviceCredentials | null
-  resolutions?: Record<string, TCodeResolution>
+  resolutions?: TCodeResolutions
 }
 
 export type TUnresolvedImport = {
   status: 'unresolved'
   unknownCodes: string[]
-  types: Pick<JustificationType, 'id' | 'code' | 'description'>[]
+  types: Pick<JustificationType, 'id' | 'name'>[]
 }
 
 export type TFileImportResult =
@@ -64,7 +61,7 @@ export type TInitialBalanceImportParams = {
   file: File
   format: TTimeCardReportFormat
   companyId: string
-  resolutions?: Record<string, TCodeResolution>
+  resolutions?: TCodeResolutions
 }
 
 export type TInitialBalanceImportResult =

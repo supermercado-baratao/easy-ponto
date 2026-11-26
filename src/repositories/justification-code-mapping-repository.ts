@@ -5,20 +5,11 @@ import {
   runInTransaction,
   type TTransaction
 } from '@/infra/database/client'
-import {
-  justificationCodeMappings,
-  justificationTypes as justificationTypesTable
-} from '@/infra/database/schema'
+import { justificationCodeMappings } from '@/infra/database/schema'
 import type {
   JustificationCodeMapping,
-  JustificationType,
   TInputData
 } from '@/infra/database/types'
-
-export type TCodeResolutionsSaveData = {
-  justificationTypes: (TInputData<JustificationType> & { id: string })[]
-  mappings: TInputData<JustificationCodeMapping>[]
-}
 
 export const justificationCodeMappingRepository = {
   findManyByFormat: async ({
@@ -31,15 +22,12 @@ export const justificationCodeMappingRepository = {
       where: { companyId, format }
     }),
 
-  saveResolutions: async (
-    { justificationTypes, mappings }: TCodeResolutionsSaveData,
+  saveMany: async (
+    mappings: TInputData<JustificationCodeMapping>[],
     transaction?: TTransaction
   ): Promise<void> => {
+    if (mappings.length === 0) return
     await runInTransaction(transaction, async (tx) => {
-      if (justificationTypes.length > 0) {
-        await tx.insert(justificationTypesTable).values(justificationTypes)
-      }
-      if (mappings.length === 0) return
       await tx
         .insert(justificationCodeMappings)
         .values(mappings)
