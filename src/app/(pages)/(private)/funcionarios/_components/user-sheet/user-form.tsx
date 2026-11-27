@@ -1,17 +1,22 @@
 'use client'
 
-import { useActionState, useEffect, useId, useRef } from 'react'
+import { useActionState, useEffect, useId, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { FormField, Select } from '@/app/components/ui/custom/form'
 import { Loader } from '@/app/components/ui/custom/loader'
 import { Button } from '@/app/components/ui/shadcn/button'
+import { Checkbox } from '@/app/components/ui/shadcn/checkbox'
+import { Label } from '@/app/components/ui/shadcn/label'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
 import { showActionError } from '@/app/utils/action-error'
 import { STATUS_LABELS } from '@/app/utils/user-status'
+import type { JobFunction, UserGroup } from '@/infra/database/types'
+import { findPayrollFunction } from '@/models/job-function/utils'
 import { USER_STATUSES } from '@/models/user/utils'
 
 import { save } from './actions'
+import { GroupsField, JobFunctionsField } from './organization-fields'
 import type { TUserFormState, TUserFormValues } from './types'
 
 const STATUS_OPTIONS = USER_STATUSES.map((status) => ({
@@ -20,9 +25,13 @@ const STATUS_OPTIONS = USER_STATUSES.map((status) => ({
 }))
 
 export const UserForm = ({
+  groups,
+  jobFunctions,
   defaultValues,
   onSaved
 }: {
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   defaultValues: TUserFormValues
   onSaved: () => void
 }) => {
@@ -32,6 +41,12 @@ export const UserForm = ({
   const id = useId()
   const formId = `${id}-form`
   const formReference = useRef<HTMLFormElement>(null)
+  const [position, setPosition] = useState(values.position ?? '')
+  // The payroll position already stands for its function, with the checkbox below it
+  const payrollFunction = findPayrollFunction(jobFunctions, position)
+  const otherFunctions = jobFunctions.filter(
+    ({ id: jobFunctionId }) => jobFunctionId !== payrollFunction?.id
+  )
 
   useEffect(() => {
     if (pending) return
@@ -74,10 +89,21 @@ export const UserForm = ({
         <FormField
           id={`${id}-position`}
           name="position"
-          label="Cargo"
+          label="Cargo na folha"
+          description="O cargo da folha de pagamento, que os documentos legais mostram."
           defaultValue={values.position}
+          onChange={(event) => setPosition(event.target.value)}
           error={state.errors?.position}
         />
+        <Label className="-mt-1 font-normal">
+          <Checkbox
+            name="payrollPositionActive"
+            value="true"
+            uncheckedValue="false"
+            defaultChecked={values.payrollPositionActive !== 'false'}
+          />
+          Exerce o cargo na folha
+        </Label>
         <FormField
           id={`${id}-department`}
           name="department"
@@ -100,6 +126,11 @@ export const UserForm = ({
           defaultValue={values.payrollNumber}
           error={state.errors?.payrollNumber}
         />
+        <JobFunctionsField
+          jobFunctions={otherFunctions}
+          defaultValue={values.jobFunctions ?? []}
+        />
+        <GroupsField groups={groups} defaultValue={values.groupIds ?? []} />
       </form>
       <SheetFooter className="flex-row justify-end">
         <SheetClose render={<Button variant="outline" />}>Cancelar</SheetClose>

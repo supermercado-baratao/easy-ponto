@@ -12,15 +12,20 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/app/components/ui/shadcn/sheet'
+import type { JobFunction, UserGroup } from '@/infra/database/types'
 
 import type { TUserFormValues } from './types'
 import { UserForm } from './user-form'
 
 export const UserSheet = ({
   name,
+  groups,
+  jobFunctions,
   defaultValues
 }: {
   name: string
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   defaultValues: TUserFormValues
 }) => {
   const [open, setOpen] = useState(false)
@@ -40,6 +45,8 @@ export const UserSheet = ({
           <SheetDescription>{name}</SheetDescription>
         </SheetHeader>
         <UserForm
+          groups={groups}
+          jobFunctions={jobFunctions}
           defaultValues={defaultValues}
           onSaved={() => setOpen(false)}
         />

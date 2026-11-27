@@ -8,10 +8,12 @@ import {
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
 import type {
+  JobFunction,
   ShiftAssignment,
   TShiftPatternWithVersions,
-  User
+  UserGroup
 } from '@/infra/database/types'
+import type { TUserWithOrganization } from '@/models/user/types'
 
 import { UsersTable } from './users-table'
 
@@ -19,15 +21,19 @@ export const MainContent = ({
   users,
   total,
   positions,
+  groups,
+  jobFunctions,
   filters,
   shiftPatterns,
   assignments,
   today,
   canEdit
 }: {
-  users: User[]
+  users: TUserWithOrganization[]
   total: number
   positions: string[]
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   filters: TUsersFilterValues
   shiftPatterns: TShiftPatternWithVersions[]
   assignments: ShiftAssignment[]
@@ -42,11 +48,15 @@ export const MainContent = ({
           <UsersFilter
             path="/funcionarios"
             positions={positions}
+            groups={groups}
+            jobFunctions={jobFunctions}
             filters={filters}
           />
           {users.length > 0 ? (
             <UsersTable
               users={users}
+              groups={groups}
+              jobFunctions={jobFunctions}
               shiftPatterns={shiftPatterns}
               assignments={assignments}
               today={today}

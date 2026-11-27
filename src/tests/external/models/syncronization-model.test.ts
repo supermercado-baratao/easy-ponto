@@ -91,6 +91,7 @@ describe('Synchronization Model', () => {
       department: null,
       payrollNumber: null,
       position: null,
+      payrollPositionActive: true,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date)
     }

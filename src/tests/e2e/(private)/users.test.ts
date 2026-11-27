@@ -14,7 +14,7 @@ test.describe('Users', () => {
 
     await table.getByRole('button', { name: `Editar ${name}` }).click()
     const sheet = page.getByRole('dialog', { name: 'Editar funcionário' })
-    await sheet.getByLabel('Cargo').fill('Repositor')
+    await sheet.getByLabel('Cargo na folha', { exact: true }).fill('Repositor')
     await sheet.getByRole('combobox', { name: 'Situação' }).click()
     await page.getByRole('option', { name: 'Desligado' }).click()
     await sheet.getByLabel('Admissão').fill('2025-02-03')
@@ -36,6 +36,8 @@ test.describe('Users', () => {
       `Registros de ponto de ${name}`,
       'Repositor',
       '—',
+      '—',
+      '—',
       '03/02/2025',
       '—',
       'Desligado',
@@ -43,7 +45,7 @@ test.describe('Users', () => {
     ])
 
     await page.getByLabel('Nome').fill(name.slice(0, 4).toUpperCase())
-    await page.getByRole('combobox', { name: 'Cargo' }).click()
+    await page.getByRole('combobox', { name: 'Cargo na folha' }).click()
     await page.getByRole('option', { name: 'Repositor' }).click()
     await page.getByRole('button', { name: 'Filtrar' }).click()
     await expect(page).toHaveURL(/cargo=Repositor/)
