@@ -4,6 +4,7 @@ import type {
   HoursBankAdjustment,
   HoursBankClosing
 } from '@/infra/database/types'
+import type { TOvertime } from '@/models/journey/types'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 
 import {
@@ -23,8 +24,7 @@ export type THoursBankTotals = {
   absence: number
   lateness: number
   compensation: number
-  overtime60: number
-  overtime100: number
+  overtime: TOvertime
   adjustment: number
 }
 
@@ -43,6 +43,7 @@ export type THoursBankReport = {
   lastClosing: HoursBankClosing | null
   closeIssue: string | null
   rows: THoursBankRow[]
+  overtimePercentages: number[]
   adjustments: HoursBankAdjustment[]
 }
 

@@ -1,5 +1,5 @@
 import type { TJustificationWithType } from '@/infra/database/types'
-import { minutesToTime } from '@/models/schedule/utils'
+import { minutesToTime } from '@/infra/time'
 
 import type { TJustificationFormValues } from './types'
 

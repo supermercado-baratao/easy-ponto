@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
-import { timeSchema } from '@/models/schedule/schema'
-import { timeToMinutes } from '@/models/schedule/utils'
+import { timeSchema, timeToMinutes } from '@/infra/time'
 
 import {
   DAY_KINDS,

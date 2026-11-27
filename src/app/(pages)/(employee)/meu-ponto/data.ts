@@ -15,6 +15,7 @@ type TEmployeeHomePageData = {
     days: TJourneyDay[]
     justifications: TJustificationWithType[]
     totals: TJourneyTotals
+    overtimePercentages: number[]
   } | null
 }
 
@@ -35,13 +36,19 @@ export const getEmployeeHomePageData = async (searchParameters: {
   }
   if (!user) return { ...header, journey: null }
 
-  const { days, justifications } = await journeyModel.findUserDays({
-    companyId,
-    user,
-    ...punchRecordModel.getMonthPeriod(month)
-  })
+  const { days, justifications, overtimePercentages } =
+    await journeyModel.findUserDays({
+      companyId,
+      user,
+      ...punchRecordModel.getMonthPeriod(month)
+    })
   return {
     ...header,
-    journey: { days, justifications, totals: sumDays(days) }
+    journey: {
+      days,
+      justifications,
+      totals: sumDays(days),
+      overtimePercentages
+    }
   }
 }

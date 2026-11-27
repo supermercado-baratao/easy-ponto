@@ -168,6 +168,25 @@ export const shiftAssignmentRepository = {
       orderBy: { date: 'asc' }
     }),
 
+  findAdjustmentsByUserIds: async ({
+    userIds,
+    initialDate,
+    finalDate
+  }: {
+    userIds: string[]
+    initialDate: string
+    finalDate: string
+  }): Promise<ShiftAdjustment[]> =>
+    userIds.length === 0
+      ? []
+      : await database.query.shiftAdjustments.findMany({
+          where: {
+            userId: { in: userIds },
+            date: { gte: initialDate, lte: finalDate }
+          },
+          orderBy: { date: 'asc' }
+        }),
+
   findAdjustment: async ({
     id,
     companyId

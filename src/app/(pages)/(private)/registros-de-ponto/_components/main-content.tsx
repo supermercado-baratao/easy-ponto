@@ -5,7 +5,6 @@ import { Typography } from '@/app/components/ui/custom/typography'
 import type {
   JustificationType,
   TJustificationWithType,
-  TScheduleWithDays,
   User
 } from '@/infra/database/types'
 import type { TJourneyDay } from '@/models/journey/types'
@@ -14,7 +13,6 @@ import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 import { DayActionsMenu } from './justification/day-actions-menu'
 import { JustificationProvider } from './justification/justification-provider'
 import { PeriodFilter } from './period-filter/period-filter'
-import { ScheduleSection } from './schedule/schedule-section'
 import { SynchronizationButton } from './synchronization-button/synchronization-button'
 import { UserHeader } from './user-header/user-header'
 
@@ -24,10 +22,9 @@ export const MainContent = ({
   user,
   period,
   days,
-  schedule,
-  defaultScheduleStartDate,
   justifications,
   justificationTypes,
+  overtimePercentages,
   canEdit
 }: {
   hasDevice: boolean
@@ -35,10 +32,9 @@ export const MainContent = ({
   user: User | null
   period: TPunchRecordPeriod
   days: TJourneyDay[]
-  schedule: TScheduleWithDays | null
-  defaultScheduleStartDate: string
   justifications: TJustificationWithType[]
   justificationTypes: JustificationType[]
+  overtimePercentages: number[]
   canEdit: boolean
 }) => (
   <>
@@ -49,12 +45,6 @@ export const MainContent = ({
       {user ? (
         <>
           <UserHeader users={users} user={user} period={period} />
-          <ScheduleSection
-            user={user}
-            schedule={schedule}
-            defaultStartDate={defaultScheduleStartDate}
-            canEdit={canEdit}
-          />
           <PeriodFilter pis={user.pis} period={period} />
           <JustificationProvider
             user={{ id: user.id, name: user.name }}
@@ -63,6 +53,7 @@ export const MainContent = ({
             <PunchRecordsTable
               days={days}
               justifications={justifications}
+              overtimePercentages={overtimePercentages}
               renderActions={
                 canEdit
                   ? (date, dayJustifications) => (

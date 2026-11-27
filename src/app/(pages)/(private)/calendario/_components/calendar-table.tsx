@@ -7,7 +7,7 @@ import {
   TableRow
 } from '@/app/components/ui/shadcn/table'
 import { WEEKDAY_LABELS } from '@/app/utils/weekday'
-import { minutesToTime } from '@/models/schedule/utils'
+import { minutesToTime } from '@/infra/time'
 import type {
   TWorkloadCalendar,
   TWorkloadDay

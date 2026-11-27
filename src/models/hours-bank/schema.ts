@@ -67,12 +67,16 @@ export const reopenSchema = z.object({
 
 const totalMinutesSchema = z.number().int()
 
+const overtimeItemSchema = z.object({
+  percentage: z.number().int().min(0),
+  minutes: totalMinutesSchema
+})
+
 const initialBalanceItemSchema = z.object({
   userId: z.uuidv4(),
   absence: totalMinutesSchema,
   compensation: totalMinutesSchema,
-  overtime60: totalMinutesSchema,
-  overtime100: totalMinutesSchema,
+  overtime: z.array(overtimeItemSchema),
   adjustment: totalMinutesSchema
 })
 

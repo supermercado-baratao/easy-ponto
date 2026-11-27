@@ -1,0 +1,241 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "828c6238-cc3c-4507-ba85-a12bae34650b",
+  "prevIds": [
+    "e9c59df0-4309-4b62-a28c-f7f330801bcd"
+  ],
+  "footprints": [
+    {
+      "statementType": "drop_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules_days"
+      ],
+      "writes": [
+        "s|fk|public.schedules_days.schedules_days_schedule_id_fkey",
+        "n|fk|public.schedules_days.schedules_days_schedule_id_fkey",
+        "e|fk|public.schedules_days.schedules_days_schedule_id_fkey",
+        "n|con|public.schedules_days.schedules_days_schedule_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.schedules_days",
+        "n|sch|public",
+        "e|col|public.schedules_days.schedule_id"
+      ]
+    },
+    {
+      "statementType": "drop_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules"
+      ],
+      "writes": [
+        "s|tbl|public.schedules",
+        "n|tbl|public.schedules",
+        "e|tbl|public.schedules",
+        "n|rel|public.schedules",
+        "n|type|public.schedules"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "schedules_days"
+      ],
+      "writes": [
+        "s|tbl|public.schedules_days",
+        "n|tbl|public.schedules_days",
+        "e|tbl|public.schedules_days",
+        "n|rel|public.schedules_days",
+        "n|type|public.schedules_days"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "hours_bank_balances",
+        "overtime_60"
+      ],
+      "writes": [
+        "s|col|public.hours_bank_balances.overtime_60",
+        "n|col|public.hours_bank_balances.overtime_60",
+        "e|col|public.hours_bank_balances.overtime_60"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "hours_bank_balances",
+        "overtime_100"
+      ],
+      "writes": [
+        "s|col|public.hours_bank_balances.overtime_100",
+        "n|col|public.hours_bank_balances.overtime_100",
+        "e|col|public.hours_bank_balances.overtime_100"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "hours_bank_balances",
+        "overtime"
+      ],
+      "writes": [
+        "s|colprop|public.hours_bank_balances.overtime.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public",
+        "n|col|public.hours_bank_balances.overtime"
+      ],
+      "sqlHash": "f2d029961880c5d2"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "drop",
+      "key": "tables\u0000[\"public\",\"schedules\"]"
+    },
+    {
+      "op": "drop",
+      "key": "tables\u0000[\"public\",\"schedules_days\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"hours_bank_balances\",\"overtime_60\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"hours_bank_balances\",\"overtime_100\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules\",\"id\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules\",\"start_date\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules\",\"user_id\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules\",\"created_at\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules\",\"updated_at\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"id\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"weekday\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"entry_1\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"exit_1\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"entry_2\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"exit_2\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"entry_3\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"exit_3\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"schedule_id\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"created_at\"]"
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"schedules_days\",\"updated_at\"]"
+    },
+    {
+      "op": "drop",
+      "key": "indexes\u0000[\"public\",\"schedules_user_id_idx_6c952402\"]"
+    },
+    {
+      "op": "drop",
+      "key": "indexes\u0000[\"public\",\"schedules_days_schedule_id_idx_83757f9e\"]"
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"schedules\",\"schedules_user_id_fkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "fks\u0000[\"public\",\"schedules_days\",\"schedules_days_schedule_id_fkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "pks\u0000[\"public\",\"schedules\",\"schedules_pkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "pks\u0000[\"public\",\"schedules_days\",\"schedules_days_pkey\"]"
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"schedules\",\"schedules_user_id_start_date_key\"]"
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"schedules_days\",\"schedules_days_schedule_id_weekday_key\"]"
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"hours_bank_balances\",\"overtime\"]",
+      "set": {
+        "notNull": true
+      }
+    }
+  ]
+}

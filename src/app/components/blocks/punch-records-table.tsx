@@ -15,15 +15,16 @@ import {
   getJustificationLabel,
   getJustificationShortLabel
 } from '@/app/utils/justification'
+import { getOvertimeLabel } from '@/app/utils/overtime'
 import type {
   PunchRecord,
   TJustificationWithType
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
+import { minutesToTime } from '@/infra/time'
 import type { TJourney, TJourneyDay } from '@/models/journey/types'
-import { isCalculated } from '@/models/journey/utils'
+import { getOvertimeMinutes, isCalculated } from '@/models/journey/utils'
 import { coversDate } from '@/models/justification/utils'
-import { minutesToTime } from '@/models/schedule/utils'
 
 // Four punches (two entries and two exits) are the usual day, so the columns never shrink below it
 const MIN_PUNCH_COLUMNS = 4
@@ -55,9 +56,7 @@ const PunchRecordCell = ({ record }: { record?: PunchRecord }) => {
 const BALANCE_COLUMNS = [
   { key: 'absence', label: 'Falta' },
   { key: 'lateness', label: 'Atraso' },
-  { key: 'compensation', label: 'Compensação' },
-  { key: 'overtime60', label: 'Extra 60%' },
-  { key: 'overtime100', label: 'Extra 100%' }
+  { key: 'compensation', label: 'Compensação' }
 ] as const
 
 const ODD_PUNCHES_LABEL = 'Número ímpar de batidas'
@@ -149,11 +148,13 @@ const JustificationsCell = ({
 export const PunchRecordsTable = ({
   days,
   justifications,
+  overtimePercentages,
   labelledBy,
   renderActions
 }: {
   days: TJourneyDay[]
   justifications: TJustificationWithType[]
+  overtimePercentages: number[]
   labelledBy?: string
   renderActions?: (
     date: string,
@@ -211,6 +212,11 @@ export const PunchRecordsTable = ({
           {BALANCE_COLUMNS.map(({ key, label }) => (
             <TableHead key={key}>{label}</TableHead>
           ))}
+          {overtimePercentages.map((percentage) => (
+            <TableHead key={percentage}>
+              {getOvertimeLabel(percentage)}
+            </TableHead>
+          ))}
           <TableHead>Justificativa</TableHead>
           {renderActions && (
             <TableHead>
@@ -244,6 +250,13 @@ export const PunchRecordsTable = ({
               {BALANCE_COLUMNS.map(({ key }) => (
                 <TableCell key={key} className="font-mono tabular-nums">
                   {formatMinutes(journey[key])}
+                </TableCell>
+              ))}
+              {overtimePercentages.map((percentage) => (
+                <TableCell key={percentage} className="font-mono tabular-nums">
+                  {formatMinutes(
+                    getOvertimeMinutes(journey.overtime, percentage)
+                  )}
                 </TableCell>
               ))}
               <JustificationsCell justifications={dayJustifications} />

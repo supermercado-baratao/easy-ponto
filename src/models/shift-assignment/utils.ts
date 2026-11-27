@@ -1,10 +1,10 @@
+import { TIME_PAIRS } from '@/constants/time'
 import type {
   ShiftAdjustment,
   ShiftAssignment,
   TShiftPatternWithVersions
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
-import { TIME_PAIRS } from '@/models/schedule/utils'
 import {
   getDayTimes,
   isDayOff,

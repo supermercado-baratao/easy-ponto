@@ -7,8 +7,8 @@ import {
   TableRow
 } from '@/app/components/ui/shadcn/table'
 import { TIME_FIELD_LABELS } from '@/app/utils/time-field'
+import { TIME_FIELDS, TIME_PAIRS } from '@/constants/time'
 import type { TShiftPatternVersionWithDays } from '@/infra/database/types'
-import { TIME_FIELDS, TIME_PAIRS } from '@/models/schedule/utils'
 import {
   formatCycleTime,
   isDayOff,

@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "ead1b3b7-8a85-4dab-89ba-43ff790de5be",
+  "prevIds": [
+    "6e6cdda1-04b4-4291-b897-e0081f9fb577"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "hours_bank_balances",
+        "overtime"
+      ],
+      "writes": [
+        "s|col|public.hours_bank_balances.overtime",
+        "n|col|public.hours_bank_balances.overtime",
+        "e|col|public.hours_bank_balances.overtime"
+      ],
+      "reads": [
+        "n|tbl|public.hours_bank_balances",
+        "n|sch|public"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "hours_bank_balances",
+        "name": "overtime",
+        "type": "jsonb",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}

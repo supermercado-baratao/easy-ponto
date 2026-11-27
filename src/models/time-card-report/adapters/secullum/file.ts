@@ -1,14 +1,9 @@
 import { isCNPJ, isCPF } from 'validation-br'
 import * as xlsx from 'xlsx'
 
+import { TIME_FIELDS, type TWeekdayKey } from '@/constants/time'
 import { dayjs } from '@/infra/dayjs'
 import { normalizeCnpj, normalizeCpf } from '@/infra/normalize'
-import {
-  getTimeFieldName,
-  TIME_FIELDS,
-  type TScheduleTimeFieldName,
-  type TWeekdayKey
-} from '@/models/schedule/utils'
 import { InvalidExcelFileError } from '@/models/time-card-report/errors'
 import type {
   TReportCompany,
@@ -18,6 +13,10 @@ import type {
   TReportUser,
   TTimeCardReport
 } from '@/models/time-card-report/types'
+import {
+  getWeekdayTimeFieldName,
+  type TWeekdayTimeFieldName
+} from '@/models/time-card-report/utils'
 
 type TReportData = Pick<
   TTimeCardReport,
@@ -98,13 +97,13 @@ export const extractPeriod = (json: any[]): TReportPeriod => {
 
 const extractScheduleTimes = (
   rows: any[]
-): Partial<Record<TScheduleTimeFieldName, string>> => {
-  const times: Partial<Record<TScheduleTimeFieldName, string>> = {}
+): Partial<Record<TWeekdayTimeFieldName, string>> => {
+  const times: Partial<Record<TWeekdayTimeFieldName, string>> = {}
   for (const row of rows) {
     const weekdayKey = SCHEDULE_WEEKDAYS[row['__EMPTY_5']]
     if (!weekdayKey) continue
     for (const [index, field] of TIME_FIELDS.entries()) {
-      times[getTimeFieldName(weekdayKey, field)] = toScheduleTime(
+      times[getWeekdayTimeFieldName(weekdayKey, field)] = toScheduleTime(
         row[`__EMPTY_${6 + index}`]
       )
     }

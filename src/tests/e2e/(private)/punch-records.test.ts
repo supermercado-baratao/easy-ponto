@@ -3,7 +3,6 @@ import { expect, type Page, test } from '@playwright/test'
 import type { User } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { punchRecordModel } from '@/models/punch-record/model'
-import { scheduleModel } from '@/models/schedule/model'
 import { userModel } from '@/models/user/model'
 import orchestrator from '@/tests/orchestrator'
 
@@ -43,18 +42,19 @@ test.beforeAll(async () => {
       datetime: new Date(`2024-01-08T${time}:00.000Z`)
     }))
   ])
-  await scheduleModel.save({
+  await orchestrator.assignShift({
     companyId,
     userId: users[5].id,
     startDate: '2024-01-01',
-    mondayEntry1: '07:00',
-    mondayExit1: '11:00',
-    mondayEntry2: '13:00',
-    mondayExit2: '17:00',
-    tuesdayEntry1: '07:00',
-    tuesdayExit1: '11:00',
-    tuesdayEntry2: '13:00',
-    tuesdayExit2: '17:00'
+    days: [
+      ['07:00', '11:00', '13:00', '17:00'],
+      ['07:00', '11:00', '13:00', '17:00'],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
   })
 })
 

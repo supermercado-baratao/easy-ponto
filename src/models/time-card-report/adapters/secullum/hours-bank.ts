@@ -13,10 +13,14 @@ const DAY_ROW_PATTERN = /^\d{2}\/\d{2}\/\d{2} - (\S+)$/
 
 const TOTAL_COLUMNS = {
   absence: 'Faltas',
-  overtime60: 'Ex60%',
-  overtime100: 'Ex100%',
   adjustment: 'Ajuste'
 } as const
+
+// The report splits the overtime into the two percentages of the store's agreement
+const OVERTIME_COLUMNS = [
+  { percentage: 60, label: 'Ex60%' },
+  { percentage: 100, label: 'Ex100%' }
+] as const
 
 const TIME_PATTERN = /^(-)?(\d+):(\d{2})/
 
@@ -33,18 +37,27 @@ const mapColumns = (header: Record<string, unknown>): Map<string, string> =>
     Object.entries(header).map(([key, label]) => [String(label).trim(), key])
   )
 
+const readTotal = (
+  totals: Record<string, unknown>,
+  columns: Map<string, string>,
+  label: string
+): number => {
+  const key = columns.get(label)
+  if (!key) throw new Error(`Column ${label} not found`)
+  return timeToSignedMinutes(totals[key]) ?? 0
+}
+
 const readTotals = (
   totals: Record<string, unknown>,
   columns: Map<string, string>
-): Omit<TReportBalance, 'userName' | 'justificationMinutes'> => {
-  const result = { absence: 0, overtime60: 0, overtime100: 0, adjustment: 0 }
-  for (const [field, label] of Object.entries(TOTAL_COLUMNS)) {
-    const key = columns.get(label)
-    if (!key) throw new Error(`Column ${label} not found`)
-    result[field as keyof typeof result] = timeToSignedMinutes(totals[key]) ?? 0
-  }
-  return result
-}
+): Omit<TReportBalance, 'userName' | 'justificationMinutes'> => ({
+  absence: readTotal(totals, columns, TOTAL_COLUMNS.absence),
+  overtime: OVERTIME_COLUMNS.map(({ percentage, label }) => ({
+    percentage,
+    minutes: readTotal(totals, columns, label)
+  })).filter(({ minutes }) => minutes !== 0),
+  adjustment: readTotal(totals, columns, TOTAL_COLUMNS.adjustment)
+})
 
 const applyDay = (
   balance: TReportBalance,

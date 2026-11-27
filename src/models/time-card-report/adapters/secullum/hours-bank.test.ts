@@ -62,16 +62,17 @@ describe('extractHoursBankFromJson', () => {
       {
         userName: 'Maria Teste',
         absence: 1417,
-        overtime60: 4998,
-        overtime100: 820,
+        overtime: [
+          { percentage: 60, minutes: 4998 },
+          { percentage: 100, minutes: 820 }
+        ],
         adjustment: -180,
         justificationMinutes: {}
       },
       {
         userName: 'João Teste',
         absence: 0,
-        overtime60: 0,
-        overtime100: 0,
+        overtime: [],
         adjustment: 0,
         justificationMinutes: {}
       }

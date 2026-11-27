@@ -3,8 +3,8 @@ import { beforeAll, describe, expect, test } from 'vitest'
 import type { User } from '@/infra/database/types'
 import { companyModel } from '@/models/company/model'
 import { journeyModel } from '@/models/journey/model'
+import { journeyRulesModel } from '@/models/journey-rules/model'
 import { punchRecordModel } from '@/models/punch-record/model'
-import { scheduleModel } from '@/models/schedule/model'
 import { mapDeviceUserToUser } from '@/models/synchronization/_utils/user'
 import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
@@ -12,6 +12,7 @@ import orchestrator from '@/tests/orchestrator'
 
 const MONDAY = '2026-03-02'
 const TUESDAY = '2026-03-03'
+const WEDNESDAY = '2026-03-04'
 
 let companyId: string
 let employee: User
@@ -29,12 +30,12 @@ beforeAll(async () => {
   const [first, second] = await userModel.findManyByCompanyId(companyId)
   employee = first
 
-  await scheduleModel.save({
+  await orchestrator.createOvertimeBands(companyId)
+  await orchestrator.assignShift({
     companyId,
     userId: employee.id,
-    startDate: '2026-01-01',
-    mondayEntry1: '08:00',
-    mondayExit1: '12:00'
+    startDate: MONDAY,
+    days: [['08:00', '12:00'], []]
   })
   await punchRecordModel.createManyNonExistentInAfd([
     {
@@ -57,15 +58,15 @@ beforeAll(async () => {
 
 describe('Journey Model', () => {
   describe('findUserDays', () => {
-    test("Calculates each day of the period from the employee's own punches and schedule", async () => {
-      const { days, schedules } = await journeyModel.findUserDays({
+    test("Calculates each day of the period from the employee's own punches and shift", async () => {
+      const { days, overtimePercentages } = await journeyModel.findUserDays({
         companyId,
         user: employee,
         initialDate: MONDAY,
         finalDate: TUESDAY
       })
 
-      expect(schedules).toHaveLength(1)
+      expect(overtimePercentages).toEqual([50, 100])
       expect(days.map(({ date }) => date)).toEqual([MONDAY, TUESDAY])
       expect(days[0].punchRecords).toHaveLength(2)
       expect(
@@ -77,6 +78,42 @@ describe('Journey Model', () => {
         worked: 240
       })
       expect(days[1].journey.kind).toBe('day-off')
+    })
+
+    test('Follows the tolerances and the overtime bands of the company', async () => {
+      await journeyRulesModel.saveRules({
+        companyId,
+        punchTolerance: '0',
+        dailyTolerance: '0',
+        maxLunch: '02:00',
+        maxDailyJourney: '08:00',
+        maxContinuousWork: '06:00'
+      })
+      await punchRecordModel.createManyNonExistentInAfd(
+        [
+          `${TUESDAY}T08:00`,
+          `${TUESDAY}T12:00`,
+          `${WEDNESDAY}T08:03`,
+          `${WEDNESDAY}T12:00`
+        ].map((datetime) => ({
+          companyId,
+          pis: employee.pis,
+          datetime: new Date(`${datetime}:00.000Z`)
+        }))
+      )
+
+      const { days } = await journeyModel.findUserDays({
+        companyId,
+        user: employee,
+        initialDate: TUESDAY,
+        finalDate: WEDNESDAY
+      })
+
+      expect(days[0].journey).toMatchObject({
+        kind: 'day-off',
+        overtime: [{ percentage: 100, minutes: 240 }]
+      })
+      expect(days[1].journey).toMatchObject({ kind: 'workday', lateness: 3 })
     })
   })
 })

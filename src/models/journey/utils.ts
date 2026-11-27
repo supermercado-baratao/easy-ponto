@@ -1,28 +1,23 @@
 import type {
   PunchRecord,
-  ScheduleDay,
   TJustificationWithType
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
-import { DEFAULT_JOURNEY_RULES } from '@/models/journey-rules/utils'
-import { TIME_PAIRS } from '@/models/schedule/utils'
+import type { TDayKind } from '@/models/journey-rules/utils'
+import type { TShiftPair } from '@/models/shift-assignment/utils'
 
 import type {
   TJourney,
+  TJourneyCalculationRules,
   TJourneyDay,
   TJourneyDayInput,
   TJourneyPair,
   TJourneyTotals,
+  TOvertime,
   TScheduleAlert,
+  TScheduleAlertLimits,
   TScheduleDaySummary
 } from './types'
-
-// Read from the company's rules in #108
-export const PUNCH_TOLERANCE = DEFAULT_JOURNEY_RULES.punchTolerance
-export const DAILY_TOLERANCE = DEFAULT_JOURNEY_RULES.dailyTolerance
-export const MAX_LUNCH = DEFAULT_JOURNEY_RULES.maxLunch
-export const MAX_CONTINUOUS_WORK = DEFAULT_JOURNEY_RULES.maxContinuousWork
-export const MAX_DAILY_JOURNEY = DEFAULT_JOURNEY_RULES.maxDailyJourney
 
 // The store's planned workload: 7:20 in the middle of the month and 8:00 at its start and end, when
 // sales peak. Provisional until the CLT review of the journey rules (#65)
@@ -30,6 +25,9 @@ export const STANDARD_WORKLOAD = 440
 export const PEAK_WORKLOAD = 480
 export const MID_MONTH_FIRST_DAY = 11
 export const MID_MONTH_LAST_DAY = 26
+
+// The overtime of a company without bands yet (#105) is kept apart instead of guessing a percentage
+export const UNBANDED_PERCENTAGE = 0
 
 type TInterval = { start: number; end: number }
 
@@ -59,11 +57,8 @@ const getWorkedIntervals = (pairs: TJourneyPair[]): TInterval[] =>
     .map(({ entry, exit }) => ({ start: entry, end: exit }))
     .filter(isInterval)
 
-const getScheduledIntervals = (scheduleDay?: ScheduleDay): TInterval[] =>
-  TIME_PAIRS.map(({ entry, exit }) => ({
-    start: scheduleDay?.[entry] ?? null,
-    end: scheduleDay?.[exit] ?? null
-  })).filter(isInterval)
+const toIntervals = (pairs: TShiftPair[]): TInterval[] =>
+  pairs.map(({ entry, exit }) => ({ start: entry, end: exit }))
 
 const getOverlap = (first: TInterval, second: TInterval): number =>
   Math.max(
@@ -87,7 +82,8 @@ const getCoveredMinutes = (
 
 const isWithinTolerance = (
   punchTimes: number[],
-  scheduled: TInterval[]
+  scheduled: TInterval[],
+  { punchTolerance, dailyTolerance }: TJourneyCalculationRules['journeyRules']
 ): boolean => {
   const scheduledTimes = scheduled.flatMap(({ start, end }) => [start, end])
   if (punchTimes.length !== scheduledTimes.length) return false
@@ -95,18 +91,85 @@ const isWithinTolerance = (
     Math.abs(time - scheduledTimes[index])
   )
   return (
-    variations.every((variation) => variation <= PUNCH_TOLERANCE) &&
+    variations.every((variation) => variation <= punchTolerance) &&
     variations.reduce((total, variation) => total + variation, 0) <=
-      DAILY_TOLERANCE
+      dailyTolerance
   )
 }
+
+export const mergeOvertime = (...overtimes: TOvertime[]): TOvertime => {
+  const minutesByPercentage = new Map<number, number>()
+  for (const { percentage, minutes } of overtimes.flat()) {
+    minutesByPercentage.set(
+      percentage,
+      (minutesByPercentage.get(percentage) ?? 0) + minutes
+    )
+  }
+  return [...minutesByPercentage]
+    .filter(([, minutes]) => minutes !== 0)
+    .map(([percentage, minutes]) => ({ percentage, minutes }))
+    .toSorted((a, b) => a.percentage - b.percentage)
+}
+
+export const sumOvertime = (overtime: TOvertime): number =>
+  overtime.reduce((total, { minutes }) => total + minutes, 0)
+
+export const getOvertimeMinutes = (
+  overtime: TOvertime,
+  percentage: number
+): number =>
+  overtime.find((item) => item.percentage === percentage)?.minutes ?? 0
+
+export const splitOvertime = (
+  minutes: number,
+  dayKind: TDayKind,
+  overtimeBands: TJourneyCalculationRules['overtimeBands']
+): TOvertime => {
+  if (minutes <= 0) return []
+  const bands = overtimeBands
+    .filter((band) => band.dayKind === dayKind)
+    .toSorted((a, b) => (a.upTo ?? Infinity) - (b.upTo ?? Infinity))
+  if (bands.length === 0) {
+    return [{ percentage: UNBANDED_PERCENTAGE, minutes }]
+  }
+
+  const overtime: TOvertime = []
+  let previousUpTo = 0
+  for (const [index, { upTo, percentage }] of bands.entries()) {
+    const isLast = index === bands.length - 1
+    const limit = isLast ? Infinity : (upTo ?? Infinity)
+    const bandMinutes = Math.min(minutes, limit) - previousUpTo
+    if (bandMinutes > 0) overtime.push({ percentage, minutes: bandMinutes })
+    if (minutes <= limit) break
+    previousUpTo = limit
+  }
+  return mergeOvertime(overtime)
+}
+
+export const getOvertimePercentages = ({
+  overtimeBands,
+  overtimes
+}: {
+  overtimeBands: Pick<
+    TJourneyCalculationRules['overtimeBands'][number],
+    'percentage'
+  >[]
+  overtimes: TOvertime[]
+}): number[] =>
+  [
+    ...new Set([
+      ...overtimeBands.map(({ percentage }) => percentage),
+      ...overtimes.flat().map(({ percentage }) => percentage)
+    ])
+  ].toSorted((a, b) => a - b)
 
 export const calculateDay = ({
   date,
   punchRecords,
-  schedule,
+  shiftDay,
   holiday,
   justifications,
+  rules,
   today
 }: TJourneyDayInput): TJourney => {
   const pairs = buildPairs(punchRecords)
@@ -121,25 +184,39 @@ export const calculateDay = ({
     absence: 0,
     lateness: 0,
     compensation: 0,
-    overtime60: 0,
-    overtime100: 0
+    overtime: []
+  }
+  if (date > today) return { ...journey, kind: 'future' }
+  const getOvertime = (minutes: number, dayKind: TDayKind): TOvertime =>
+    splitOvertime(minutes, dayKind, rules.overtimeBands)
+
+  if (holiday) {
+    return {
+      ...journey,
+      kind: 'holiday',
+      overtime: getOvertime(worked, 'holiday')
+    }
+  }
+  if (!shiftDay || shiftDay.kind === 'unassigned') {
+    return { ...journey, kind: 'no-schedule' }
   }
 
-  if (date > today) return { ...journey, kind: 'future' }
-  if (holiday) return { ...journey, kind: 'holiday', overtime100: worked }
-  if (!schedule) return { ...journey, kind: 'no-schedule' }
-
-  const weekday = dayjs(date).day()
-  const scheduled = getScheduledIntervals(
-    schedule.days.find((day) => day.weekday === weekday)
-  )
+  const scheduled = toIntervals(shiftDay.pairs)
   if (scheduled.length === 0) {
-    return { ...journey, kind: 'day-off', overtime100: worked }
+    return {
+      ...journey,
+      kind: 'day-off',
+      overtime: getOvertime(worked, 'day-off')
+    }
   }
 
   const excuses = justifications.filter(({ type }) => type.effect === 'excuse')
   if (excuses.some(({ startTime }) => startTime === null)) {
-    return { ...journey, kind: 'excused', overtime60: worked }
+    return {
+      ...journey,
+      kind: 'excused',
+      overtime: getOvertime(worked, 'workday')
+    }
   }
 
   const expected =
@@ -157,7 +234,8 @@ export const calculateDay = ({
 
   const punchTimes = punchRecords.map(({ datetime }) => toMinutes(datetime))
   const balance =
-    compensation === 0 && isWithinTolerance(punchTimes, scheduled)
+    compensation === 0 &&
+    isWithinTolerance(punchTimes, scheduled, rules.journeyRules)
       ? 0
       : worked - due
   return {
@@ -165,7 +243,7 @@ export const calculateDay = ({
     expected,
     compensation,
     lateness: Math.max(0, -balance),
-    overtime60: Math.max(0, balance)
+    overtime: getOvertime(balance, 'workday')
   }
 }
 
@@ -179,8 +257,7 @@ export const sumDays = (days: TJourneyDay[]): TJourneyTotals => {
     absence: 0,
     lateness: 0,
     compensation: 0,
-    overtime60: 0,
-    overtime100: 0
+    overtime: []
   }
   for (const { journey } of days) {
     if (!isCalculated(journey)) continue
@@ -189,16 +266,16 @@ export const sumDays = (days: TJourneyDay[]): TJourneyTotals => {
     totals.absence += journey.absence
     totals.lateness += journey.lateness
     totals.compensation += journey.compensation
-    totals.overtime60 += journey.overtime60
-    totals.overtime100 += journey.overtime100
+    totals.overtime = mergeOvertime(totals.overtime, journey.overtime)
   }
   return totals
 }
 
 export const summarizeScheduleDay = (
-  scheduleDay?: ScheduleDay
+  pairs: TShiftPair[],
+  { maxLunch, maxDailyJourney, maxContinuousWork }: TScheduleAlertLimits
 ): TScheduleDaySummary => {
-  const scheduled = getScheduledIntervals(scheduleDay)
+  const scheduled = toIntervals(pairs)
   const lunch = scheduled
     .slice(1)
     .reduce(
@@ -207,15 +284,10 @@ export const summarizeScheduleDay = (
     )
   const journey = sumIntervals(scheduled)
   const alerts: TScheduleAlert[] = []
-  if (lunch > MAX_LUNCH) alerts.push('long-lunch')
-  if (journey > MAX_DAILY_JOURNEY) alerts.push('long-journey')
-  if (scheduled.some(({ start, end }) => end - start > MAX_CONTINUOUS_WORK)) {
+  if (lunch > maxLunch) alerts.push('long-lunch')
+  if (journey > maxDailyJourney) alerts.push('long-journey')
+  if (scheduled.some(({ start, end }) => end - start > maxContinuousWork)) {
     alerts.push('long-continuous-work')
   }
-  return {
-    pairs: scheduled.map(({ start, end }) => ({ entry: start, exit: end })),
-    lunch,
-    journey,
-    alerts
-  }
+  return { pairs, lunch, journey, alerts }
 }

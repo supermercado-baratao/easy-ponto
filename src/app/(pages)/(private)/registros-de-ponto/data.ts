@@ -4,10 +4,8 @@ import { requireCompany } from '@/entry/session'
 import type {
   JustificationType,
   TJustificationWithType,
-  TScheduleWithDays,
   User
 } from '@/infra/database/types'
-import { dayjs } from '@/infra/dayjs'
 import { isCompanyConfigured } from '@/models/company/utils'
 import { journeyModel } from '@/models/journey/model'
 import type { TJourneyDay } from '@/models/journey/types'
@@ -23,10 +21,9 @@ type TPunchRecordsPageData = {
   user: User | null
   period: TPunchRecordPeriod
   days: TJourneyDay[]
-  schedule: TScheduleWithDays | null
-  defaultScheduleStartDate: string
   justifications: TJustificationWithType[]
   justificationTypes: JustificationType[]
+  overtimePercentages: number[]
   canEdit: boolean
 }
 
@@ -53,29 +50,25 @@ export const getPunchRecordsPageData = async ({
   const users = await userModel.findManyByCompanyId(company.id)
   const user = users.find((user) => user.pis === pis) ?? users[0] ?? null
   const period = punchRecordModel.resolvePeriod({ initialDate, finalDate })
-  const { days, schedules, justifications } = user
+  const { days, justifications, overtimePercentages } = user
     ? await journeyModel.findUserDays({
         companyId: company.id,
         user,
         ...period
       })
-    : { days: [], schedules: [], justifications: [] }
+    : { days: [], justifications: [], overtimePercentages: [] }
   const justificationTypes = await justificationTypeModel.findManyByCompanyId(
     company.id
   )
-  const defaultScheduleStartDate = user?.admissionDate
-    ? dayjs(user.admissionDate).format('YYYY-MM-DD')
-    : period.initialDate
   return {
     hasDevice: !!company.deviceCredentials,
     users,
     user,
     period,
     days,
-    schedule: schedules[0] ?? null,
-    defaultScheduleStartDate,
     justifications,
     justificationTypes,
+    overtimePercentages,
     canEdit
   }
 }

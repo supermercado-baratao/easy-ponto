@@ -9,15 +9,47 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
-import { WEEKDAY_LABELS } from '@/app/utils/weekday'
-import { minutesToTime, WEEKDAYS } from '@/models/schedule/utils'
+import { dayjs } from '@/infra/dayjs'
+import { minutesToTime } from '@/infra/time'
+import type { TScheduleAlertLimits } from '@/models/journey/types'
+import { formatCycleTime, isPastMidnight } from '@/models/shift-pattern/utils'
 
 import type { TAgendaDay, TAgendaRow } from './types'
-import { ALERT_LABELS } from './utils'
+import { getAlertLabel } from './utils'
 
-const AgendaDay = ({ day }: { day: TAgendaDay }) => {
-  if (day.pairs.length === 0) {
-    return <span className="text-muted-foreground">Folga</span>
+const CycleTime = ({ minutes }: { minutes: number }) => (
+  <>
+    {formatCycleTime(minutes)}
+    {isPastMidnight(minutes) && (
+      <>
+        <span aria-hidden="true" className="ml-1 text-xs text-muted-foreground">
+          +1
+        </span>
+        <span className="sr-only"> do dia seguinte</span>
+      </>
+    )}
+  </>
+)
+
+const AgendaDay = ({
+  day,
+  limits
+}: {
+  day: TAgendaDay
+  limits: TScheduleAlertLimits
+}) => {
+  const adjusted = day.adjusted && (
+    <p className="text-xs text-muted-foreground">Dia ajustado</p>
+  )
+  if (day.kind !== 'work') {
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="text-muted-foreground">
+          {day.kind === 'off' ? 'Folga' : 'Sem escala'}
+        </span>
+        {adjusted}
+      </div>
+    )
   }
 
   return (
@@ -25,10 +57,10 @@ const AgendaDay = ({ day }: { day: TAgendaDay }) => {
       <ul className="font-mono tabular-nums">
         {day.pairs.map(({ entry, exit }) => (
           <li key={entry}>
-            {minutesToTime(entry)}
+            <CycleTime minutes={entry} />
             <span aria-hidden="true">–</span>
             <span className="sr-only"> às </span>
-            {minutesToTime(exit)}
+            <CycleTime minutes={exit} />
           </li>
         ))}
       </ul>
@@ -38,6 +70,7 @@ const AgendaDay = ({ day }: { day: TAgendaDay }) => {
         <dt>Jornada</dt>
         <dd className="font-mono tabular-nums">{minutesToTime(day.journey)}</dd>
       </dl>
+      {adjusted}
       {day.alerts.length > 0 && (
         <ul
           aria-label="Alertas"
@@ -46,7 +79,7 @@ const AgendaDay = ({ day }: { day: TAgendaDay }) => {
           {day.alerts.map((alert) => (
             <li key={alert} className="flex items-center gap-1">
               <TriangleAlert aria-hidden="true" className="size-3.5 shrink-0" />
-              {ALERT_LABELS[alert]}
+              {getAlertLabel(alert, limits)}
             </li>
           ))}
         </ul>
@@ -55,18 +88,34 @@ const AgendaDay = ({ day }: { day: TAgendaDay }) => {
   )
 }
 
-export const AgendaTable = ({ rows }: { rows: TAgendaRow[] }) => (
+export const AgendaTable = ({
+  rows,
+  dates,
+  limits
+}: {
+  rows: TAgendaRow[]
+  dates: string[]
+  limits: TScheduleAlertLimits
+}) => (
   <Table aria-label="Expedientes dos funcionários">
     <TableHeader>
       <TableRow>
         <TableHead>Funcionário</TableHead>
-        {WEEKDAYS.map(({ key }) => (
-          <TableHead key={key}>{WEEKDAY_LABELS[key]}</TableHead>
-        ))}
+        {dates.map((date) => {
+          const day = dayjs(date)
+          return (
+            <TableHead key={date}>
+              <span className="capitalize">{day.format('ddd')}</span>{' '}
+              <span className="font-mono tabular-nums">
+                {day.format('DD/MM')}
+              </span>
+            </TableHead>
+          )
+        })}
       </TableRow>
     </TableHeader>
     <TableBody>
-      {rows.map(({ user, days }) => (
+      {rows.map(({ user, shiftPatternNames, days }) => (
         <TableRow key={user.id} className="[&>td]:align-top [&>th]:align-top">
           <TableHead scope="row" className="py-2 font-normal">
             <Link
@@ -79,18 +128,23 @@ export const AgendaTable = ({ rows }: { rows: TAgendaRow[] }) => (
             {user.position && (
               <p className="text-xs text-muted-foreground">{user.position}</p>
             )}
+            {shiftPatternNames.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                <span className="sr-only">
+                  {shiftPatternNames.length > 1 ? 'Escalas: ' : 'Escala: '}
+                </span>
+                {shiftPatternNames.join(', ')}
+              </p>
+            )}
           </TableHead>
           {days ? (
             days.map((day) => (
-              <TableCell key={day.key}>
-                <AgendaDay day={day} />
+              <TableCell key={day.date}>
+                <AgendaDay day={day} limits={limits} />
               </TableCell>
             ))
           ) : (
-            <TableCell
-              colSpan={WEEKDAYS.length}
-              className="text-muted-foreground"
-            >
+            <TableCell colSpan={dates.length} className="text-muted-foreground">
               Nenhuma escala vigente
             </TableCell>
           )}

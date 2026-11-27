@@ -5,6 +5,7 @@ import { sql } from 'drizzle-orm'
 import { CNPJ } from 'validation-br/cnpj'
 import { CPF } from 'validation-br/cpf'
 
+import { TIME_FIELDS } from '@/constants/time'
 import { database } from '@/infra/database/client'
 import { authAccounts, authUsers, members } from '@/infra/database/schema'
 import { accountModel } from '@/models/account/model'
@@ -13,6 +14,9 @@ import { DEFAULT_DEVICE_MODEL } from '@/models/device/utils'
 import { deviceCredentialsModel } from '@/models/device-credentials/model'
 import { journeyRulesModel } from '@/models/journey-rules/model'
 import { punchRecordModel } from '@/models/punch-record/model'
+import { shiftAssignmentModel } from '@/models/shift-assignment/model'
+import { shiftPatternModel } from '@/models/shift-pattern/model'
+import { getDayTimeFieldName } from '@/models/shift-pattern/utils'
 import { statusModel } from '@/models/status/model'
 import { mapParsedAfdToPunchRecordCreateMany } from '@/models/synchronization/_utils/afd'
 import { mapDeviceUserToUser } from '@/models/synchronization/_utils/user'
@@ -128,6 +132,42 @@ const findMockedCompanyId = async (): Promise<string> => {
   return companyId
 }
 
+// A pattern of its own per call, so a test never shares one with another (an empty list in `days` is a day off)
+const assignShift = async ({
+  companyId,
+  userId,
+  startDate,
+  days
+}: {
+  companyId: string
+  userId: string
+  startDate: string
+  days: string[][]
+}): Promise<void> => {
+  const { id: shiftPatternId } = await shiftPatternModel.create({
+    companyId,
+    name: faker.string.alphanumeric(12),
+    startDate,
+    cycleLength: String(days.length),
+    ...Object.fromEntries(
+      days.flatMap((times, index) =>
+        times.map((time, timeIndex) => [
+          getDayTimeFieldName(index + 1, TIME_FIELDS[timeIndex]),
+          time
+        ])
+      )
+    )
+  })
+  await shiftAssignmentModel.create({
+    companyId,
+    userId,
+    shiftPatternId,
+    startDate,
+    endDate: '',
+    cycleStartDay: '1'
+  })
+}
+
 // Writes the rows directly: the model would require a new password on the first access, and it never adds
 // an employee
 const createMember = async ({
@@ -167,6 +207,7 @@ const orchestrator = {
   createOvertimeBands,
   populateDatabaseWithMockedData,
   findMockedCompanyId,
+  assignShift,
   createMember
 }
 

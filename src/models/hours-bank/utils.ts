@@ -1,6 +1,7 @@
 import type { HoursBankClosing } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import type { TJourneyDay } from '@/models/journey/types'
+import { mergeOvertime, sumOvertime } from '@/models/journey/utils'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 
 import type { THoursBankOrder, THoursBankRow, THoursBankTotals } from './types'
@@ -12,19 +13,17 @@ const DATE_FORMAT = 'YYYY-MM-DD'
 export const sumJourneys = (
   days: TJourneyDay[]
 ): Omit<THoursBankTotals, 'adjustment'> => {
-  const totals = {
+  const totals: Omit<THoursBankTotals, 'adjustment'> = {
     absence: 0,
     lateness: 0,
     compensation: 0,
-    overtime60: 0,
-    overtime100: 0
+    overtime: []
   }
   for (const { journey } of days) {
     totals.absence += journey.absence
     totals.lateness += journey.lateness
     totals.compensation += journey.compensation
-    totals.overtime60 += journey.overtime60
-    totals.overtime100 += journey.overtime100
+    totals.overtime = mergeOvertime(totals.overtime, journey.overtime)
   }
   return totals
 }
@@ -34,13 +33,11 @@ export const calculateBalance = ({
   absence,
   lateness,
   compensation,
-  overtime60,
-  overtime100,
+  overtime,
   adjustment
 }: THoursBankTotals & { previousBalance: number }): number =>
   previousBalance +
-  overtime60 +
-  overtime100 +
+  sumOvertime(overtime) +
   adjustment -
   absence -
   lateness -

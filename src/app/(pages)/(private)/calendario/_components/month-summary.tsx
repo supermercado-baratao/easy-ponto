@@ -1,4 +1,4 @@
-import { minutesToTime } from '@/models/schedule/utils'
+import { minutesToTime } from '@/infra/time'
 import type { TWorkloadCalendar } from '@/models/workload-calendar/types'
 
 export const MonthSummary = ({
