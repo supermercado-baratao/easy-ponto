@@ -7,7 +7,6 @@ test.describe('Shift patterns', () => {
     page
   }) => {
     await page.goto('/escalas')
-    await expect(page.getByText('Nenhuma escala cadastrada')).toBeVisible()
 
     await page.getByRole('button', { name: 'Cadastrar escala' }).click()
     const createSheet = page.getByRole('dialog', { name: 'Cadastrar escala' })
@@ -113,10 +112,11 @@ test.describe('Shift patterns', () => {
     await expect(
       page.getByRole('button', { name: 'Cadastrar escala' })
     ).toBeFocused()
-    await expect(page.getByText('Nenhuma escala cadastrada')).toBeVisible()
+    await expect(
+      page.getByRole('region', { name: 'Revezamento noturno' })
+    ).toHaveCount(0)
   })
 
-  // The page of the patterns expects none saved, so linking one runs in this file, after it, and removes it
   test('Links an employee to a pattern, keeps the pattern while linked and unlinks', async ({
     page
   }) => {
@@ -221,6 +221,8 @@ test.describe('Shift patterns', () => {
       .getByRole('alertdialog', { name: 'Remover escala?' })
       .getByRole('button', { name: 'Remover' })
       .click()
-    await expect(page.getByText('Nenhuma escala cadastrada')).toBeVisible()
+    await expect(
+      page.getByRole('region', { name: 'Plantão 12x36' })
+    ).toHaveCount(0)
   })
 })

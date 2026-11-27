@@ -1,8 +1,7 @@
 import type { Company, PunchRecord, User } from '@/infra/database/types'
 import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
-import type { TScheduleSaveData } from '@/models/schedule/types'
 
-import type { TIME_CARD_REPORT_FORMATS } from './utils'
+import type { TIME_CARD_REPORT_FORMATS, TWeekdayTimeFieldName } from './utils'
 
 export type TTimeCardReportFormat = (typeof TIME_CARD_REPORT_FORMATS)[number]
 
@@ -31,11 +30,9 @@ export type TReportPunchRecord = Pick<
   userName: string
 }
 
-export type TReportSchedule = Omit<
-  TScheduleSaveData,
-  'companyId' | 'userId'
-> & {
+export type TReportSchedule = Partial<Record<TWeekdayTimeFieldName, string>> & {
   userName: string
+  startDate: string
 }
 
 export type TReportJustification = {

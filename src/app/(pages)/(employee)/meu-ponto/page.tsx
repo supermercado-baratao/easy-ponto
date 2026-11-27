@@ -36,7 +36,10 @@ const EmployeeHome = async ({ searchParams }: PageProps<'/meu-ponto'>) => {
       {journey ? (
         <>
           <MonthNavigation month={month} path={EMPLOYEE_HOME_PATH} />
-          <MonthTotals totals={journey.totals} />
+          <MonthTotals
+            totals={journey.totals}
+            overtimePercentages={journey.overtimePercentages}
+          />
           {/* The table's scroll area is already the region named by the heading */}
           <section className="flex flex-col gap-3">
             <h3 id="month-records-title" className="text-base font-medium">
@@ -45,6 +48,7 @@ const EmployeeHome = async ({ searchParams }: PageProps<'/meu-ponto'>) => {
             <PunchRecordsTable
               days={journey.days}
               justifications={journey.justifications}
+              overtimePercentages={journey.overtimePercentages}
               labelledBy="month-records-title"
             />
           </section>

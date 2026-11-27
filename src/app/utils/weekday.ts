@@ -1,4 +1,4 @@
-import type { TWeekdayKey } from '@/models/schedule/utils'
+import type { TWeekdayKey } from '@/constants/time'
 
 export const WEEKDAY_LABELS: Record<TWeekdayKey, string> = {
   monday: 'Segunda',

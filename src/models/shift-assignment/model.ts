@@ -10,6 +10,7 @@ import { ShiftPatternNotFoundError } from '@/models/shift-pattern/errors'
 import { selectVersionInEffect } from '@/models/shift-pattern/utils'
 import { shiftAssignmentRepository } from '@/repositories/shift-assignment-repository'
 import { shiftPatternRepository } from '@/repositories/shift-pattern-repository'
+import { userRepository } from '@/repositories/user-repository'
 
 import {
   ShiftAdjustmentNotFoundError,
@@ -18,6 +19,7 @@ import {
 } from './errors'
 import {
   createSchema,
+  findCompanyDaysParamsSchema,
   findManyByUserIdParamsSchema,
   findUserDaysParamsSchema,
   removeAdjustmentSchema,
@@ -29,10 +31,12 @@ import type {
   TShiftAdjustmentRemoveParams,
   TShiftAdjustmentSaveData,
   TShiftAssignmentCreateData,
+  TShiftAssignmentFindCompanyDaysParams,
   TShiftAssignmentFindManyByUserIdParams,
   TShiftAssignmentFindUserDaysParams,
   TShiftAssignmentRemoveParams,
-  TShiftAssignmentUpdateData
+  TShiftAssignmentUpdateData,
+  TUserShiftDays
 } from './types'
 import {
   findShiftConflict,
@@ -196,6 +200,40 @@ const findUserDays = async (
   return resolveDays({ initialDate, finalDate, assignments, adjustments })
 }
 
+const findCompanyDays = async (
+  params: TShiftAssignmentFindCompanyDaysParams
+): Promise<TUserShiftDays[]> => {
+  const { companyId, initialDate, finalDate } =
+    findCompanyDaysParamsSchema.parse(params)
+  const users = await userRepository.findManyByCompanyId(companyId)
+  const userIds = users.map(({ id }) => id)
+  const [assignments, adjustments] = await Promise.all([
+    shiftAssignmentRepository.findManyByUserIds(userIds),
+    shiftAssignmentRepository.findAdjustmentsByUserIds({
+      userIds,
+      initialDate,
+      finalDate
+    })
+  ])
+  return userIds.map((userId) => {
+    const userAssignments = assignments.filter(
+      (assignment) => assignment.userId === userId
+    )
+    return {
+      userId,
+      assignments: userAssignments,
+      days: resolveDays({
+        initialDate,
+        finalDate,
+        assignments: userAssignments,
+        adjustments: adjustments.filter(
+          (adjustment) => adjustment.userId === userId
+        )
+      })
+    }
+  })
+}
+
 const findAdjustmentsByUserId = async (
   params: TShiftAssignmentFindManyByUserIdParams
 ): Promise<ShiftAdjustment[]> => {
@@ -251,6 +289,7 @@ export const shiftAssignmentModel = {
   update,
   remove,
   findUserDays,
+  findCompanyDays,
   findAdjustmentsByUserId,
   saveAdjustment,
   removeAdjustment

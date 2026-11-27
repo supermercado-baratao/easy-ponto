@@ -10,7 +10,7 @@ import { Input } from '@/app/components/ui/shadcn/input'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
 import { showActionError } from '@/app/utils/action-error'
 import { TIME_FIELD_LABELS } from '@/app/utils/time-field'
-import { TIME_FIELDS } from '@/models/schedule/utils'
+import { TIME_FIELDS } from '@/constants/time'
 import {
   CYCLE_DAYS,
   getDayTimeFieldName,

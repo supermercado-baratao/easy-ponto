@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { timeSchema } from '@/models/schedule/schema'
-import { TIME_FIELDS, type TScheduleTimeField } from '@/models/schedule/utils'
+import { TIME_FIELDS, type TTimeField } from '@/constants/time'
+import { timeSchema } from '@/infra/time'
 import { parseDayTimes } from '@/models/shift-pattern/schema'
 import { isDayOff, MAX_CYCLE_LENGTH } from '@/models/shift-pattern/utils'
 
@@ -54,6 +54,16 @@ export const findManyByUserIdParamsSchema = z.object({
   companyId: z.uuidv4()
 })
 
+export const findCompanyDaysParamsSchema = z
+  .object({
+    companyId: z.uuidv4(),
+    initialDate: z.iso.date(),
+    finalDate: z.iso.date()
+  })
+  .refine(({ initialDate, finalDate }) => initialDate <= finalDate, {
+    message: 'O fim deve ser depois do início'
+  })
+
 export const findUserDaysParamsSchema = z
   .object({
     userId: z.uuidv4(),
@@ -67,7 +77,7 @@ export const findUserDaysParamsSchema = z
 
 const timeFieldsShape = Object.fromEntries(
   TIME_FIELDS.map((field) => [field, timeSchema])
-) as Record<TScheduleTimeField, typeof timeSchema>
+) as Record<TTimeField, typeof timeSchema>
 
 export const saveAdjustmentSchema = z
   .object({
@@ -115,7 +125,7 @@ export const saveAdjustmentSchema = z
           ? parsed.day
           : (Object.fromEntries(
               TIME_FIELDS.map((field) => [field, null])
-            ) as Record<TScheduleTimeField, null>)
+            ) as Record<TTimeField, null>)
       return {
         companyId,
         userId,

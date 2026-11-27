@@ -16,8 +16,7 @@ const day = (journey: Partial<TJourney>): TJourneyDay =>
       absence: 0,
       lateness: 0,
       compensation: 0,
-      overtime60: 0,
-      overtime100: 0,
+      overtime: [],
       ...journey
     }
   }) as TJourneyDay
@@ -29,16 +28,18 @@ describe('sumJourneys', () => {
   test('Sums each total of the days', () => {
     expect(
       sumJourneys([
-        day({ absence: 440, overtime100: 60 }),
-        day({ lateness: 15, overtime60: 30 }),
-        day({ compensation: 200, overtime60: 10 })
+        day({ absence: 440, overtime: [{ percentage: 100, minutes: 60 }] }),
+        day({ lateness: 15, overtime: [{ percentage: 60, minutes: 30 }] }),
+        day({ compensation: 200, overtime: [{ percentage: 60, minutes: 10 }] })
       ])
     ).toEqual({
       absence: 440,
       lateness: 15,
       compensation: 200,
-      overtime60: 40,
-      overtime100: 60
+      overtime: [
+        { percentage: 60, minutes: 40 },
+        { percentage: 100, minutes: 60 }
+      ]
     })
   })
 })
@@ -51,8 +52,10 @@ describe('calculateBalance', () => {
         absence: 440,
         lateness: 15,
         compensation: 200,
-        overtime60: 300,
-        overtime100: 120,
+        overtime: [
+          { percentage: 60, minutes: 300 },
+          { percentage: 100, minutes: 120 }
+        ],
         adjustment: -30
       })
     ).toBe(100 + 300 + 120 - 30 - 440 - 15 - 200)

@@ -9,15 +9,17 @@ import type {
 import { dayjs, wallClockNow } from '@/infra/dayjs'
 import { NotFoundError } from '@/infra/errors'
 import { journeyModel } from '@/models/journey/model'
+import type { TJourneyCalculationRules } from '@/models/journey/types'
+import { getOvertimePercentages } from '@/models/journey/utils'
+import { journeyRulesModel } from '@/models/journey-rules/model'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
 import { groupByDay, resolvePeriod } from '@/models/punch-record/utils'
-import { selectInEffectSince } from '@/models/schedule/utils'
+import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { holidayRepository } from '@/repositories/holiday-repository'
 import { hoursBankAdjustmentRepository } from '@/repositories/hours-bank-adjustment-repository'
 import { hoursBankClosingRepository } from '@/repositories/hours-bank-closing-repository'
 import { justificationRepository } from '@/repositories/justification-repository'
 import { punchRecordRepository } from '@/repositories/punch-record-repository'
-import { scheduleRepository } from '@/repositories/schedule-repository'
 import { userRepository } from '@/repositories/user-repository'
 
 import {
@@ -66,8 +68,7 @@ const toSavedRows = (closing: THoursBankClosingWithBalances): THoursBankRow[] =>
     absence: balance.absence,
     lateness: balance.lateness,
     compensation: balance.compensation,
-    overtime60: balance.overtime60,
-    overtime100: balance.overtime100,
+    overtime: balance.overtime,
     adjustment: balance.adjustment,
     balance: balance.balance
   }))
@@ -76,18 +77,20 @@ const calculateRows = async ({
   companyId,
   users,
   period,
-  adjustments
+  adjustments,
+  rules
 }: {
   companyId: string
   users: User[]
   period: TPunchRecordPeriod
   adjustments: HoursBankAdjustment[]
+  rules: TJourneyCalculationRules
 }): Promise<THoursBankRow[]> => {
   if (users.length === 0) return []
 
   const userIds = users.map(({ id }) => id)
   const { initialDate, finalDate } = period
-  const [previousClosing, punchRecords, schedules, justifications, holidays] =
+  const [previousClosing, punchRecords, shiftDays, justifications, holidays] =
     await Promise.all([
       hoursBankClosingRepository.findLastEndedBefore({
         companyId,
@@ -99,10 +102,7 @@ const calculateRows = async ({
         finalDate: dayjs(finalDate).endOf('day').toDate(),
         pisList: users.map(({ pis }) => pis)
       }),
-      scheduleRepository.findManyStartedUntilByUserIds({
-        userIds,
-        date: finalDate
-      }),
+      shiftAssignmentModel.findCompanyDays({ companyId, ...period }),
       justificationRepository.findManyInPeriodByUserIds({
         userIds,
         initialDate,
@@ -117,12 +117,10 @@ const calculateRows = async ({
         punchRecords.filter(({ pis }) => pis === user.pis),
         period
       ),
-      schedules: selectInEffectSince(
-        schedules.filter(({ userId }) => userId === user.id),
-        initialDate
-      ),
+      shiftDays: shiftDays.find(({ userId }) => userId === user.id)?.days ?? [],
       holidays,
-      justifications: justifications.filter(({ userId }) => userId === user.id)
+      justifications: justifications.filter(({ userId }) => userId === user.id),
+      rules
     })
     const totals = {
       ...sumJourneys(days),
@@ -164,9 +162,10 @@ const generate = async (
     startDate: period.initialDate,
     endDate: period.finalDate
   })
+  const rules = await journeyRulesModel.findByCompanyId(companyId)
   const rows = closing
     ? toSavedRows(closing)
-    : await calculateRows({ companyId, users, period, adjustments })
+    : await calculateRows({ companyId, users, period, adjustments, rules })
   return {
     period,
     order,
@@ -176,6 +175,10 @@ const generate = async (
       ? null
       : findCloseIssue({ period, lastClosing, today: today() }),
     rows: sortRows(rows, order),
+    overtimePercentages: getOvertimePercentages({
+      overtimeBands: rules.overtimeBands,
+      overtimes: rows.map(({ overtime }) => overtime)
+    }),
     adjustments
   }
 }
@@ -193,7 +196,13 @@ const close = async (
     userIds: users.map(({ id }) => id),
     ...period
   })
-  const rows = await calculateRows({ companyId, users, period, adjustments })
+  const rows = await calculateRows({
+    companyId,
+    users,
+    period,
+    adjustments,
+    rules: await journeyRulesModel.findByCompanyId(companyId)
+  })
   return await hoursBankClosingRepository.create({
     companyId,
     startDate: period.initialDate,
@@ -205,8 +214,7 @@ const close = async (
       absence: row.absence,
       lateness: row.lateness,
       compensation: row.compensation,
-      overtime60: row.overtime60,
-      overtime100: row.overtime100,
+      overtime: row.overtime,
       adjustment: row.adjustment,
       balance: row.balance
     }))

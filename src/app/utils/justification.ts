@@ -1,6 +1,6 @@
 import type { TJustificationWithType } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
-import { minutesToTime } from '@/models/schedule/utils'
+import { minutesToTime } from '@/infra/time'
 
 const formatTimes = ({
   startTime,

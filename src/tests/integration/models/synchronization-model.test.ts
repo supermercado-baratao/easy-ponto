@@ -28,7 +28,6 @@ import { HoursBankInitialBalanceError } from '@/models/hours-bank/errors'
 import { hoursBankModel } from '@/models/hours-bank/model'
 import { justificationModel } from '@/models/justification/model'
 import { justificationTypeModel } from '@/models/justification-type/model'
-import { scheduleModel } from '@/models/schedule/model'
 import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { shiftPatternModel } from '@/models/shift-pattern/model'
 import { synchronizationModel } from '@/models/synchronization/model'
@@ -422,7 +421,7 @@ describe('Synchronization Model', () => {
   })
 
   describe('importFile', () => {
-    test('Saves the schedules of the users found by name', async () => {
+    test('Links the users found by name to the schedule of the report', async () => {
       const data = await populate()
       const file = createReportFile(
         createReportRows({
@@ -436,40 +435,23 @@ describe('Synchronization Model', () => {
       await importFile(file, data)
 
       const [user] = await userModel.findManyByCompanyId(data.company.id)
-      const schedule = await scheduleModel.findInEffect({
+      const [sunday, monday] = await shiftAssignmentModel.findUserDays({
         userId: user.id,
-        date: '2025-10-01'
+        companyId: data.company.id,
+        initialDate: '2025-10-05',
+        finalDate: '2025-10-06'
       })
-      expect(schedule?.startDate).toBe('2025-10-01')
-      expect(schedule?.days[0]).toMatchObject({
-        weekday: 0,
-        entry1: null,
-        exit1: null
+      expect(sunday).toMatchObject({ kind: 'off', pairs: [] })
+      expect(monday).toMatchObject({
+        kind: 'work',
+        pairs: [
+          { entry: 420, exit: 660 },
+          { entry: 780, exit: 980 }
+        ]
       })
-      expect(schedule?.days[1]).toMatchObject({
-        weekday: 1,
-        entry1: 420,
-        exit1: 660,
-        entry2: 780,
-        exit2: 980,
-        entry3: null,
-        exit3: null
-      })
-    })
-
-    test('Replaces the schedule when the same file is imported again', async () => {
-      const data = await populate()
-      await importFile(createScheduleFile('8:00'), data)
-
-      await importFile(createScheduleFile('9:00'), data)
-
-      const [user] = await userModel.findManyByCompanyId(data.company.id)
-      const schedule = await scheduleModel.findInEffect({
-        userId: user.id,
-        date: '2025-10-01'
-      })
-      expect(schedule?.days).toHaveLength(7)
-      expect(schedule?.days[1]).toMatchObject({ entry1: 540, exit1: 720 })
+      expect(
+        await shiftPatternModel.findManyByCompanyId(data.company.id)
+      ).toHaveLength(1)
     })
 
     test('Links the users to a weekly pattern from the first day of the period', async () => {
@@ -583,11 +565,11 @@ describe('Synchronization Model', () => {
       })
       const [user] = await userModel.findManyByCompanyId(data.company.id)
       expect(
-        await scheduleModel.findInEffect({
+        await shiftAssignmentModel.findManyByUserId({
           userId: user.id,
-          date: '2025-10-01'
+          companyId: data.company.id
         })
-      ).toBeNull()
+      ).toEqual([])
       expect(await findJustifications(data.company.id)).toEqual([])
     })
 
@@ -822,7 +804,7 @@ describe('Synchronization Model', () => {
           name: deviceUser.name,
           previousBalance: 0,
           absence: 60,
-          overtime60: 330,
+          overtime: [{ percentage: 60, minutes: 330 }],
           adjustment: 30,
           balance: 300
         })

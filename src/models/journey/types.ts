@@ -1,27 +1,41 @@
 import type {
   Holiday,
+  JourneyRules,
+  OvertimeBand,
   PunchRecord,
-  TJustificationWithType,
-  TScheduleWithDays
+  TJustificationWithType
 } from '@/infra/database/types'
 import type {
   TPunchRecordDay,
   TPunchRecordPeriod
 } from '@/models/punch-record/types'
+import type { TResolvedDay, TShiftPair } from '@/models/shift-assignment/utils'
 
 export type TJourneyPair = {
   entry: number
   exit: number | null
 }
 
+export type TOvertime = { percentage: number; minutes: number }[]
+
 export type TScheduleAlert =
   'long-lunch' | 'long-journey' | 'long-continuous-work'
 
 export type TScheduleDaySummary = {
-  pairs: { entry: number; exit: number }[]
+  pairs: TShiftPair[]
   lunch: number
   journey: number
   alerts: TScheduleAlert[]
+}
+
+export type TScheduleAlertLimits = Pick<
+  JourneyRules,
+  'maxLunch' | 'maxDailyJourney' | 'maxContinuousWork'
+>
+
+export type TJourneyCalculationRules = {
+  journeyRules: Pick<JourneyRules, 'punchTolerance' | 'dailyTolerance'>
+  overtimeBands: Pick<OvertimeBand, 'dayKind' | 'upTo' | 'percentage'>[]
 }
 
 export type TJourneyDayKind =
@@ -37,27 +51,21 @@ export type TJourney = {
   absence: number
   lateness: number
   compensation: number
-  overtime60: number
-  overtime100: number
+  overtime: TOvertime
 }
 
 export type TJourneyTotals = Pick<
   TJourney,
-  | 'expected'
-  | 'worked'
-  | 'absence'
-  | 'lateness'
-  | 'compensation'
-  | 'overtime60'
-  | 'overtime100'
+  'expected' | 'worked' | 'absence' | 'lateness' | 'compensation' | 'overtime'
 >
 
 export type TJourneyDayInput = {
   date: string
   punchRecords: PunchRecord[]
-  schedule: TScheduleWithDays | null
+  shiftDay: TResolvedDay | null
   holiday: Holiday | null
   justifications: TJustificationWithType[]
+  rules: TJourneyCalculationRules
   today: string
 }
 
@@ -65,9 +73,10 @@ export type TJourneyDay = TPunchRecordDay & { journey: TJourney }
 
 export type TJourneyCalculateDaysParams = {
   days: TPunchRecordDay[]
-  schedules: TScheduleWithDays[]
+  shiftDays: TResolvedDay[]
   holidays: Holiday[]
   justifications: TJustificationWithType[]
+  rules: TJourneyCalculationRules
   today?: string
 }
 
@@ -78,6 +87,6 @@ export type TJourneyFindUserDaysParams = TPunchRecordPeriod & {
 
 export type TJourneyUserDays = {
   days: TJourneyDay[]
-  schedules: TScheduleWithDays[]
   justifications: TJustificationWithType[]
+  overtimePercentages: number[]
 }

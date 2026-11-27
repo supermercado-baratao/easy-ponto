@@ -1,0 +1,1 @@
+ALTER TABLE "hours_bank_balances" ADD COLUMN "overtime" jsonb;

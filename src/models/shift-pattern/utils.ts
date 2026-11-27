@@ -1,13 +1,9 @@
+import { TIME_FIELDS, type TTimeField } from '@/constants/time'
 import type {
   ShiftPatternVersionDay,
   TShiftPatternVersionWithDays
 } from '@/infra/database/types'
-import {
-  minutesToTime,
-  TIME_FIELDS,
-  timeToMinutes,
-  type TScheduleTimeField
-} from '@/models/schedule/utils'
+import { minutesToTime, timeToMinutes } from '@/infra/time'
 
 export const MIN_CYCLE_LENGTH = 1
 
@@ -21,17 +17,16 @@ export const CYCLE_DAYS = Array.from(
   (_, index) => index + 1
 )
 
-export type TCycleDayTimes = Pick<ShiftPatternVersionDay, TScheduleTimeField>
+export type TCycleDayTimes = Pick<ShiftPatternVersionDay, TTimeField>
 
 export type TCycleDay = TCycleDayTimes &
   Pick<ShiftPatternVersionDay, 'cycleDay'>
 
-export type TShiftPatternTimeFieldName =
-  `day${number}${Capitalize<TScheduleTimeField>}`
+export type TShiftPatternTimeFieldName = `day${number}${Capitalize<TTimeField>}`
 
 export const getDayTimeFieldName = (
   cycleDay: number,
-  field: TScheduleTimeField
+  field: TTimeField
 ): TShiftPatternTimeFieldName =>
   `day${cycleDay}${field.charAt(0).toUpperCase()}${field.slice(1)}` as TShiftPatternTimeFieldName
 

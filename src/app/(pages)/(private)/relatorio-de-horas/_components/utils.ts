@@ -1,7 +1,7 @@
 import { dayjs } from '@/infra/dayjs'
+import { minutesToTime } from '@/infra/time'
 import type { THoursBankOrder } from '@/models/hours-bank/types'
 import type { TPunchRecordPeriod } from '@/models/punch-record/types'
-import { minutesToTime } from '@/models/schedule/utils'
 
 export const ORDER_PARAM: Record<THoursBankOrder, string> = {
   balance: 'saldo',

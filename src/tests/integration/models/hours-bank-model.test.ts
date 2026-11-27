@@ -15,7 +15,6 @@ import { hoursBankModel } from '@/models/hours-bank/model'
 import { justificationModel } from '@/models/justification/model'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
-import { scheduleModel } from '@/models/schedule/model'
 import { mapDeviceUserToUser } from '@/models/synchronization/_utils/user'
 import { userModel } from '@/models/user/model'
 import { deviceUsers } from '@/tests/_mocks/device-users'
@@ -76,23 +75,12 @@ beforeAll(async () => {
   )
   ;[otherUser] = await userModel.findManyByCompanyId(otherCompanyId)
 
-  await scheduleModel.save({
+  await orchestrator.createOvertimeBands(companyId)
+  await orchestrator.assignShift({
     companyId,
     userId: scheduled.id,
-    startDate: '2026-01-01',
-    ...Object.fromEntries(
-      [
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday'
-      ].flatMap((weekday) => [
-        [`${weekday}Entry1`, '07:00'],
-        [`${weekday}Exit1`, '11:00']
-      ])
-    )
+    startDate: '2026-01-05',
+    days: [...Array.from({ length: 6 }, () => ['07:00', '11:00']), []]
   })
   const compensationType = await justificationTypeModel.create({
     companyId,
@@ -127,6 +115,7 @@ describe('Hours Bank Model', () => {
     const report = await hoursBankModel.generate({ companyId, ...FIRST_PERIOD })
 
     expect(report.period).toEqual(FIRST_PERIOD)
+    expect(report.overtimePercentages).toEqual([50, 100])
     expect(report.closing).toBeNull()
     expect(report.closeIssue).toBeNull()
     expect(findRow(report.rows, scheduled.id)).toEqual({
@@ -137,8 +126,7 @@ describe('Hours Bank Model', () => {
       absence: 240,
       lateness: 30,
       compensation: 240,
-      overtime60: 60,
-      overtime100: 0,
+      overtime: [{ percentage: 50, minutes: 60 }],
       adjustment: 60,
       balance: -390
     })

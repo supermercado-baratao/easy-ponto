@@ -10,8 +10,6 @@ import type {
   Justification,
   JustificationCodeMapping,
   PunchRecord,
-  Schedule,
-  ScheduleDay,
   TInputData,
   User
 } from '@/infra/database/types'
@@ -19,7 +17,6 @@ import { dayjs } from '@/infra/dayjs'
 
 import { justificationCodeMappingRepository } from './justification-code-mapping-repository'
 import { punchRecordRepository } from './punch-record-repository'
-import { scheduleRepository } from './schedule-repository'
 import { shiftAssignmentRepository } from './shift-assignment-repository'
 import {
   shiftPatternRepository,
@@ -31,9 +28,6 @@ type TFileImportData = {
   company: { id: string; registration: string | null } | null
   users: (Partial<TInputData<User>> & { id: string })[]
   punchRecords: Pick<PunchRecord, 'companyId' | 'pis' | 'datetime'>[]
-  schedules: (TInputData<Schedule> & {
-    days: Omit<TInputData<ScheduleDay>, 'scheduleId'>[]
-  })[]
   shiftPatterns: {
     key: string
     companyId: string
@@ -54,7 +48,6 @@ export const synchronizationRepository = {
     company,
     users,
     punchRecords,
-    schedules,
     shiftPatterns,
     shiftAssignments,
     codeMappings,
@@ -71,9 +64,6 @@ export const synchronizationRepository = {
       if (users.length > 0) await userRepository.updateMany(users, tx)
       if (punchRecords.length > 0) {
         await punchRecordRepository.createMany(punchRecords, tx)
-      }
-      for (const schedule of schedules) {
-        await scheduleRepository.save(schedule, tx)
       }
       const shiftPatternIds = new Map<string, string>()
       for (const { key, ...shiftPattern } of shiftPatterns) {

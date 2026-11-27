@@ -1,4 +1,4 @@
-import { TIME_FIELDS } from '@/models/schedule/utils'
+import { TIME_FIELDS } from '@/constants/time'
 import {
   formatCycleTime,
   getDayTimeFieldName,

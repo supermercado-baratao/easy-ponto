@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
+import type { TShiftAssignmentWithPattern } from '@/infra/database/types'
+
 import {
   createSchema,
+  findCompanyDaysParamsSchema,
   findManyByUserIdParamsSchema,
   findUserDaysParamsSchema,
   removeAdjustmentSchema,
@@ -9,6 +12,7 @@ import {
   saveAdjustmentSchema,
   updateSchema
 } from './schema'
+import type { TResolvedDay } from './utils'
 
 export type TShiftAssignmentCreateData = z.input<typeof createSchema>
 
@@ -19,6 +23,16 @@ export type TShiftAssignmentRemoveParams = z.infer<typeof removeSchema>
 export type TShiftAssignmentFindManyByUserIdParams = z.infer<
   typeof findManyByUserIdParamsSchema
 >
+
+export type TShiftAssignmentFindCompanyDaysParams = z.infer<
+  typeof findCompanyDaysParamsSchema
+>
+
+export type TUserShiftDays = {
+  userId: string
+  assignments: TShiftAssignmentWithPattern[]
+  days: TResolvedDay[]
+}
 
 export type TShiftAssignmentFindUserDaysParams = z.infer<
   typeof findUserDaysParamsSchema

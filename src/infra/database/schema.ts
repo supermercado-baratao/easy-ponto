@@ -7,6 +7,7 @@ import {
   foreignKey,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -343,56 +344,6 @@ export const punchRecords = pgTable(
   ]
 )
 
-export const schedules = pgTable(
-  'schedules',
-  {
-    id: id(),
-    startDate: dateOnly('start_date').notNull(),
-    userId: text('user_id').notNull(),
-    ...timestamps()
-  },
-  (table) => [
-    unique('schedules_user_id_start_date_key').on(
-      table.userId,
-      table.startDate
-    ),
-    index('schedules_user_id_idx_6c952402').on(table.userId),
-    foreignKey({
-      name: 'schedules_user_id_fkey',
-      columns: [table.userId],
-      foreignColumns: [users.id]
-    }).onDelete('cascade')
-  ]
-)
-
-export const schedulesDays = pgTable(
-  'schedules_days',
-  {
-    id: id(),
-    weekday: integer('weekday').notNull(),
-    entry1: integer('entry_1'),
-    exit1: integer('exit_1'),
-    entry2: integer('entry_2'),
-    exit2: integer('exit_2'),
-    entry3: integer('entry_3'),
-    exit3: integer('exit_3'),
-    scheduleId: text('schedule_id').notNull(),
-    ...timestamps()
-  },
-  (table) => [
-    unique('schedules_days_schedule_id_weekday_key').on(
-      table.scheduleId,
-      table.weekday
-    ),
-    index('schedules_days_schedule_id_idx_83757f9e').on(table.scheduleId),
-    foreignKey({
-      name: 'schedules_days_schedule_id_fkey',
-      columns: [table.scheduleId],
-      foreignColumns: [schedules.id]
-    }).onDelete('cascade')
-  ]
-)
-
 export const shiftPatterns = pgTable(
   'shift_patterns',
   {
@@ -672,8 +623,9 @@ export const hoursBankBalances = pgTable(
     absence: integer('absence').notNull(),
     lateness: integer('lateness').notNull(),
     compensation: integer('compensation').notNull(),
-    overtime60: integer('overtime_60').notNull(),
-    overtime100: integer('overtime_100').notNull(),
+    overtime: jsonb('overtime')
+      .$type<{ percentage: number; minutes: number }[]>()
+      .notNull(),
     adjustment: integer('adjustment').notNull(),
     balance: integer('balance').notNull(),
     closingId: text('closing_id').notNull(),

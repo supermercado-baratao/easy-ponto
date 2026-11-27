@@ -3,14 +3,12 @@ import { describe, expect, test } from 'vitest'
 import type { User } from '@/infra/database/types'
 import type {
   TReportPunchRecord,
-  TReportSchedule,
   TReportUser
 } from '@/models/time-card-report/types'
 
 import {
   getInitialBalancesToSave,
   getPunchRecordsToCreate,
-  getSchedulesToSave,
   getUsersToUpdate
 } from './report'
 
@@ -37,33 +35,6 @@ describe('getUsersToUpdate', () => {
   })
 })
 
-describe('getSchedulesToSave', () => {
-  test('Returns the schedules of the saved users with the same name', () => {
-    const users = [
-      { id: '1', companyId: 'company', name: 'Maria Teste' }
-    ] as User[]
-    const schedules: TReportSchedule[] = [
-      {
-        userName: 'Maria Teste',
-        startDate: '2025-10-01',
-        mondayEntry1: '07:00',
-        mondayExit1: '11:00'
-      },
-      { userName: 'Ana Teste', startDate: '2025-10-01' }
-    ]
-
-    expect(getSchedulesToSave(schedules, users)).toEqual([
-      {
-        companyId: 'company',
-        userId: '1',
-        startDate: '2025-10-01',
-        mondayEntry1: '07:00',
-        mondayExit1: '11:00'
-      }
-    ])
-  })
-})
-
 describe('getPunchRecordsToCreate', () => {
   test('Returns only the records missing from the AFD of saved users', () => {
     const users = [{ name: 'Maria Teste', pis: '000000000001' }] as User[]
@@ -81,7 +52,11 @@ describe('getPunchRecordsToCreate', () => {
 })
 
 describe('getInitialBalancesToSave', () => {
-  const totals = { absence: 60, overtime60: 30, overtime100: 0, adjustment: 0 }
+  const totals = {
+    absence: 60,
+    overtime: [{ percentage: 60, minutes: 30 }],
+    adjustment: 0
+  }
 
   test('Matches the balances to the users by name and lists the unmatched names', () => {
     const users = [{ id: 'user-1', name: 'Maria Teste' }] as User[]

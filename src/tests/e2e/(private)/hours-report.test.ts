@@ -109,7 +109,10 @@ test.describe('Hours report', () => {
       .getByRole('table', { name: 'Relatório de horas' })
       .getByRole('row')
       .filter({ hasText: user.name })
-    await expect(row.getByRole('cell').nth(BALANCE_COLUMN)).toHaveText('05:00')
+    // The 60% of the report adds a column to the 50% and 100% of the company
+    await expect(row.getByRole('cell').nth(BALANCE_COLUMN + 1)).toHaveText(
+      '05:00'
+    )
 
     await page.getByRole('button', { name: 'Descartar saldo inicial' }).click()
     await page

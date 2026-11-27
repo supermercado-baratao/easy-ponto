@@ -75,6 +75,7 @@ export const MainContent = ({
             <HoursReportTable
               rows={report.rows}
               period={report.period}
+              overtimePercentages={report.overtimePercentages}
               adjustments={report.adjustments}
               editable={canEdit && report.closing === null}
             />

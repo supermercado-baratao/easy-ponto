@@ -35,9 +35,6 @@ test.describe('Viewer', () => {
     page
   }) => {
     await expect(
-      page.getByRole('heading', { name: 'Escala de horários' })
-    ).toBeVisible()
-    await expect(
       page.getByRole('table', { name: 'Registros de ponto' })
     ).toBeVisible()
 

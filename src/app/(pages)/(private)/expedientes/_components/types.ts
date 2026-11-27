@@ -1,12 +1,14 @@
 import type { TUsersFilterValues } from '@/app/components/blocks/users-filter'
 import type { User } from '@/infra/database/types'
 import type { TScheduleDaySummary } from '@/models/journey/types'
-import type { TWeekdayKey } from '@/models/schedule/utils'
+import type { TResolvedDay } from '@/models/shift-assignment/utils'
 
-export type TAgendaDay = TScheduleDaySummary & { key: TWeekdayKey }
+export type TAgendaDay = TScheduleDaySummary &
+  Pick<TResolvedDay, 'date' | 'kind' | 'adjusted'>
 
 export type TAgendaRow = {
   user: User
+  shiftPatternNames: string[]
   days: TAgendaDay[] | null
 }
 

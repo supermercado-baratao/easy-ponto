@@ -32,7 +32,6 @@ import { createSchema as justificationCreateSchema } from '@/models/justificatio
 import { findOverlappingJustification } from '@/models/justification/utils'
 import { justificationTypeModel } from '@/models/justification-type/model'
 import { punchRecordModel } from '@/models/punch-record/model'
-import { saveSchema as scheduleSaveSchema } from '@/models/schedule/schema'
 import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { shiftPatternModel } from '@/models/shift-pattern/model'
 import { timeCardReportModel } from '@/models/time-card-report/model'
@@ -50,7 +49,6 @@ import {
 import {
   getInitialBalancesToSave,
   getPunchRecordsToCreate,
-  getSchedulesToSave,
   getUsersToUpdate
 } from './_utils/report'
 import { getShiftPatternsToImport } from './_utils/shift-pattern'
@@ -359,10 +357,6 @@ const importFile = async ({
     punchRecords: await punchRecordModel.findNewNonExistentInAfd(
       getPunchRecordsToCreate(report.punchRecords, users)
     ),
-    schedules: getSchedulesToSave(report.schedules, users).map((schedule) => {
-      const { userId, startDate, days } = scheduleSaveSchema.parse(schedule)
-      return { userId, startDate, days }
-    }),
     shiftPatterns: shiftPatterns.map((shiftPattern) => ({
       ...shiftPattern,
       companyId: company.id

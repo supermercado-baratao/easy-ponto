@@ -10,6 +10,7 @@ import { Button } from '@/app/components/ui/shadcn/button'
 import { CardContent, CardFooter } from '@/app/components/ui/shadcn/card'
 import { showActionError } from '@/app/utils/action-error'
 import type { OvertimeBand } from '@/infra/database/types'
+import { minutesToTime } from '@/infra/time'
 import {
   DAY_KIND_LABELS,
   DAY_KINDS,
@@ -18,7 +19,6 @@ import {
   MAX_OVERTIME_PERCENTAGE,
   type TDayKind
 } from '@/models/journey-rules/utils'
-import { minutesToTime } from '@/models/schedule/utils'
 
 import { save } from './actions'
 import type { TOvertimeBandsFormState } from './types'

@@ -1,10 +1,11 @@
+import { TIME_PAIRS, WEEKDAYS } from '@/constants/time'
 import { dayjs } from '@/infra/dayjs'
-import { getTimeFieldName, TIME_PAIRS, WEEKDAYS } from '@/models/schedule/utils'
 import { InvalidExcelFileError } from '@/models/time-card-report/errors'
 import type {
   TReportJustification,
   TReportSchedule
 } from '@/models/time-card-report/types'
+import { getWeekdayTimeFieldName } from '@/models/time-card-report/utils'
 
 // `Feriado` is a holiday of the calendar, which Easy Ponto already derives from the holidays, and
 // `Falta` an unjustified absence. The match is case-sensitive: `FOLGA`, in uppercase, is a code
@@ -47,8 +48,8 @@ const getScheduledPairs = (
   const weekday = dayjs(date).day()
   const { key } = WEEKDAYS.find((day) => day.weekday === weekday)!
   return TIME_PAIRS.map(({ entry, exit }) => {
-    const startTime = schedule?.[getTimeFieldName(key, entry)] ?? ''
-    const endTime = schedule?.[getTimeFieldName(key, exit)] ?? ''
+    const startTime = schedule?.[getWeekdayTimeFieldName(key, entry)] ?? ''
+    const endTime = schedule?.[getWeekdayTimeFieldName(key, exit)] ?? ''
     return startTime && endTime ? { startTime, endTime } : null
   })
 }

@@ -1,14 +1,10 @@
+import { TIME_FIELDS, WEEKDAYS } from '@/constants/time'
 import type {
   TShiftAssignmentWithPattern,
   TShiftPatternWithVersions,
   User
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
-import {
-  getTimeFieldName,
-  TIME_FIELDS,
-  WEEKDAYS
-} from '@/models/schedule/utils'
 import {
   getCycleDay,
   getUsualWorkday,
@@ -25,6 +21,7 @@ import {
   type TCycleDay
 } from '@/models/shift-pattern/utils'
 import type { TReportSchedule } from '@/models/time-card-report/types'
+import { getWeekdayTimeFieldName } from '@/models/time-card-report/utils'
 import type { TShiftPatternVersionData } from '@/repositories/shift-pattern-repository'
 
 const WEEKDAY_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
@@ -62,7 +59,7 @@ const toVersion = (
     WEEKDAYS.flatMap(({ key }, index) =>
       TIME_FIELDS.map((field) => [
         getDayTimeFieldName(index + 1, field),
-        schedule[getTimeFieldName(key, field)] ?? ''
+        schedule[getWeekdayTimeFieldName(key, field)] ?? ''
       ])
     )
   )

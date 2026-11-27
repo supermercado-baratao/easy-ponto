@@ -1,19 +1,27 @@
 import { getStatusFromParameter, STATUS_PARAMS } from '@/app/utils/user-status'
 import { requireCompany } from '@/entry/session'
-import { wallClockNow } from '@/infra/dayjs'
-import { scheduleModel } from '@/models/schedule/model'
-import { timeSchema } from '@/models/schedule/schema'
-import { hasEntryOrExitAt, timeToMinutes } from '@/models/schedule/utils'
+import { dayjs, wallClockNow } from '@/infra/dayjs'
+import { timeSchema, timeToMinutes } from '@/infra/time'
+import type { TScheduleAlertLimits } from '@/models/journey/types'
+import { journeyRulesModel } from '@/models/journey-rules/model'
+import { shiftAssignmentModel } from '@/models/shift-assignment/model'
+import { userModel } from '@/models/user/model'
 import { filterUsers, getPositions } from '@/models/user/utils'
 
 import type { TAgendaFilters, TAgendaRow } from './_components/types'
-import { buildAgendaRow } from './_components/utils'
+import { buildAgendaRow, hasEntryOrExitAt } from './_components/utils'
+
+const DATE_FORMAT = 'YYYY-MM-DD'
+
+const AGENDA_DAYS = 7
 
 type TAgendaPageData = {
   rows: TAgendaRow[]
+  dates: string[]
   total: number
   positions: string[]
   filters: TAgendaFilters
+  limits: TScheduleAlertLimits
   canEdit: boolean
 }
 
@@ -27,34 +35,49 @@ export const getAgendaPageData = async (searchParameters: {
     company: { id: companyId },
     canEdit
   } = await requireCompany()
-  const userSchedules = await scheduleModel.findManyInEffectByCompanyId({
-    companyId,
-    date: wallClockNow().format('YYYY-MM-DD')
-  })
+  const today = dayjs(wallClockNow().format(DATE_FORMAT))
+  const dates = Array.from({ length: AGENDA_DAYS }, (_, index) =>
+    today.add(index, 'day').format(DATE_FORMAT)
+  )
+  const [allUsers, companyDays, { journeyRules: limits }] = await Promise.all([
+    userModel.findManyByCompanyId(companyId),
+    shiftAssignmentModel.findCompanyDays({
+      companyId,
+      initialDate: dates[0],
+      finalDate: dates.at(-1)!
+    }),
+    journeyRulesModel.findByCompanyId(companyId)
+  ])
   const name = searchParameters.name?.trim() ?? ''
   const position = searchParameters.position?.trim() || null
   const status = getStatusFromParameter(searchParameters.status)
   const time = timeSchema.safeParse(searchParameters.time?.trim()).data || null
-  const users = filterUsers(
-    userSchedules.map(({ user }) => user),
-    { name, position: position ?? undefined, status }
-  )
+  const users = filterUsers(allUsers, {
+    name,
+    position: position ?? undefined,
+    status
+  })
+  const rows = users
+    .map((user) =>
+      buildAgendaRow({
+        user,
+        shiftDays: companyDays.find(({ userId }) => userId === user.id),
+        limits
+      })
+    )
+    .filter(({ days }) => !time || hasEntryOrExitAt(days, timeToMinutes(time)))
   return {
-    rows: userSchedules
-      .filter(
-        ({ user, schedule }) =>
-          users.includes(user) &&
-          (!time || hasEntryOrExitAt(schedule, timeToMinutes(time)))
-      )
-      .map((userSchedule) => buildAgendaRow(userSchedule)),
-    total: userSchedules.length,
-    positions: getPositions(userSchedules.map(({ user }) => user)),
+    rows,
+    dates,
+    total: allUsers.length,
+    positions: getPositions(allUsers),
     filters: {
       name,
       position,
       status: status ? STATUS_PARAMS[status] : null,
       time
     },
+    limits,
     canEdit
   }
 }

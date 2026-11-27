@@ -17,8 +17,6 @@ export type JustificationCodeMapping =
 export type Member = typeof schema.members.$inferSelect
 export type OvertimeBand = typeof schema.overtimeBands.$inferSelect
 export type PunchRecord = typeof schema.punchRecords.$inferSelect
-export type Schedule = typeof schema.schedules.$inferSelect
-export type ScheduleDay = typeof schema.schedulesDays.$inferSelect
 export type ShiftPattern = typeof schema.shiftPatterns.$inferSelect
 export type ShiftPatternVersion =
   typeof schema.shiftPatternVersions.$inferSelect
@@ -45,10 +43,6 @@ export type TMemberWithCompany = Member & {
 
 export type TMemberWithUser = Member & {
   user: AuthUser
-}
-
-export type TScheduleWithDays = Schedule & {
-  days: ScheduleDay[]
 }
 
 export type TShiftPatternVersionWithDays = ShiftPatternVersion & {

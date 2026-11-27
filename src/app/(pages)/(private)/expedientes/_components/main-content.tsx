@@ -6,21 +6,26 @@ import { MainContent as _MainContent } from '@/app/components/ui/custom/main-con
 import { Typography } from '@/app/components/ui/custom/typography'
 import { Input } from '@/app/components/ui/shadcn/input'
 import { Label } from '@/app/components/ui/shadcn/label'
+import type { TScheduleAlertLimits } from '@/models/journey/types'
 
 import { AgendaTable } from './agenda-table'
 import type { TAgendaFilters, TAgendaRow } from './types'
 
 export const MainContent = ({
   rows,
+  dates,
   total,
   positions,
   filters,
+  limits,
   canEdit
 }: {
   rows: TAgendaRow[]
+  dates: string[]
   total: number
   positions: string[]
   filters: TAgendaFilters
+  limits: TScheduleAlertLimits
   canEdit: boolean
 }) => (
   <>
@@ -45,7 +50,7 @@ export const MainContent = ({
             </div>
           </UsersFilter>
           {rows.length > 0 ? (
-            <AgendaTable rows={rows} />
+            <AgendaTable rows={rows} dates={dates} limits={limits} />
           ) : (
             <p className="text-sm text-muted-foreground">
               Nenhum funcionário encontrado com esses filtros

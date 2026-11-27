@@ -1,11 +1,9 @@
 import type { User } from '@/infra/database/types'
 import type { THoursBankInitialBalanceItem } from '@/models/hours-bank/types'
 import type { TPunchRecordCreateNonExistentInAfdData } from '@/models/punch-record/types'
-import type { TScheduleSaveData } from '@/models/schedule/types'
 import type {
   TReportBalance,
   TReportPunchRecord,
-  TReportSchedule,
   TReportUser
 } from '@/models/time-card-report/types'
 
@@ -50,25 +48,6 @@ export const getPunchRecordsToCreate = (
   }
 
   return punchRecordsToCreate
-}
-
-export const getSchedulesToSave = (
-  reportSchedules: TReportSchedule[],
-  users: User[]
-): TScheduleSaveData[] => {
-  const schedulesToSave: TScheduleSaveData[] = []
-
-  for (const { userName, ...schedule } of reportSchedules) {
-    const foundUser = users.find((user) => user.name === userName)
-    if (!foundUser) continue
-    schedulesToSave.push({
-      ...schedule,
-      companyId: foundUser.companyId,
-      userId: foundUser.id
-    })
-  }
-
-  return schedulesToSave
 }
 
 const sumDeductedMinutes = (

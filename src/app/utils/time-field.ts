@@ -1,6 +1,6 @@
-import type { TScheduleTimeField } from '@/models/schedule/utils'
+import type { TTimeField } from '@/constants/time'
 
-export const TIME_FIELD_LABELS: Record<TScheduleTimeField, string> = {
+export const TIME_FIELD_LABELS: Record<TTimeField, string> = {
   entry1: 'Entrada 1',
   exit1: 'Saída 1',
   entry2: 'Entrada 2',

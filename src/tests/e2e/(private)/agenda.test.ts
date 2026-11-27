@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import type { User } from '@/infra/database/types'
-import { scheduleModel } from '@/models/schedule/model'
+import { wallClockNow } from '@/infra/dayjs'
 import { userModel } from '@/models/user/model'
 import orchestrator from '@/tests/orchestrator'
 
@@ -10,24 +10,22 @@ let user: User
 test.beforeAll(async () => {
   const companyId = await orchestrator.findMockedCompanyId()
   const users = await userModel.findManyByCompanyId(companyId)
-  user = users[5]
-  await scheduleModel.save({
+  user = users[6]
+  // The cycle starts today, so the agenda opens on its first day
+  await orchestrator.assignShift({
     companyId,
     userId: user.id,
-    startDate: '2025-10-01',
-    mondayEntry1: '06:10',
-    mondayExit1: '12:20',
-    mondayEntry2: '14:30',
-    mondayExit2: '16:00',
-    tuesdayEntry1: '06:10',
-    tuesdayExit1: '10:00',
-    tuesdayEntry2: '11:00',
-    tuesdayExit2: '14:00'
+    startDate: wallClockNow().format('YYYY-MM-DD'),
+    days: [
+      ['06:10', '12:20', '14:30', '16:00'],
+      ['06:10', '10:00', '11:00', '14:00'],
+      []
+    ]
   })
 })
 
 test.describe('Agenda', () => {
-  test('Shows the schedule of each employee with the CLT alerts', async ({
+  test('Shows the shift of each employee in the coming days with the alerts', async ({
     page
   }) => {
     await page.goto(`/expedientes?${new URLSearchParams({ nome: user.name })}`)
@@ -45,6 +43,7 @@ test.describe('Agenda', () => {
       '06:10– às 10:0011:00– às 14:00Almoço01:00Jornada06:50'
     )
     await expect(cells.nth(2)).toHaveText('Folga')
+    await expect(cells).toHaveCount(7)
   })
 
   test('Filters the employees by the entry or exit time', async ({ page }) => {

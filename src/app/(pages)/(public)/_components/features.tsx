@@ -32,7 +32,7 @@ const features: TFeature[] = [
   {
     title: 'Relatório e banco de horas',
     description:
-      'Horas previstas e trabalhadas, faltas, atrasos e horas extras de 60% e 100%, com o fechamento de cada período.',
+      'Horas previstas e trabalhadas, faltas, atrasos e horas extras pelos adicionais da empresa, com o fechamento de cada período.',
     icon: ChartColumn
   },
   {
