@@ -1,3 +1,4 @@
+import type { Dayjs } from 'dayjs'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -7,11 +8,21 @@ import { dayjs } from '@/infra/dayjs'
 
 export const MonthNavigation = ({
   month,
-  path
+  path,
+  query = {}
 }: {
   month: string
   path: string
+  query?: Record<string, string | null>
 }) => {
+  const getHref = (date: Dayjs): string => {
+    const parameters = new URLSearchParams()
+    for (const [key, value] of Object.entries(query)) {
+      if (value) parameters.set(key, value)
+    }
+    parameters.set('mes', date.format('YYYY-MM'))
+    return `${path}?${parameters}`
+  }
   const date = dayjs(`${month}-01`)
   const label = date.format('MMMM [de] YYYY')
   const previous = date.subtract(1, 'month')
@@ -20,7 +31,7 @@ export const MonthNavigation = ({
     <nav aria-label="Mês" className="flex items-center gap-2">
       {previous.year() >= MIN_YEAR ? (
         <Link
-          href={`${path}?mes=${previous.format('YYYY-MM')}`}
+          href={getHref(previous)}
           aria-label="Mês anterior"
           className={buttonVariants({ variant: 'outline', size: 'icon' })}
         >
@@ -34,7 +45,7 @@ export const MonthNavigation = ({
       </h2>
       {next.year() <= MAX_YEAR ? (
         <Link
-          href={`${path}?mes=${next.format('YYYY-MM')}`}
+          href={getHref(next)}
           aria-label="Próximo mês"
           className={buttonVariants({ variant: 'outline', size: 'icon' })}
         >

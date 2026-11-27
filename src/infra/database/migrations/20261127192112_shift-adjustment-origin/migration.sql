@@ -1,0 +1,1 @@
+ALTER TABLE "shift_adjustments" ADD COLUMN "origin" text DEFAULT 'manual' NOT NULL;

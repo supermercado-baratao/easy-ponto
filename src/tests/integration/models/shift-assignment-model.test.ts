@@ -331,7 +331,9 @@ describe('Shift Assignment Model', () => {
     })
     expect(
       adjustments.filter(({ date }) => date === '2026-11-03')
-    ).toMatchObject([{ kind: 'custom', entry1: 540, exit1: 780 }])
+    ).toMatchObject([
+      { kind: 'custom', origin: 'manual', entry1: 540, exit1: 780 }
+    ])
   })
 
   test('Refuses the employees, patterns and links of another company', async () => {

@@ -19,13 +19,6 @@ import type {
   TScheduleDaySummary
 } from './types'
 
-// The store's planned workload: 7:20 in the middle of the month and 8:00 at its start and end, when
-// sales peak. Provisional until the CLT review of the journey rules (#65)
-export const STANDARD_WORKLOAD = 440
-export const PEAK_WORKLOAD = 480
-export const MID_MONTH_FIRST_DAY = 11
-export const MID_MONTH_LAST_DAY = 26
-
 // The overtime of a company without bands yet (#105) is kept apart instead of guessing a percentage
 export const UNBANDED_PERCENTAGE = 0
 

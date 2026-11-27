@@ -464,6 +464,7 @@ export const shiftAdjustments = pgTable(
     exit3: integer('exit_3'),
     userId: text('user_id').notNull(),
     shiftAssignmentId: text('shift_assignment_id'),
+    origin: text('origin').notNull().default('manual'),
     ...timestamps()
   },
   (table) => [

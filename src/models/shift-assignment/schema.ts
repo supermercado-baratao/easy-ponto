@@ -132,6 +132,7 @@ export const saveAdjustmentSchema = z
         date,
         kind,
         shiftAssignmentId: kind === 'work' ? shiftAssignmentId : null,
+        origin: 'manual' as const,
         ...day
       }
     }

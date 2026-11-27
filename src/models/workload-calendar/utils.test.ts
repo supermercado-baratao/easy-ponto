@@ -1,78 +1,120 @@
 import { describe, expect, test } from 'vitest'
 
-import { buildMonthCalendar } from './utils'
+import type { ShiftAdjustment } from '@/infra/database/types'
+import type { TResolvedDay } from '@/models/shift-assignment/utils'
 
-const NOVEMBER_HOLIDAYS = [
-  { dateInYear: '2026-11-02', name: 'Finados' },
-  { dateInYear: '2026-11-15', name: 'Proclamação da República' },
-  { dateInYear: '2026-11-20', name: 'Consciência Negra' }
+import {
+  buildCalendarDays,
+  buildCalendarWeeks,
+  getMonthPeriod,
+  summarizeCalendarDays
+} from './utils'
+
+const MORNING = [
+  { entry: 480, exit: 720 },
+  { entry: 840, exit: 1044 }
 ]
 
-describe('buildMonthCalendar', () => {
-  test('Sums 8:00 at the start and end of the month and 7:20 in the middle', () => {
-    const calendar = buildMonthCalendar({ month: '2026-11', holidays: [] })
-    const days = calendar.weeks.flatMap(({ days }) => days)
+const workday = (date: string, adjusted = false): TResolvedDay => ({
+  date,
+  kind: 'work',
+  pairs: MORNING,
+  adjusted
+})
 
-    expect(days.find((day) => day?.day === 10)?.workload).toBe(480)
-    expect(days.find((day) => day?.day === 11)?.workload).toBe(440)
-    expect(days.find((day) => day?.day === 26)?.workload).toBe(440)
-    expect(days.find((day) => day?.day === 27)?.workload).toBe(480)
-    expect(calendar).toMatchObject({
-      workedDays: 25,
-      total: 11 * 480 + 14 * 440,
-      standardJourney: 25 * 440,
-      excess: 11 * 40
+const dayOff = (date: string, adjusted = false): TResolvedDay => ({
+  date,
+  kind: 'off',
+  pairs: [],
+  adjusted
+})
+
+const adjustment = (date: string): ShiftAdjustment => ({
+  id: crypto.randomUUID(),
+  date,
+  kind: 'off',
+  entry1: null,
+  exit1: null,
+  entry2: null,
+  exit2: null,
+  entry3: null,
+  exit3: null,
+  userId: crypto.randomUUID(),
+  shiftAssignmentId: null,
+  origin: 'manual',
+  createdAt: new Date(),
+  updatedAt: new Date()
+})
+
+describe('getMonthPeriod', () => {
+  test('Returns the first and last days of the month', () => {
+    expect(getMonthPeriod('2028-02')).toEqual({
+      initialDate: '2028-02-01',
+      finalDate: '2028-02-29'
     })
   })
+})
 
-  test('Leaves Sundays and holidays without workload and out of the worked days', () => {
-    const calendar = buildMonthCalendar({
-      month: '2026-11',
-      holidays: NOVEMBER_HOLIDAYS
+describe('buildCalendarDays', () => {
+  test('Takes the load of a workday from its pairs', () => {
+    const [day] = buildCalendarDays({
+      days: [workday('2035-08-01')],
+      holidays: [],
+      adjustments: []
     })
-    const days = calendar.weeks.flatMap(({ days }) => days)
 
-    expect(days.find((day) => day?.day === 1)).toMatchObject({
-      isSunday: true,
+    expect(day).toMatchObject({
+      day: 1,
+      kind: 'work',
+      workload: 444,
       holidayName: null,
-      workload: 0
-    })
-    expect(days.find((day) => day?.day === 20)).toMatchObject({
-      isSunday: false,
-      holidayName: 'Consciência Negra',
-      workload: 0
-    })
-    expect(calendar).toMatchObject({
-      workedDays: 23,
-      total: 10 * 480 + 13 * 440,
-      standardJourney: 23 * 440,
-      excess: 10 * 40
+      adjustment: null
     })
   })
 
-  test('Sums each week from Sunday to Saturday', () => {
-    const calendar = buildMonthCalendar({
-      month: '2026-11',
-      holidays: NOVEMBER_HOLIDAYS
+  test('Keeps the schedule of a holiday without its load', () => {
+    const [day] = buildCalendarDays({
+      days: [workday('2035-08-15')],
+      holidays: [{ dateInYear: '2035-08-15', name: 'Feriado da cidade' }],
+      adjustments: []
     })
 
-    expect(calendar.weeks.map(({ total }) => total)).toEqual([
-      5 * 480,
-      2 * 480 + 4 * 440,
-      5 * 440,
-      4 * 440 + 2 * 480,
-      480
-    ])
+    expect(day).toMatchObject({
+      kind: 'work',
+      pairs: MORNING,
+      workload: 0,
+      holidayName: 'Feriado da cidade'
+    })
   })
 
+  test('Links each adjusted day to the adjustment of its date', () => {
+    const saved = adjustment('2035-08-02')
+    const days = buildCalendarDays({
+      days: [dayOff('2035-08-01'), dayOff('2035-08-02', true)],
+      holidays: [],
+      adjustments: [saved]
+    })
+
+    expect(days.map(({ adjustment }) => adjustment)).toEqual([null, saved])
+  })
+})
+
+describe('buildCalendarWeeks', () => {
   test('Leaves the days of the first and last weeks outside the month empty', () => {
-    const calendar = buildMonthCalendar({ month: '2035-08', holidays: [] })
-    const first = calendar.weeks[0].days
-    const last = calendar.weeks.at(-1)!.days
+    const { initialDate } = getMonthPeriod('2035-08')
+    const days = buildCalendarDays({
+      days: Array.from({ length: 31 }, (_, index) =>
+        dayOff(`2035-08-${String(index + 1).padStart(2, '0')}`)
+      ),
+      holidays: [],
+      adjustments: []
+    })
+    const weeks = buildCalendarWeeks(days)
 
-    expect(first.slice(0, 3)).toEqual([null, null, null])
-    expect(first[3]?.date).toBe('2035-08-01')
-    expect(last.map((day) => day?.day ?? null)).toEqual([
+    expect(weeks).toHaveLength(5)
+    expect(weeks[0].slice(0, 3)).toEqual([null, null, null])
+    expect(weeks[0][3]?.date).toBe(initialDate)
+    expect(weeks.at(-1)!.map((day) => day?.day ?? null)).toEqual([
       26,
       27,
       28,
@@ -81,5 +123,30 @@ describe('buildMonthCalendar', () => {
       31,
       null
     ])
+  })
+})
+
+describe('summarizeCalendarDays', () => {
+  test('Counts the workdays, days off, holidays and adjustments apart', () => {
+    const days = buildCalendarDays({
+      days: [
+        workday('2035-08-13'),
+        workday('2035-08-14', true),
+        workday('2035-08-15'),
+        dayOff('2035-08-16'),
+        dayOff('2035-08-17', true),
+        { date: '2035-08-18', kind: 'unassigned', pairs: [], adjusted: false }
+      ],
+      holidays: [{ dateInYear: '2035-08-15', name: 'Feriado da cidade' }],
+      adjustments: []
+    })
+
+    expect(summarizeCalendarDays(days)).toEqual({
+      workdays: 2,
+      daysOff: 2,
+      holidays: 1,
+      adjustments: 2,
+      workload: 2 * 444
+    })
   })
 })

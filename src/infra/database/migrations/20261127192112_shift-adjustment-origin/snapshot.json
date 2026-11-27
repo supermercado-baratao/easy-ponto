@@ -1,0 +1,47 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "6e215e71-c513-4e12-9cdc-c31919323acd",
+  "prevIds": [
+    "828c6238-cc3c-4507-ba85-a12bae34650b"
+  ],
+  "footprints": [
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "shift_adjustments",
+        "origin"
+      ],
+      "writes": [
+        "s|col|public.shift_adjustments.origin",
+        "n|col|public.shift_adjustments.origin",
+        "e|col|public.shift_adjustments.origin"
+      ],
+      "reads": [
+        "n|tbl|public.shift_adjustments",
+        "n|sch|public"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "shift_adjustments",
+        "name": "origin",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'manual'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    }
+  ]
+}
