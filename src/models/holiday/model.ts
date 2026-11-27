@@ -15,39 +15,53 @@ import {
   yearSchema
 } from './schema'
 import type {
-  THolidayAddNationalHolidaysParams,
   THolidayCreateData,
   THolidayFindManyByYearParams,
   THolidayInYear,
   THolidayRemoveParams,
   THolidayUpdateData
 } from './types'
+import type { THolidayRule } from './utils'
 import {
   findConflictingHoliday,
   getHolidayDateInYear,
-  getNationalHolidays
+  getNationalHolidays,
+  startsBeforeYear
 } from './utils'
 
-const assertNoConflict = async (
-  holiday: Pick<Holiday, 'companyId' | 'date' | 'recurring'> & { id?: string }
-): Promise<void> => {
-  const holidays = await holidayRepository.findManyByCompanyId(
-    holiday.companyId
-  )
-  const conflict = findConflictingHoliday(
-    holiday,
-    holidays.filter(({ id }) => id !== holiday.id)
-  )
+const assertNoConflict = (
+  holiday: THolidayRule,
+  holidays: Pick<Holiday, keyof THolidayRule | 'name'>[]
+): void => {
+  const conflict = findConflictingHoliday(holiday, holidays)
   if (!conflict) return
 
+  const isEaster = holiday.recurrence === 'easter'
   throw new z.ZodError([
     {
       code: 'custom',
-      path: ['date'],
+      path: [isEaster ? 'easterDays' : 'date'],
       message: `Já existe um feriado nessa data: ${conflict.name}`,
-      input: holiday.date
+      input: isEaster ? holiday.easterOffset : holiday.date
     }
   ])
+}
+
+const findCompanyHoliday = async ({
+  id,
+  companyId
+}: {
+  id: string
+  companyId: string
+}): Promise<Holiday> => {
+  const holiday = await holidayRepository.findById({ id, companyId })
+  if (!holiday) {
+    throw new NotFoundError({
+      message: 'O feriado não foi encontrado.',
+      cause: `Holiday ${id} not found in company ${companyId}`
+    })
+  }
+  return holiday
 }
 
 const resolveYear = (year?: string): number =>
@@ -74,47 +88,62 @@ const findManyByCompanyId = async (companyId: string): Promise<Holiday[]> =>
 
 const create = async (data: THolidayCreateData): Promise<Holiday> => {
   const validData = createSchema.parse(data)
-  await assertNoConflict(validData)
+  assertNoConflict(
+    validData,
+    await holidayRepository.findManyByCompanyId(validData.companyId)
+  )
   return await holidayRepository.create(validData)
 }
 
 const update = async (data: THolidayUpdateData): Promise<Holiday> => {
-  const validData = updateSchema.parse(data)
-  await assertNoConflict(validData)
-  const holiday = await holidayRepository.update(validData)
-  if (!holiday) {
-    throw new NotFoundError({
-      message: 'O feriado não foi encontrado.',
-      cause: `Holiday ${validData.id} not found in company ${validData.companyId}`
-    })
+  const { id, fromYear, ...validData } = updateSchema.parse(data)
+  const { companyId } = validData
+  const holiday = await findCompanyHoliday({ id, companyId })
+  const holidays = await holidayRepository.findManyByCompanyId(companyId)
+  const others = holidays.filter((other) => other.id !== id)
+
+  if (!startsBeforeYear(holiday, fromYear)) {
+    assertNoConflict(validData, others)
+    const updated = await holidayRepository.update({ id, ...validData })
+    return updated ?? (await findCompanyHoliday({ id, companyId }))
   }
-  return holiday
+
+  const lastYear = fromYear - 1
+  const newData =
+    validData.recurrence === 'once'
+      ? validData
+      : { ...validData, firstYear: fromYear }
+  assertNoConflict(newData, [...others, { ...holiday, lastYear }])
+  return await holidayRepository.endAndCreate({
+    id,
+    companyId,
+    lastYear,
+    data: newData
+  })
 }
 
 const remove = async (params: THolidayRemoveParams): Promise<Holiday> => {
-  const validParams = removeSchema.parse(params)
-  const holiday = await holidayRepository.remove(validParams)
-  if (!holiday) {
-    throw new NotFoundError({
-      message: 'O feriado não foi encontrado.',
-      cause: `Holiday ${validParams.id} not found in company ${validParams.companyId}`
-    })
-  }
-  return holiday
+  const { id, companyId, fromYear } = removeSchema.parse(params)
+  const holiday = await findCompanyHoliday({ id, companyId })
+  const removed = startsBeforeYear(holiday, fromYear)
+    ? await holidayRepository.end({ id, companyId, lastYear: fromYear - 1 })
+    : await holidayRepository.remove({ id, companyId })
+  return removed ?? (await findCompanyHoliday({ id, companyId }))
 }
 
-const addNationalHolidays = async (
-  params: THolidayAddNationalHolidaysParams
-): Promise<number> => {
-  const { companyId, year } = addNationalHolidaysSchema.parse(params)
-  const holidays = await holidayRepository.findManyByCompanyId(companyId)
-  const newHolidays = getNationalHolidays(year).filter(
+const addNationalHolidays = async (companyId: string): Promise<number> => {
+  const validCompanyId = addNationalHolidaysSchema.parse(companyId)
+  const holidays = await holidayRepository.findManyByCompanyId(validCompanyId)
+  const newHolidays = getNationalHolidays().filter(
     (holiday) => !findConflictingHoliday(holiday, holidays)
   )
   return newHolidays.length === 0
     ? 0
     : await holidayRepository.createMany(
-        newHolidays.map((holiday) => ({ ...holiday, companyId }))
+        newHolidays.map((holiday) => ({
+          ...holiday,
+          companyId: validCompanyId
+        }))
       )
 }
 

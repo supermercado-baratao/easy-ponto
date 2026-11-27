@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { sql } from 'drizzle-orm'
 import {
   boolean,
+  check,
   date,
   foreignKey,
   index,
@@ -489,15 +490,23 @@ export const holidays = pgTable(
   'holidays',
   {
     id: id(),
-    date: dateOnly('date').notNull(),
+    date: dateOnly('date'),
     name: text('name').notNull(),
     scope: text('scope').notNull(),
-    recurring: boolean('recurring').notNull(),
+    recurrence: text('recurrence').notNull(),
+    easterOffset: integer('easter_offset'),
+    firstYear: integer('first_year'),
+    lastYear: integer('last_year'),
     companyId: text('company_id').notNull(),
     ...timestamps()
   },
   (table) => [
-    unique('holidays_company_id_date_key').on(table.companyId, table.date),
+    check(
+      'holidays_recurrence_check',
+      sql`(${table.recurrence} = 'once' AND ${table.date} IS NOT NULL AND ${table.easterOffset} IS NULL AND ${table.firstYear} IS NULL AND ${table.lastYear} IS NULL)
+        OR (${table.recurrence} = 'yearly' AND ${table.date} IS NOT NULL AND ${table.easterOffset} IS NULL)
+        OR (${table.recurrence} = 'easter' AND ${table.date} IS NULL AND ${table.easterOffset} IS NOT NULL)`
+    ),
     index('holidays_company_id_idx_1303a718').on(table.companyId),
     foreignKey({
       name: 'holidays_company_id_fkey',

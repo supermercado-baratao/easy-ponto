@@ -11,14 +11,11 @@ import { addNationalHolidays } from './actions'
 import type { TNationalHolidaysState } from './types'
 import { NATIONAL_HOLIDAYS_BUTTON_ID } from './utils'
 
-export const NationalHolidaysButton = ({ year }: { year: number }) => {
+export const NationalHolidaysButton = () => {
   const initialState: TNationalHolidaysState = {}
   const [, formAction, pending] = useActionState(
-    async (
-      previousState: TNationalHolidaysState,
-      formData: FormData
-    ): Promise<TNationalHolidaysState> => {
-      const result = await addNationalHolidays(previousState, formData)
+    async (): Promise<TNationalHolidaysState> => {
+      const result = await addNationalHolidays()
       if (!result.success) {
         showActionError(result)
       } else if (result.data) {
@@ -28,9 +25,7 @@ export const NationalHolidaysButton = ({ year }: { year: number }) => {
             : `${result.data} feriados adicionados!`
         )
       } else {
-        toast.info(
-          `Os feriados nacionais de ${formData.get('year')} já estão cadastrados.`
-        )
+        toast.info('Os feriados nacionais já estão cadastrados.')
       }
       return result
     },
@@ -39,7 +34,6 @@ export const NationalHolidaysButton = ({ year }: { year: number }) => {
 
   return (
     <form action={formAction}>
-      <input type="hidden" name="year" value={year} />
       <Button
         id={NATIONAL_HOLIDAYS_BUTTON_ID}
         type="submit"
@@ -48,7 +42,7 @@ export const NationalHolidaysButton = ({ year }: { year: number }) => {
         focusableWhenDisabled
       >
         {pending ? <Loader mode="inline" /> : null}
-        Adicionar feriados nacionais de {year}
+        Adicionar feriados nacionais
       </Button>
     </form>
   )

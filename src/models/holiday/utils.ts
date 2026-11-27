@@ -1,3 +1,4 @@
+import { MIN_YEAR } from '@/constants/year'
 import type { Holiday, TInputData } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 
@@ -5,37 +6,83 @@ export const HOLIDAY_SCOPES = ['national', 'state', 'municipal'] as const
 
 export type THolidayScope = (typeof HOLIDAY_SCOPES)[number]
 
-type THolidayDate = Pick<Holiday, 'date' | 'recurring'>
+export const HOLIDAY_RECURRENCES = ['once', 'yearly', 'easter'] as const
+
+export type THolidayRecurrence = (typeof HOLIDAY_RECURRENCES)[number]
+
+// Easter falls between March 22 and April 25, so these offsets keep a moveable holiday in the year of its Easter
+export const MIN_EASTER_OFFSET = -80
+
+export const MAX_EASTER_OFFSET = 250
+
+export type THolidayRule = Pick<
+  Holiday,
+  'recurrence' | 'date' | 'easterOffset' | 'firstYear' | 'lastYear'
+>
 
 const getMonthDay = (date: string): string => date.slice(5)
 
+const getYear = (date: string): number => Number(date.slice(0, 4))
+
+const getValidity = (holiday: THolidayRule): [number, number] =>
+  holiday.recurrence === 'once'
+    ? [getYear(holiday.date!), getYear(holiday.date!)]
+    : [holiday.firstYear ?? -Infinity, holiday.lastYear ?? Infinity]
+
 export const getHolidayDateInYear = (
-  { date, recurring }: THolidayDate,
+  holiday: THolidayRule,
   year: number
 ): string | null => {
-  if (recurring) return `${year}-${getMonthDay(date)}`
-  return date.startsWith(`${year}-`) ? date : null
+  const [firstYear, lastYear] = getValidity(holiday)
+  if (year < firstYear || year > lastYear) return null
+  if (holiday.recurrence === 'once') return holiday.date
+  if (holiday.recurrence === 'yearly')
+    return `${year}-${getMonthDay(holiday.date!)}`
+  return dayjs(getEasterDate(year))
+    .add(holiday.easterOffset!, 'day')
+    .format('YYYY-MM-DD')
 }
 
-export const findHoliday = <T extends THolidayDate>(
+export const startsBeforeYear = (
+  holiday: Pick<Holiday, 'recurrence' | 'firstYear'>,
+  year?: number
+): year is number =>
+  year !== undefined &&
+  holiday.recurrence !== 'once' &&
+  (holiday.firstYear ?? -Infinity) < year
+
+export const findHoliday = <T extends THolidayRule>(
   date: string,
   holidays: T[]
 ): T | undefined =>
-  holidays.find((holiday) =>
-    holiday.recurring
-      ? getMonthDay(holiday.date) === getMonthDay(date)
-      : holiday.date === date
+  holidays.find(
+    (holiday) => getHolidayDateInYear(holiday, getYear(date)) === date
   )
 
-export const findConflictingHoliday = <T extends THolidayDate>(
-  holiday: THolidayDate,
+// A fixed and a moveable holiday may fall on the same date in some year (Good Friday on Tiradentes in 2000
+// and 2079), so only the same rule conflicts, besides a one-off holiday on a date that already has one (#116)
+const isSameRule = (holiday: THolidayRule, other: THolidayRule): boolean => {
+  if (holiday.recurrence !== other.recurrence) return false
+  return holiday.recurrence === 'easter'
+    ? holiday.easterOffset === other.easterOffset
+    : getMonthDay(holiday.date!) === getMonthDay(other.date!)
+}
+
+const conflicts = (holiday: THolidayRule, other: THolidayRule): boolean => {
+  const [firstYear, lastYear] = getValidity(holiday)
+  const [otherFirstYear, otherLastYear] = getValidity(other)
+  if (firstYear > otherLastYear || otherFirstYear > lastYear) return false
+  if (holiday.recurrence === 'once')
+    return getHolidayDateInYear(other, firstYear) === holiday.date
+  if (other.recurrence === 'once')
+    return getHolidayDateInYear(holiday, otherFirstYear) === other.date
+  return isSameRule(holiday, other)
+}
+
+export const findConflictingHoliday = <T extends THolidayRule>(
+  holiday: THolidayRule,
   holidays: T[]
-): T | undefined =>
-  holidays.find((other) =>
-    holiday.recurring || other.recurring
-      ? getMonthDay(holiday.date) === getMonthDay(other.date)
-      : holiday.date === other.date
-  )
+): T | undefined => holidays.find((other) => conflicts(holiday, other))
 
 // Anonymous Gregorian algorithm (Meeus/Jones/Butcher): https://en.wikipedia.org/wiki/Date_of_Easter#Anonymous_Gregorian_algorithm
 export const getEasterDate = (year: number): string => {
@@ -69,34 +116,39 @@ const FIXED_NATIONAL_HOLIDAYS = [
 ]
 
 // Carnaval and Corpus Christi are not national holidays by law (Lei 9.093/1995), only optional days off
-// in the federal calendar, so they come as municipal ones for the year, to be removed where the store opens
+// in the federal calendar, so they come as municipal ones, to be removed where the store opens
 const EASTER_BASED_HOLIDAYS: {
-  daysFromEaster: number
+  easterOffset: number
   name: string
   scope: THolidayScope
 }[] = [
-  { daysFromEaster: -48, name: 'Carnaval', scope: 'municipal' },
-  { daysFromEaster: -47, name: 'Carnaval', scope: 'municipal' },
-  { daysFromEaster: -2, name: 'Paixão de Cristo', scope: 'national' },
-  { daysFromEaster: 60, name: 'Corpus Christi', scope: 'municipal' }
+  { easterOffset: -48, name: 'Carnaval', scope: 'municipal' },
+  { easterOffset: -47, name: 'Carnaval', scope: 'municipal' },
+  { easterOffset: -2, name: 'Paixão de Cristo', scope: 'national' },
+  { easterOffset: 60, name: 'Corpus Christi', scope: 'municipal' }
 ]
 
-export const getNationalHolidays = (
-  year: number
-): Omit<TInputData<Holiday>, 'companyId'>[] => {
-  const easter = dayjs(getEasterDate(year))
-  return [
-    ...FIXED_NATIONAL_HOLIDAYS.map(({ monthDay, name }) => ({
-      date: `${year}-${monthDay}`,
-      name,
-      scope: 'national' as const,
-      recurring: true
-    })),
-    ...EASTER_BASED_HOLIDAYS.map(({ daysFromEaster, name, scope }) => ({
-      date: easter.add(daysFromEaster, 'day').format('YYYY-MM-DD'),
-      name,
-      scope,
-      recurring: false
-    }))
-  ].toSorted((a, b) => a.date.localeCompare(b.date))
-}
+export const getNationalHolidays = (): Omit<
+  TInputData<Holiday>,
+  'companyId'
+>[] => [
+  ...FIXED_NATIONAL_HOLIDAYS.map(({ monthDay, name }) => ({
+    // A fixed holiday keeps only the day and month of its date, so any year does
+    date: `${MIN_YEAR}-${monthDay}`,
+    name,
+    scope: 'national' as const,
+    recurrence: 'yearly' as const,
+    easterOffset: null,
+    firstYear: null,
+    lastYear: null
+  })),
+  ...EASTER_BASED_HOLIDAYS.map(({ easterOffset, name, scope }) => ({
+    date: null,
+    name,
+    scope,
+    recurrence: 'easter' as const,
+    easterOffset,
+    firstYear: null,
+    lastYear: null
+  }))
+]

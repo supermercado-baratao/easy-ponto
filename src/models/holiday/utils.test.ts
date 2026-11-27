@@ -8,60 +8,122 @@ import {
   getNationalHolidays
 } from './utils'
 
-const christmas = { date: '2026-12-25', recurring: true }
-const goodFriday = { date: '2026-04-03', recurring: false }
-
-describe('findHoliday', () => {
-  test('Finds a recurring holiday in any year', () => {
-    expect(findHoliday('2026-12-25', [christmas])).toBe(christmas)
-    expect(findHoliday('2030-12-25', [christmas])).toBe(christmas)
-    expect(findHoliday('2020-12-25', [christmas])).toBe(christmas)
-  })
-
-  test('Finds a one-off holiday only on its date', () => {
-    expect(findHoliday('2026-04-03', [goodFriday])).toBe(goodFriday)
-    expect(findHoliday('2027-04-03', [goodFriday])).toBeUndefined()
-  })
-
-  test('Finds no holiday on a regular day', () => {
-    expect(findHoliday('2026-12-24', [christmas, goodFriday])).toBeUndefined()
-  })
-})
+const rule = {
+  date: null,
+  easterOffset: null,
+  firstYear: null,
+  lastYear: null
+}
+const christmas = { ...rule, recurrence: 'yearly' as const, date: '2026-12-25' }
+const tiradentes = {
+  ...rule,
+  recurrence: 'yearly' as const,
+  date: '2026-04-21'
+}
+const goodFriday = { ...rule, recurrence: 'easter' as const, easterOffset: -2 }
+const localHoliday = {
+  ...rule,
+  recurrence: 'once' as const,
+  date: '2026-04-03'
+}
+const cityFestival = {
+  ...rule,
+  recurrence: 'yearly' as const,
+  date: '2026-08-15',
+  firstYear: 2020,
+  lastYear: 2026
+}
 
 describe('getHolidayDateInYear', () => {
-  test('Moves a recurring holiday to the given year', () => {
+  test('Moves a fixed holiday to the given year', () => {
     expect(getHolidayDateInYear(christmas, 2030)).toBe('2030-12-25')
   })
 
-  test('Keeps a one-off holiday only in its own year', () => {
+  test('Calculates a moveable holiday from the Easter of each year', () => {
     expect(getHolidayDateInYear(goodFriday, 2026)).toBe('2026-04-03')
-    expect(getHolidayDateInYear(goodFriday, 2027)).toBeNull()
+    expect(getHolidayDateInYear(goodFriday, 2027)).toBe('2027-03-26')
+    expect(
+      getHolidayDateInYear({ ...goodFriday, easterOffset: 48 }, 2026)
+    ).toBe('2026-05-23')
+  })
+
+  test('Keeps a one-off holiday only in its own year', () => {
+    expect(getHolidayDateInYear(localHoliday, 2026)).toBe('2026-04-03')
+    expect(getHolidayDateInYear(localHoliday, 2027)).toBeNull()
+  })
+
+  test('Returns a holiday only in the years it is valid', () => {
+    expect(getHolidayDateInYear(cityFestival, 2019)).toBeNull()
+    expect(getHolidayDateInYear(cityFestival, 2020)).toBe('2020-08-15')
+    expect(getHolidayDateInYear(cityFestival, 2026)).toBe('2026-08-15')
+    expect(getHolidayDateInYear(cityFestival, 2027)).toBeNull()
+  })
+})
+
+describe('findHoliday', () => {
+  test('Finds a fixed and a moveable holiday in any year', () => {
+    expect(findHoliday('2020-12-25', [christmas, goodFriday])).toBe(christmas)
+    expect(findHoliday('2027-03-26', [christmas, goodFriday])).toBe(goodFriday)
+  })
+
+  test('Finds no holiday on a regular day or out of its years', () => {
+    expect(
+      findHoliday('2027-04-03', [goodFriday, localHoliday])
+    ).toBeUndefined()
+    expect(findHoliday('2027-08-15', [cityFestival])).toBeUndefined()
   })
 })
 
 describe('findConflictingHoliday', () => {
-  test('Conflicts a recurring holiday with any year on the same day', () => {
+  test('Conflicts two fixed holidays on the same day and month', () => {
     expect(
-      findConflictingHoliday({ date: '2030-12-25', recurring: false }, [
+      findConflictingHoliday({ ...christmas, date: '2030-12-25' }, [christmas])
+    ).toBe(christmas)
+  })
+
+  test('Conflicts two moveable holidays with the same days from Easter', () => {
+    expect(findConflictingHoliday({ ...goodFriday }, [goodFriday])).toBe(
+      goodFriday
+    )
+    expect(
+      findConflictingHoliday({ ...goodFriday, easterOffset: -3 }, [goodFriday])
+    ).toBeUndefined()
+  })
+
+  test('Accepts a fixed and a moveable holiday on the same date in some year', () => {
+    expect(getHolidayDateInYear(goodFriday, 2000)).toBe('2000-04-21')
+    expect(findConflictingHoliday(goodFriday, [tiradentes])).toBeUndefined()
+    expect(findConflictingHoliday(tiradentes, [goodFriday])).toBeUndefined()
+  })
+
+  test('Conflicts a one-off holiday with any holiday on its date', () => {
+    expect(findConflictingHoliday(localHoliday, [goodFriday])).toBe(goodFriday)
+    expect(
+      findConflictingHoliday(goodFriday, [
+        { ...localHoliday, date: '2030-04-19' }
+      ])
+    ).toMatchObject({ date: '2030-04-19' })
+    expect(
+      findConflictingHoliday({ ...localHoliday, date: '2030-12-25' }, [
         christmas
       ])
     ).toBe(christmas)
     expect(
-      findConflictingHoliday({ date: '2027-04-03', recurring: true }, [
-        goodFriday
+      findConflictingHoliday({ ...localHoliday, date: '2027-04-03' }, [
+        localHoliday
       ])
-    ).toBe(goodFriday)
+    ).toBeUndefined()
   })
 
-  test('Conflicts two one-off holidays only on the same date', () => {
+  test('Conflicts only the holidays valid in the same years', () => {
+    const newDate = { ...cityFestival, firstYear: 2027, lastYear: null }
+    expect(findConflictingHoliday(newDate, [cityFestival])).toBeUndefined()
     expect(
-      findConflictingHoliday({ date: '2026-04-03', recurring: false }, [
-        goodFriday
-      ])
-    ).toBe(goodFriday)
+      findConflictingHoliday({ ...newDate, firstYear: 2026 }, [cityFestival])
+    ).toBe(cityFestival)
     expect(
-      findConflictingHoliday({ date: '2027-04-03', recurring: false }, [
-        goodFriday
+      findConflictingHoliday({ ...localHoliday, date: '2027-08-15' }, [
+        cityFestival
       ])
     ).toBeUndefined()
   })
@@ -80,81 +142,31 @@ describe('getEasterDate', () => {
 })
 
 describe('getNationalHolidays', () => {
-  test('Returns the fixed holidays as recurring and the Easter-based ones for the year', () => {
-    expect(getNationalHolidays(2026)).toEqual([
-      {
-        date: '2026-01-01',
-        name: 'Confraternização Universal',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-02-16',
-        name: 'Carnaval',
-        scope: 'municipal',
-        recurring: false
-      },
-      {
-        date: '2026-02-17',
-        name: 'Carnaval',
-        scope: 'municipal',
-        recurring: false
-      },
-      {
-        date: '2026-04-03',
-        name: 'Paixão de Cristo',
-        scope: 'national',
-        recurring: false
-      },
-      {
-        date: '2026-04-21',
-        name: 'Tiradentes',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-05-01',
-        name: 'Dia do Trabalho',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-06-04',
-        name: 'Corpus Christi',
-        scope: 'municipal',
-        recurring: false
-      },
-      {
-        date: '2026-09-07',
-        name: 'Independência do Brasil',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-10-12',
-        name: 'Nossa Senhora Aparecida',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-11-02',
-        name: 'Finados',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-11-15',
-        name: 'Proclamação da República',
-        scope: 'national',
-        recurring: true
-      },
-      {
-        date: '2026-11-20',
-        name: 'Dia Nacional de Zumbi e da Consciência Negra',
-        scope: 'national',
-        recurring: true
-      },
-      { date: '2026-12-25', name: 'Natal', scope: 'national', recurring: true }
+  test('Returns the fixed holidays as fixed and the Easter-based ones as moveable', () => {
+    const holidays = getNationalHolidays()
+    expect(
+      holidays.map(({ name, recurrence, easterOffset }) => [
+        name,
+        recurrence,
+        easterOffset
+      ])
+    ).toEqual([
+      ['Confraternização Universal', 'yearly', null],
+      ['Tiradentes', 'yearly', null],
+      ['Dia do Trabalho', 'yearly', null],
+      ['Independência do Brasil', 'yearly', null],
+      ['Nossa Senhora Aparecida', 'yearly', null],
+      ['Finados', 'yearly', null],
+      ['Proclamação da República', 'yearly', null],
+      ['Dia Nacional de Zumbi e da Consciência Negra', 'yearly', null],
+      ['Natal', 'yearly', null],
+      ['Carnaval', 'easter', -48],
+      ['Carnaval', 'easter', -47],
+      ['Paixão de Cristo', 'easter', -2],
+      ['Corpus Christi', 'easter', 60]
     ])
+    expect(
+      holidays.map((holiday) => getHolidayDateInYear(holiday, 2026)).slice(9)
+    ).toEqual(['2026-02-16', '2026-02-17', '2026-04-03', '2026-06-04'])
   })
 })

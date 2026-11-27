@@ -1,0 +1,202 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "acb42185-fdd9-41ad-92fb-97304bd681bc",
+  "prevIds": [
+    "6e215e71-c513-4e12-9cdc-c31919323acd"
+  ],
+  "footprints": [
+    {
+      "statementType": "drop_unique",
+      "statementTarget": [
+        "table",
+        "public",
+        "holidays"
+      ],
+      "writes": [
+        "s|uq|public.holidays.holidays_company_id_date_key",
+        "n|uq|public.holidays.holidays_company_id_date_key",
+        "e|uq|public.holidays.holidays_company_id_date_key",
+        "n|con|public.holidays.holidays_company_id_date_key",
+        "n|rel|public.holidays_company_id_date_key"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public",
+        "e|col|public.holidays.company_id",
+        "e|col|public.holidays.date"
+      ],
+      "sharedWrites": [
+        "e|uniqueness|public.holidays.company_id.date"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "recurrence"
+      ],
+      "writes": [
+        "s|col|public.holidays.recurrence",
+        "n|col|public.holidays.recurrence",
+        "e|col|public.holidays.recurrence"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "easter_offset"
+      ],
+      "writes": [
+        "s|col|public.holidays.easter_offset",
+        "n|col|public.holidays.easter_offset",
+        "e|col|public.holidays.easter_offset"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "first_year"
+      ],
+      "writes": [
+        "s|col|public.holidays.first_year",
+        "n|col|public.holidays.first_year",
+        "e|col|public.holidays.first_year"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "last_year"
+      ],
+      "writes": [
+        "s|col|public.holidays.last_year",
+        "n|col|public.holidays.last_year",
+        "e|col|public.holidays.last_year"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "date"
+      ],
+      "writes": [
+        "s|colprop|public.holidays.date.notNull"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public",
+        "n|col|public.holidays.date"
+      ],
+      "sqlHash": "c3381eac81e22aed"
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "holidays",
+        "name": "recurrence",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "'once'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "holidays",
+        "name": "easter_offset",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "holidays",
+        "name": "first_year",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "holidays",
+        "name": "last_year",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "uniques\u0000[\"public\",\"holidays\",\"holidays_company_id_date_key\"]"
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"holidays\",\"date\"]",
+      "set": {
+        "notNull": false
+      }
+    }
+  ]
+}

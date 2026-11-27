@@ -16,7 +16,11 @@ export const removeHoliday = async (
     company: { id: companyId }
   } = await requireEditor()
   return await handleAction(async () => {
-    await holidayModel.remove({ id: formData.get('id') as string, companyId })
+    await holidayModel.remove({
+      id: formData.get('id') as string,
+      companyId,
+      fromYear: formData.get('fromYear') as string | null
+    })
     refresh()
     return null
   })

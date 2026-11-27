@@ -18,6 +18,7 @@ import {
 import { Button } from '@/app/components/ui/shadcn/button'
 import { showActionError } from '@/app/utils/action-error'
 import type { THolidayInYear } from '@/models/holiday/types'
+import { startsBeforeYear } from '@/models/holiday/utils'
 
 import { NATIONAL_HOLIDAYS_BUTTON_ID } from '../national-holidays-button/utils'
 import { getHolidayLabel } from '../utils'
@@ -25,8 +26,10 @@ import { removeHoliday } from './actions'
 import type { TRemoveHolidayState } from './types'
 
 export const RemoveHolidayButton = ({
+  year,
   holiday
 }: {
+  year: number
   holiday: THolidayInYear
 }) => {
   const initialState: TRemoveHolidayState = {}
@@ -51,6 +54,33 @@ export const RemoveHolidayButton = ({
     initialState
   )
   const label = getHolidayLabel(holiday)
+  const splitsFromYear = startsBeforeYear(holiday, year)
+  const [submitted, setSubmitted] = useState<string | null>(null)
+
+  const getDescription = (): string => {
+    if (splitsFromYear)
+      return `Escolha se ${holiday.name} deixa de ser feriado a partir de ${year}, mantendo os anos anteriores, ou em todos os anos, inclusive os que já passaram.`
+    if (holiday.recurrence === 'once') return `${label} deixa de ser feriado.`
+    return `${holiday.name} deixa de ser feriado em todos os anos.`
+  }
+
+  const renderSubmitButton = (fromYear: string, text: string) => (
+    <Button
+      type="submit"
+      name="fromYear"
+      value={fromYear}
+      variant="destructive"
+      disabled={pending}
+      focusableWhenDisabled
+      onClick={() => setSubmitted(fromYear)}
+    >
+      {pending && submitted === fromYear ? (
+        <Loader mode="inline" label={text} />
+      ) : (
+        text
+      )}
+    </Button>
+  )
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -68,25 +98,18 @@ export const RemoveHolidayButton = ({
       >
         <AlertDialogHeader>
           <AlertDialogTitle>Remover feriado?</AlertDialogTitle>
-          <AlertDialogDescription>
-            {holiday.recurring
-              ? `${label} deixa de ser feriado em todos os anos.`
-              : `${label} deixa de ser feriado.`}
-          </AlertDialogDescription>
+          <AlertDialogDescription>{getDescription()}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <form action={formAction}>
+          <form action={formAction} className="flex flex-col gap-2 sm:flex-row">
             <input type="hidden" name="id" value={holiday.id} />
-            <Button
-              type="submit"
-              variant="destructive"
-              disabled={pending}
-              focusableWhenDisabled
-              className="w-full"
-            >
-              {pending ? <Loader mode="inline" label="Remover" /> : 'Remover'}
-            </Button>
+            {splitsFromYear &&
+              renderSubmitButton(String(year), `Remover a partir de ${year}`)}
+            {renderSubmitButton(
+              'all',
+              splitsFromYear ? 'Remover de todos os anos' : 'Remover'
+            )}
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>
