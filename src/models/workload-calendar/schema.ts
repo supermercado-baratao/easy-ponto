@@ -10,7 +10,12 @@ export const monthSchema = z
     return year >= MIN_YEAR && year <= MAX_YEAR
   })
 
+// The employee comes from the URL, so an unknown one only leaves the grid out
 export const findMonthSchema = z.object({
   companyId: z.uuidv4(),
-  month: monthSchema
+  month: monthSchema,
+  userId: z
+    .string()
+    .optional()
+    .transform((value) => z.uuidv4().safeParse(value).data ?? null)
 })

@@ -1,75 +1,87 @@
-import type { Dayjs } from 'dayjs'
-
+import type { ShiftAdjustment } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import type { THolidayInYear } from '@/models/holiday/types'
-import {
-  MID_MONTH_FIRST_DAY,
-  MID_MONTH_LAST_DAY,
-  PEAK_WORKLOAD,
-  STANDARD_WORKLOAD
-} from '@/models/journey/utils'
+import type { TResolvedDay } from '@/models/shift-assignment/utils'
 
-import type { TWorkloadCalendar, TWorkloadDay, TWorkloadWeek } from './types'
+import type { TCalendarDay, TCalendarSummary, TCalendarWeek } from './types'
 
 const DAYS_IN_A_WEEK = 7
 
-const sumWorkload = (days: (TWorkloadDay | null)[]): number =>
-  days.reduce((total, day) => total + (day?.workload ?? 0), 0)
+const DATE_FORMAT = 'YYYY-MM-DD'
 
-const buildDay = (date: Dayjs, holidays: Map<string, string>): TWorkloadDay => {
-  const isoDate = date.format('YYYY-MM-DD')
-  const day = date.date()
-  const isSunday = date.day() === 0
-  const holidayName = holidays.get(isoDate) ?? null
-  const midMonth = day >= MID_MONTH_FIRST_DAY && day <= MID_MONTH_LAST_DAY
-  const workload = midMonth ? STANDARD_WORKLOAD : PEAK_WORKLOAD
+export const getMonthPeriod = (
+  month: string
+): { initialDate: string; finalDate: string } => {
+  const firstDay = dayjs(`${month}-01`)
   return {
-    date: isoDate,
-    day,
-    isSunday,
-    holidayName,
-    workload: isSunday || holidayName ? 0 : workload
+    initialDate: firstDay.format(DATE_FORMAT),
+    finalDate: firstDay.endOf('month').format(DATE_FORMAT)
   }
 }
 
-export const buildMonthCalendar = ({
-  month,
-  holidays
+const sumPairs = (pairs: TResolvedDay['pairs']): number =>
+  pairs.reduce((total, { entry, exit }) => total + exit - entry, 0)
+
+// A holiday has no expected hours in the journey, so its load is zero even on a workday of the schedule
+export const buildCalendarDays = ({
+  days,
+  holidays,
+  adjustments
 }: {
-  month: string
+  days: TResolvedDay[]
   holidays: Pick<THolidayInYear, 'dateInYear' | 'name'>[]
-}): TWorkloadCalendar => {
-  const firstDay = dayjs(`${month}-01`)
+  adjustments: ShiftAdjustment[]
+}): TCalendarDay[] => {
   const holidaysByDate = new Map(
     holidays.map(({ dateInYear, name }) => [dateInYear, name])
   )
-  const days = Array.from({ length: firstDay.daysInMonth() }, (_, index) =>
-    buildDay(firstDay.add(index, 'day'), holidaysByDate)
-  )
-  const slots = [...Array.from({ length: firstDay.day() }, () => null), ...days]
-  const weeks: TWorkloadWeek[] = Array.from(
+  return days.map(({ date, kind, pairs, adjusted }) => {
+    const holidayName = holidaysByDate.get(date) ?? null
+    return {
+      date,
+      day: dayjs(date).date(),
+      kind,
+      pairs,
+      adjusted,
+      holidayName,
+      workload: holidayName ? 0 : sumPairs(pairs),
+      adjustment:
+        adjustments.find((adjustment) => adjustment.date === date) ?? null
+    }
+  })
+}
+
+export const buildCalendarWeeks = (days: TCalendarDay[]): TCalendarWeek[] => {
+  if (days.length === 0) return []
+  const slots: TCalendarWeek = [
+    ...Array.from({ length: dayjs(days[0].date).day() }, () => null),
+    ...days
+  ]
+  return Array.from(
     { length: Math.ceil(slots.length / DAYS_IN_A_WEEK) },
     (_, index) => {
       const week = slots.slice(
         index * DAYS_IN_A_WEEK,
         (index + 1) * DAYS_IN_A_WEEK
       )
-      const padded = [
+      return [
         ...week,
         ...Array.from({ length: DAYS_IN_A_WEEK - week.length }, () => null)
       ]
-      return { days: padded, total: sumWorkload(padded) }
     }
   )
-  const workedDays = days.filter(({ workload }) => workload > 0).length
-  const total = sumWorkload(days)
-  const standardJourney = workedDays * STANDARD_WORKLOAD
-  return {
-    month,
-    weeks,
-    workedDays,
-    total,
-    standardJourney,
-    excess: total - standardJourney
-  }
 }
+
+export const summarizeCalendarDays = (
+  days: TCalendarDay[]
+): TCalendarSummary => ({
+  workdays: days.filter(
+    ({ kind, holidayName }) => kind === 'work' && !holidayName
+  ).length,
+  daysOff: days.filter(
+    ({ kind, holidayName }) => kind === 'off' && !holidayName
+  ).length,
+  holidays: days.filter(({ holidayName }) => holidayName).length,
+  adjustments: days.filter(({ adjusted }) => adjusted).length,
+  workload: days.reduce((total, { workload }) => total + workload, 0)
+})

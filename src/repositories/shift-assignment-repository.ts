@@ -208,6 +208,7 @@ export const shiftAssignmentRepository = {
     const {
       kind,
       shiftAssignmentId,
+      origin,
       entry1,
       exit1,
       entry2,
@@ -223,6 +224,7 @@ export const shiftAssignmentRepository = {
         set: {
           kind,
           shiftAssignmentId,
+          origin,
           entry1,
           exit1,
           entry2,

@@ -18,6 +18,11 @@ export const SHIFT_ADJUSTMENT_KINDS = ['work', 'off', 'custom'] as const
 
 export type TShiftAdjustmentKind = (typeof SHIFT_ADJUSTMENT_KINDS)[number]
 
+// A rule may generate the days again, so it replaces only the adjustments it generated (#110)
+export const SHIFT_ADJUSTMENT_ORIGINS = ['manual', 'rule'] as const
+
+export type TShiftAdjustmentOrigin = (typeof SHIFT_ADJUSTMENT_ORIGINS)[number]
+
 export const MAX_DAY_PAIRS = TIME_PAIRS.length
 
 export type TShiftAssignmentInput = Pick<

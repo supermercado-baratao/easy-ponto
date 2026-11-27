@@ -54,9 +54,9 @@ const features: TFeature[] = [
     icon: TreePalm
   },
   {
-    title: 'Calendário de carga',
+    title: 'Calendário',
     description:
-      'A carga prevista de cada dia do mês, sem carga nos domingos e feriados, com o total de cada semana.',
+      'O mês de cada funcionário pela escala, com as folgas, os feriados e os ajustes de cada dia.',
     icon: Calendar
   },
   {

@@ -150,6 +150,7 @@ export const Select = ({
   options,
   placeholder,
   label,
+  description,
   error,
   name,
   id = name,
@@ -165,10 +166,15 @@ export const Select = ({
   onValueChange?: (value: string | null) => void
   placeholder: string
   label?: string
+  description?: string
   options: { value: string | null; label: string }[]
   error?: string
 } & Omit<ComponentProps<'div'>, 'defaultValue'>) => {
+  const descriptionId = `${id}-description`
   const errorId = `${id}-error`
+  const describedBy = [description && descriptionId, error && errorId]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div className={cn('grid gap-3', className)} {...props}>
@@ -193,7 +199,7 @@ export const Select = ({
           id={id}
           className="w-full"
           aria-invalid={!!error}
-          aria-describedby={error ? errorId : undefined}
+          aria-describedby={describedBy || undefined}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -208,6 +214,11 @@ export const Select = ({
           </SelectGroup>
         </SelectContent>
       </_Select>
+      {description && (
+        <p id={descriptionId} className="-mt-1 text-sm text-muted-foreground">
+          {description}
+        </p>
+      )}
       {error && (
         <p id={errorId} className="relative bottom-3 text-destructive">
           {error}
