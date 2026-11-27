@@ -10,8 +10,27 @@ import { dayjs } from '@/infra/dayjs'
 import type { THolidayInYear } from '@/models/holiday/types'
 
 import { HolidaySheet } from './holiday-sheet/holiday-sheet'
+import type { THolidayFormValues } from './holiday-sheet/types'
 import { RemoveHolidayButton } from './remove-holiday-button/remove-holiday-button'
-import { getScopeLabel } from './utils'
+import { getRecurrenceLabel, getScopeLabel } from './utils'
+
+const getFormValues = (holiday: THolidayInYear): THolidayFormValues => ({
+  id: holiday.id,
+  date: holiday.dateInYear,
+  name: holiday.name,
+  scope: holiday.scope,
+  recurrence: holiday.recurrence,
+  easterDays:
+    holiday.easterOffset === null
+      ? undefined
+      : String(Math.abs(holiday.easterOffset)),
+  easterSide:
+    holiday.easterOffset !== null && holiday.easterOffset < 0
+      ? 'before'
+      : 'after',
+  firstYear: holiday.firstYear?.toString(),
+  lastYear: holiday.lastYear?.toString()
+})
 
 export const HolidaysTable = ({
   year,
@@ -50,23 +69,16 @@ export const HolidaysTable = ({
               {holiday.name}
             </TableHead>
             <TableCell>{getScopeLabel(holiday.scope)}</TableCell>
-            <TableCell>
-              {holiday.recurring ? 'Todo ano' : 'Só neste ano'}
-            </TableCell>
+            <TableCell>{getRecurrenceLabel(holiday)}</TableCell>
             {canEdit && (
               <TableCell>
                 <div className="flex justify-end gap-1">
                   <HolidaySheet
+                    year={year}
                     holiday={holiday}
-                    defaultValues={{
-                      id: holiday.id,
-                      date: holiday.dateInYear,
-                      name: holiday.name,
-                      scope: holiday.scope,
-                      recurring: holiday.recurring ? 'on' : undefined
-                    }}
+                    defaultValues={getFormValues(holiday)}
                   />
-                  <RemoveHolidayButton holiday={holiday} />
+                  <RemoveHolidayButton year={year} holiday={holiday} />
                 </div>
               </TableCell>
             )}

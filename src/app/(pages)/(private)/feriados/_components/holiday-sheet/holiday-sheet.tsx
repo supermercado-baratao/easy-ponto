@@ -13,15 +13,18 @@ import {
   SheetTrigger
 } from '@/app/components/ui/shadcn/sheet'
 import type { THolidayInYear } from '@/models/holiday/types'
+import { startsBeforeYear } from '@/models/holiday/utils'
 
 import { getHolidayLabel } from '../utils'
 import { HolidayForm } from './holiday-form'
 import type { THolidayFormValues } from './types'
 
 export const HolidaySheet = ({
+  year,
   holiday,
   defaultValues
 }: {
+  year: number
   holiday?: THolidayInYear
   defaultValues: THolidayFormValues
 }) => {
@@ -57,6 +60,8 @@ export const HolidaySheet = ({
           </SheetDescription>
         </SheetHeader>
         <HolidayForm
+          year={year}
+          splitsFromYear={holiday ? startsBeforeYear(holiday, year) : false}
           defaultValues={defaultValues}
           onSaved={() => setOpen(false)}
         />

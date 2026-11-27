@@ -8,19 +8,14 @@ import { holidayModel } from '@/models/holiday/model'
 
 import type { TNationalHolidaysState } from './types'
 
-export const addNationalHolidays = async (
-  _state: TNationalHolidaysState,
-  formData: FormData
-): Promise<TNationalHolidaysState> => {
-  const {
-    company: { id: companyId }
-  } = await requireEditor()
-  return await handleAction(async () => {
-    const data = await holidayModel.addNationalHolidays({
-      companyId,
-      year: formData.get('year') as string
+export const addNationalHolidays =
+  async (): Promise<TNationalHolidaysState> => {
+    const {
+      company: { id: companyId }
+    } = await requireEditor()
+    return await handleAction(async () => {
+      const data = await holidayModel.addNationalHolidays(companyId)
+      refresh()
+      return data
     })
-    refresh()
-    return data
-  })
-}
+  }

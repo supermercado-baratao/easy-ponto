@@ -18,12 +18,17 @@ export const MainContent = ({
 }) => (
   <>
     <Header title="Feriados">
-      {canEdit && <HolidaySheet defaultValues={{ date: `${year}-01-01` }} />}
+      {canEdit && (
+        <HolidaySheet
+          year={year}
+          defaultValues={{ date: `${year}-01-01`, recurrence: 'once' }}
+        />
+      )}
     </Header>
     <_MainContent className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <YearNavigation year={year} path="/feriados" />
-        {canEdit && <NationalHolidaysButton year={year} />}
+        {canEdit && <NationalHolidaysButton />}
       </div>
       {holidays.length > 0 ? (
         <HolidaysTable year={year} holidays={holidays} canEdit={canEdit} />

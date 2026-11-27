@@ -33,7 +33,8 @@ test.beforeAll(async () => {
     companyId,
     date: '2035-08-15',
     name: 'Feriado do calendário',
-    scope: 'municipal'
+    scope: 'municipal',
+    recurrence: 'once'
   })
 })
 

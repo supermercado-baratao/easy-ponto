@@ -1,0 +1,93 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "2bc8e018-a6ae-4231-bf77-fce8c11d4e27",
+  "prevIds": [
+    "896c9012-06a7-45d6-a479-1dc76fd23bf5"
+  ],
+  "footprints": [
+    {
+      "statementType": "drop_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "recurring"
+      ],
+      "writes": [
+        "s|col|public.holidays.recurring",
+        "n|col|public.holidays.recurring",
+        "e|col|public.holidays.recurring"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "alter_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "holidays",
+        "recurrence"
+      ],
+      "writes": [
+        "s|colprop|public.holidays.recurrence.default"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public",
+        "n|col|public.holidays.recurrence"
+      ],
+      "sqlHash": "e1a938ecbecb7b85"
+    },
+    {
+      "statementType": "add_check",
+      "statementTarget": [
+        "table",
+        "public",
+        "holidays"
+      ],
+      "writes": [
+        "s|ck|public.holidays.holidays_recurrence_check",
+        "n|ck|public.holidays.holidays_recurrence_check",
+        "e|ck|public.holidays.holidays_recurrence_check",
+        "n|con|public.holidays.holidays_recurrence_check"
+      ],
+      "reads": [
+        "n|tbl|public.holidays",
+        "n|sch|public",
+        "n|col|public.holidays.recurrence",
+        "n|col|public.holidays.date",
+        "n|col|public.holidays.easter_offset",
+        "n|col|public.holidays.first_year",
+        "n|col|public.holidays.last_year"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "holidays",
+        "name": "holidays_recurrence_check",
+        "value": "(\"recurrence\" = 'once' AND \"date\" IS NOT NULL AND \"easter_offset\" IS NULL AND \"first_year\" IS NULL AND \"last_year\" IS NULL)\n        OR (\"recurrence\" = 'yearly' AND \"date\" IS NOT NULL AND \"easter_offset\" IS NULL)\n        OR (\"recurrence\" = 'easter' AND \"date\" IS NULL AND \"easter_offset\" IS NOT NULL)",
+        "entityType": "checks"
+      }
+    },
+    {
+      "op": "drop",
+      "key": "columns\u0000[\"public\",\"holidays\",\"recurring\"]"
+    },
+    {
+      "op": "alter",
+      "key": "columns\u0000[\"public\",\"holidays\",\"recurrence\"]",
+      "set": {
+        "default": null
+      }
+    }
+  ]
+}
