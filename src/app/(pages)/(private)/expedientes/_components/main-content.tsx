@@ -6,6 +6,7 @@ import { MainContent as _MainContent } from '@/app/components/ui/custom/main-con
 import { Typography } from '@/app/components/ui/custom/typography'
 import { Input } from '@/app/components/ui/shadcn/input'
 import { Label } from '@/app/components/ui/shadcn/label'
+import type { JobFunction, UserGroup } from '@/infra/database/types'
 import type { TScheduleAlertLimits } from '@/models/journey/types'
 
 import { AgendaTable } from './agenda-table'
@@ -16,6 +17,8 @@ export const MainContent = ({
   dates,
   total,
   positions,
+  groups,
+  jobFunctions,
   filters,
   limits,
   canEdit
@@ -24,6 +27,8 @@ export const MainContent = ({
   dates: string[]
   total: number
   positions: string[]
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   filters: TAgendaFilters
   limits: TScheduleAlertLimits
   canEdit: boolean
@@ -36,6 +41,8 @@ export const MainContent = ({
           <UsersFilter
             path="/expedientes"
             positions={positions}
+            groups={groups}
+            jobFunctions={jobFunctions}
             filters={filters}
           >
             <div className="grid gap-3">

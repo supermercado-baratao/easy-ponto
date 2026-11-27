@@ -9,7 +9,9 @@ import { Button } from '@/app/components/ui/shadcn/button'
 import { Input } from '@/app/components/ui/shadcn/input'
 import { Label } from '@/app/components/ui/shadcn/label'
 import { STATUS_LABELS, STATUS_PARAMS } from '@/app/utils/user-status'
+import type { JobFunction, UserGroup } from '@/infra/database/types'
 import { USER_STATUSES } from '@/models/user/utils'
+import { getGroupLabel, sortGroupsByPath } from '@/models/user-group/utils'
 
 const STATUS_OPTIONS = [
   { value: null, label: 'Ativos' },
@@ -24,16 +26,22 @@ export type TUsersFilterValues = {
   name: string
   position: string | null
   status: string | null
+  group: string | null
+  jobFunction: string | null
 }
 
 export const UsersFilter = <T extends TUsersFilterValues>({
   path,
   positions,
+  groups,
+  jobFunctions,
   filters,
   children
 }: {
   path: string
   positions: string[]
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   filters: T
   children?: ReactNode
 }) => {
@@ -80,8 +88,8 @@ export const UsersFilter = <T extends TUsersFilterValues>({
         <Select
           id="cargo"
           name="cargo"
-          label="Cargo"
-          placeholder="Cargo"
+          label="Cargo na folha"
+          placeholder="Cargo na folha"
           options={[
             { value: null, label: 'Todos' },
             ...positions.map((position) => ({
@@ -92,6 +100,37 @@ export const UsersFilter = <T extends TUsersFilterValues>({
           defaultValue={filters.position}
           className="w-56"
         />
+        {jobFunctions.length > 0 && (
+          <Select
+            id="funcao"
+            name="funcao"
+            label="Função"
+            placeholder="Função"
+            options={[
+              { value: null, label: 'Todas' },
+              ...jobFunctions.map(({ name }) => ({ value: name, label: name }))
+            ]}
+            defaultValue={filters.jobFunction}
+            className="w-56"
+          />
+        )}
+        {groups.length > 0 && (
+          <Select
+            id="grupo"
+            name="grupo"
+            label="Grupo"
+            placeholder="Grupo"
+            options={[
+              { value: null, label: 'Todos' },
+              ...sortGroupsByPath(groups).map((group) => ({
+                value: group.name,
+                label: getGroupLabel(groups, group.id)
+              }))
+            ]}
+            defaultValue={filters.group}
+            className="w-56"
+          />
+        )}
         <Select
           id="situacao"
           name="situacao"

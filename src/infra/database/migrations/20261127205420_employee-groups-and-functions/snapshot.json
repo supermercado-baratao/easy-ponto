@@ -1,0 +1,1260 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "fe0e44d6-4a14-46eb-bdef-f25bc63a7331",
+  "prevIds": [
+    "2bc8e018-a6ae-4231-bf77-fce8c11d4e27"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "job_functions"
+      ],
+      "writes": [
+        "s|tbl|public.job_functions",
+        "n|tbl|public.job_functions",
+        "e|tbl|public.job_functions",
+        "n|rel|public.job_functions",
+        "n|type|public.job_functions",
+        "n|rel|public.job_functions_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_group_members"
+      ],
+      "writes": [
+        "s|tbl|public.user_group_members",
+        "n|tbl|public.user_group_members",
+        "e|tbl|public.user_group_members",
+        "n|rel|public.user_group_members",
+        "n|type|public.user_group_members",
+        "n|rel|public.user_group_members_pkey",
+        "n|rel|public.user_group_members_group_id_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_groups"
+      ],
+      "writes": [
+        "s|tbl|public.user_groups",
+        "n|tbl|public.user_groups",
+        "e|tbl|public.user_groups",
+        "n|rel|public.user_groups",
+        "n|type|public.user_groups",
+        "n|rel|public.user_groups_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_job_functions"
+      ],
+      "writes": [
+        "s|tbl|public.user_job_functions",
+        "n|tbl|public.user_job_functions",
+        "e|tbl|public.user_job_functions",
+        "n|rel|public.user_job_functions",
+        "n|type|public.user_job_functions",
+        "n|rel|public.user_job_functions_pkey",
+        "n|rel|public.user_job_functions_user_id_job_function_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "add_column",
+      "statementTarget": [
+        "column",
+        "public",
+        "users",
+        "payroll_position_active"
+      ],
+      "writes": [
+        "s|col|public.users.payroll_position_active",
+        "n|col|public.users.payroll_position_active",
+        "e|col|public.users.payroll_position_active"
+      ],
+      "reads": [
+        "n|tbl|public.users",
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "job_functions",
+        "job_functions_company_id_name_key"
+      ],
+      "writes": [
+        "s|idx|public.job_functions_company_id_name_key",
+        "n|idx|public.job_functions_company_id_name_key",
+        "e|idx|public.job_functions_company_id_name_key",
+        "n|rel|public.job_functions_company_id_name_key"
+      ],
+      "reads": [
+        "n|tbl|public.job_functions",
+        "n|sch|public",
+        "n|col|public.job_functions.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "job_functions",
+        "job_functions_company_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.job_functions_company_id_idx",
+        "n|idx|public.job_functions_company_id_idx",
+        "e|idx|public.job_functions_company_id_idx",
+        "n|rel|public.job_functions_company_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.job_functions",
+        "n|sch|public",
+        "n|col|public.job_functions.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "user_group_members",
+        "user_group_members_user_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.user_group_members_user_id_idx",
+        "n|idx|public.user_group_members_user_id_idx",
+        "e|idx|public.user_group_members_user_id_idx",
+        "n|rel|public.user_group_members_user_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.user_group_members",
+        "n|sch|public",
+        "n|col|public.user_group_members.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "user_groups",
+        "user_groups_company_id_name_key"
+      ],
+      "writes": [
+        "s|idx|public.user_groups_company_id_name_key",
+        "n|idx|public.user_groups_company_id_name_key",
+        "e|idx|public.user_groups_company_id_name_key",
+        "n|rel|public.user_groups_company_id_name_key"
+      ],
+      "reads": [
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|col|public.user_groups.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "user_groups",
+        "user_groups_company_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.user_groups_company_id_idx",
+        "n|idx|public.user_groups_company_id_idx",
+        "e|idx|public.user_groups_company_id_idx",
+        "n|rel|public.user_groups_company_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|col|public.user_groups.company_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "user_groups",
+        "user_groups_parent_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.user_groups_parent_id_idx",
+        "n|idx|public.user_groups_parent_id_idx",
+        "e|idx|public.user_groups_parent_id_idx",
+        "n|rel|public.user_groups_parent_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|col|public.user_groups.parent_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "user_job_functions",
+        "user_job_functions_job_function_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.user_job_functions_job_function_id_idx",
+        "n|idx|public.user_job_functions_job_function_id_idx",
+        "e|idx|public.user_job_functions_job_function_id_idx",
+        "n|rel|public.user_job_functions_job_function_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.user_job_functions",
+        "n|sch|public",
+        "n|col|public.user_job_functions.job_function_id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "job_functions"
+      ],
+      "writes": [
+        "s|fk|public.job_functions.job_functions_company_id_fkey",
+        "n|fk|public.job_functions.job_functions_company_id_fkey",
+        "e|fk|public.job_functions.job_functions_company_id_fkey",
+        "n|con|public.job_functions.job_functions_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.job_functions",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.job_functions.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_group_members"
+      ],
+      "writes": [
+        "s|fk|public.user_group_members.user_group_members_group_id_fkey",
+        "n|fk|public.user_group_members.user_group_members_group_id_fkey",
+        "e|fk|public.user_group_members.user_group_members_group_id_fkey",
+        "n|con|public.user_group_members.user_group_members_group_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_group_members",
+        "n|sch|public",
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|col|public.user_group_members.group_id",
+        "n|col|public.user_groups.id",
+        "e|uniqueness|public.user_groups.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_group_members"
+      ],
+      "writes": [
+        "s|fk|public.user_group_members.user_group_members_user_id_fkey",
+        "n|fk|public.user_group_members.user_group_members_user_id_fkey",
+        "e|fk|public.user_group_members.user_group_members_user_id_fkey",
+        "n|con|public.user_group_members.user_group_members_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_group_members",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.user_group_members.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_groups"
+      ],
+      "writes": [
+        "s|fk|public.user_groups.user_groups_company_id_fkey",
+        "n|fk|public.user_groups.user_groups_company_id_fkey",
+        "e|fk|public.user_groups.user_groups_company_id_fkey",
+        "n|con|public.user_groups.user_groups_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.user_groups.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_groups"
+      ],
+      "writes": [
+        "s|fk|public.user_groups.user_groups_parent_id_fkey",
+        "n|fk|public.user_groups.user_groups_parent_id_fkey",
+        "e|fk|public.user_groups.user_groups_parent_id_fkey",
+        "n|con|public.user_groups.user_groups_parent_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|col|public.user_groups.parent_id",
+        "n|col|public.user_groups.id",
+        "e|uniqueness|public.user_groups.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_job_functions"
+      ],
+      "writes": [
+        "s|fk|public.user_job_functions.user_job_functions_job_function_id_fkey",
+        "n|fk|public.user_job_functions.user_job_functions_job_function_id_fkey",
+        "e|fk|public.user_job_functions.user_job_functions_job_function_id_fkey",
+        "n|con|public.user_job_functions.user_job_functions_job_function_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_job_functions",
+        "n|sch|public",
+        "n|tbl|public.job_functions",
+        "n|sch|public",
+        "n|col|public.user_job_functions.job_function_id",
+        "n|col|public.job_functions.id",
+        "e|uniqueness|public.job_functions.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "user_job_functions"
+      ],
+      "writes": [
+        "s|fk|public.user_job_functions.user_job_functions_user_id_fkey",
+        "n|fk|public.user_job_functions.user_job_functions_user_id_fkey",
+        "e|fk|public.user_job_functions.user_job_functions_user_id_fkey",
+        "n|con|public.user_job_functions.user_job_functions_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.user_job_functions",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.user_job_functions.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "job_functions",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "user_group_members",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "user_groups",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "user_job_functions",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "name",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "description",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "level",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "group_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "name",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "parent_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "active",
+        "type": "boolean",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "true",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "job_function_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "users",
+        "name": "payroll_position_active",
+        "type": "boolean",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "true",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "job_functions_company_id_name_key",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "lower(\"name\")",
+            "isExpression": true,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": true,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "job_functions_company_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "user_group_members_user_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "user_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "user_groups_company_id_name_key",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          },
+          {
+            "value": "lower(\"name\")",
+            "isExpression": true,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": true,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "user_groups_company_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "user_groups_parent_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "parent_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "user_job_functions_job_function_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "job_function_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "job_functions_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "user_group_members_group_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "group_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user_groups",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "user_group_members_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "user_groups_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "user_groups_parent_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "parent_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user_groups",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "RESTRICT",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "user_job_functions_job_function_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "job_function_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "job_functions",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "RESTRICT",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "user_job_functions_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "job_functions_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "user_group_members_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_groups",
+        "name": "user_groups_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "user_job_functions_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_group_members",
+        "name": "user_group_members_group_id_user_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "group_id",
+          "user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "user_job_functions",
+        "name": "user_job_functions_user_id_job_function_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "user_id",
+          "job_function_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "job_functions",
+        "name": "job_functions_level_check",
+        "value": "\"level\" >= 1",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

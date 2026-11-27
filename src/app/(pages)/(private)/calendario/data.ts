@@ -1,6 +1,13 @@
 import { getStatusFromParameter, STATUS_PARAMS } from '@/app/utils/user-status'
 import { requireCompany } from '@/entry/session'
-import { filterUsers, getPositions } from '@/models/user/utils'
+import type { JobFunction, UserGroup } from '@/infra/database/types'
+import { userModel } from '@/models/user/model'
+import {
+  filterUsers,
+  filterUsersByOrganization,
+  getPositions,
+  resolveOrganizationFilters
+} from '@/models/user/utils'
 import { workloadCalendarModel } from '@/models/workload-calendar/model'
 
 import type {
@@ -15,6 +22,8 @@ type TCalendarPageData = {
   selected: TCalendarUserMonthView | null
   total: number
   positions: string[]
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   filters: TCalendarFilters
   canEdit: boolean
 }
@@ -25,17 +34,36 @@ export const getCalendarPageData = async (searchParameters: {
   name?: string
   position?: string
   status?: string
+  group?: string
+  jobFunction?: string
 }): Promise<TCalendarPageData> => {
   const {
     company: { id: companyId },
     canEdit
   } = await requireCompany()
   const month = workloadCalendarModel.resolveMonth(searchParameters.month)
-  const { users, summaries, selected } = await workloadCalendarModel.findMonth({
-    companyId,
-    month,
-    userId: searchParameters.userId
-  })
+  const [{ users, summaries, selected }, usersWithOrganization] =
+    await Promise.all([
+      workloadCalendarModel.findMonth({
+        companyId,
+        month,
+        userId: searchParameters.userId
+      }),
+      userModel.findManyWithOrganization(companyId)
+    ])
+  const { groups, jobFunctions } = usersWithOrganization
+  const organization = { groups, jobFunctions }
+  const organizationFilters = resolveOrganizationFilters(
+    organization,
+    searchParameters
+  )
+  const organizationUserIds = new Set(
+    filterUsersByOrganization(
+      usersWithOrganization.users,
+      organizationFilters,
+      organization
+    ).map(({ id }) => id)
+  )
   const name = searchParameters.name?.trim() ?? ''
   const position = searchParameters.position?.trim() || null
   const status = getStatusFromParameter(searchParameters.status)
@@ -43,10 +71,12 @@ export const getCalendarPageData = async (searchParameters: {
     name,
     position: position ?? undefined,
     status
-  }).map((user) => ({
-    user,
-    summary: summaries.find(({ userId }) => userId === user.id)!
-  }))
+  })
+    .filter(({ id }) => organizationUserIds.has(id))
+    .map((user) => ({
+      user,
+      summary: summaries.find(({ userId }) => userId === user.id)!
+    }))
   return {
     month,
     rows,
@@ -65,10 +95,14 @@ export const getCalendarPageData = async (searchParameters: {
     },
     total: users.length,
     positions: getPositions(users),
+    groups,
+    jobFunctions,
     filters: {
       name,
       position,
       status: status ? STATUS_PARAMS[status] : null,
+      group: organizationFilters.group,
+      jobFunction: organizationFilters.jobFunction,
       userId: selected?.user.id ?? null
     },
     canEdit

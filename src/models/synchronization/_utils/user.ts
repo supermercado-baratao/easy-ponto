@@ -1,4 +1,4 @@
-import type { TInputData, User } from '@/infra/database/types'
+import type { TInputData, TUserInputData, User } from '@/infra/database/types'
 import type { TDeviceUser } from '@/models/device/types'
 import { DEFAULT_USER_STATUS } from '@/models/user/utils'
 
@@ -9,6 +9,7 @@ type TDeviceUserFields = Omit<
   | 'department'
   | 'payrollNumber'
   | 'position'
+  | 'payrollPositionActive'
   | 'status'
 >
 
@@ -20,8 +21,8 @@ export const mapDeviceUserToUserFields = (
 export const mapDeviceUserToUser = (
   deviceUsers: TDeviceUser[],
   companyId: string
-): TInputData<User>[] =>
-  deviceUsers.map((deviceUser): TInputData<User> => ({
+): TUserInputData[] =>
+  deviceUsers.map((deviceUser): TUserInputData => ({
     ...mapDeviceUserToUserFields(deviceUser, companyId),
     authUserId: null,
     admissionDate: null,

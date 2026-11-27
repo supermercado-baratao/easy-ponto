@@ -16,8 +16,20 @@ export type TState<TInputData, TOutputData> = TActionState<TOutputData> & {
   errors?: TError<TInputData>
 }
 
-const parseFormData = <T>(formData: FormData): T =>
-  Object.fromEntries(formData) as T
+// A field named `name[]` may repeat (a checkbox list), so it becomes the list of its values
+const parseFormData = <T>(formData: FormData): T => {
+  const data: Record<string, FormDataEntryValue | FormDataEntryValue[]> = {}
+  for (const [key, value] of formData) {
+    if (key.endsWith('[]')) {
+      const name = key.slice(0, -2)
+      const list = data[name]
+      data[name] = Array.isArray(list) ? [...list, value] : [value]
+    } else {
+      data[key] = value
+    }
+  }
+  return data as T
+}
 
 const parseErrors = <T>(error: z.ZodError): TError<T> => {
   const { properties } = z.treeifyError(error) as unknown as {

@@ -5,10 +5,14 @@ export const CALENDAR_PATH = '/calendario'
 export const getFilterQuery = ({
   name,
   position,
-  status
+  status,
+  group,
+  jobFunction
 }: TCalendarFilters): Record<string, string | null> => ({
   nome: name.length > 0 ? name : null,
   cargo: position,
+  funcao: jobFunction,
+  grupo: group,
   situacao: status
 })
 

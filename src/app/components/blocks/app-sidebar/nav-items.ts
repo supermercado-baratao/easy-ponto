@@ -1,4 +1,5 @@
 import {
+  BriefcaseBusiness,
   Calendar,
   CalendarDays,
   CalendarSync,
@@ -6,6 +7,7 @@ import {
   ClipboardCheck,
   Clock,
   Clock12,
+  FolderTree,
   HelpCircle,
   Hourglass,
   LayoutDashboard,
@@ -70,6 +72,16 @@ export const navItems: TNavItem[] = [
             title: 'Funcionários',
             path: '/funcionarios',
             icon: Users
+          },
+          {
+            title: 'Grupos',
+            path: '/grupos',
+            icon: FolderTree
+          },
+          {
+            title: 'Funções',
+            path: '/funcoes',
+            icon: BriefcaseBusiness
           },
           {
             title: 'Escalas',

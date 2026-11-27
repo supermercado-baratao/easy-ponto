@@ -72,6 +72,20 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.hoursBankBalances.closingId
     })
   },
+  userGroupMembers: {
+    group: r.one.userGroups({
+      from: r.userGroupMembers.groupId,
+      to: r.userGroups.id,
+      optional: false
+    })
+  },
+  userJobFunctions: {
+    jobFunction: r.one.jobFunctions({
+      from: r.userJobFunctions.jobFunctionId,
+      to: r.jobFunctions.id,
+      optional: false
+    })
+  },
   hoursBankBalances: {
     user: r.one.users({
       from: r.hoursBankBalances.userId,

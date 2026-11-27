@@ -6,14 +6,15 @@ import { handleFormAction } from '@/entry/form-action'
 import { requireEditor } from '@/entry/session'
 import { userModel } from '@/models/user/model'
 
-import type { TUserFormState, TUserFormValues } from './types'
+import type { TUserFormState } from './types'
+import { getFormValues } from './utils'
 
 export const save = async (
   state: TUserFormState,
   formData: FormData
 ): Promise<TUserFormState> => {
   const { company } = await requireEditor()
-  const values = Object.fromEntries(formData) as TUserFormValues
+  const values = getFormValues(formData)
   formData.set('companyId', company.id)
   const { success, errors, fatalError, message, action } =
     await handleFormAction(userModel.update, state, formData)

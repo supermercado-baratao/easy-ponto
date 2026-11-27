@@ -6,11 +6,13 @@ const getFirstValue = (
 ): string | undefined => (Array.isArray(value) ? value[0] : value)
 
 const Users = async ({ searchParams }: PageProps<'/funcionarios'>) => {
-  const { nome, cargo, situacao } = await searchParams
+  const { nome, cargo, situacao, grupo, funcao } = await searchParams
   const data = await getUsersPageData({
     name: getFirstValue(nome),
     position: getFirstValue(cargo),
-    status: getFirstValue(situacao)
+    status: getFirstValue(situacao),
+    group: getFirstValue(grupo),
+    jobFunction: getFirstValue(funcao)
   })
   return <MainContent {...data} />
 }

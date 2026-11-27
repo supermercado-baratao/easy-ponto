@@ -5,6 +5,7 @@ import { MonthNavigation } from '@/app/components/blocks/month-navigation'
 import { UsersFilter } from '@/app/components/blocks/users-filter'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 import { Typography } from '@/app/components/ui/custom/typography'
+import type { JobFunction, UserGroup } from '@/infra/database/types'
 
 import { MonthGrid } from './month-grid'
 import { MonthSummary } from './month-summary'
@@ -23,6 +24,8 @@ export const MainContent = ({
   selected,
   total,
   positions,
+  groups,
+  jobFunctions,
   filters,
   canEdit
 }: {
@@ -31,6 +34,8 @@ export const MainContent = ({
   selected: TCalendarUserMonthView | null
   total: number
   positions: string[]
+  groups: UserGroup[]
+  jobFunctions: JobFunction[]
   filters: TCalendarFilters
   canEdit: boolean
 }) => (
@@ -65,6 +70,8 @@ export const MainContent = ({
             <UsersFilter
               path={CALENDAR_PATH}
               positions={positions}
+              groups={groups}
+              jobFunctions={jobFunctions}
               filters={filters}
             >
               <input type="hidden" name="mes" value={month} />

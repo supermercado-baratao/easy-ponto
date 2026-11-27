@@ -296,6 +296,9 @@ export const users = pgTable(
     admissionDate: datetime('admission_date'),
     position: text('position'),
     department: text('department'),
+    payrollPositionActive: boolean('payroll_position_active')
+      .notNull()
+      .default(true),
     status: text('status').notNull().default('registered'),
     companyId: text('companyId').notNull(),
     authUserId: text('auth_user_id'),
@@ -706,5 +709,116 @@ export const vacationPlans = pgTable(
       columns: [table.justificationId],
       foreignColumns: [justifications.id]
     }).onDelete('set null')
+  ]
+)
+
+export const userGroups = pgTable(
+  'user_groups',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    parentId: text('parent_id'),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    // The filters and the rules show the name alone, so it is unique across the whole company
+    uniqueIndex('user_groups_company_id_name_key').on(
+      table.companyId,
+      sql`lower(${table.name})`
+    ),
+    index('user_groups_company_id_idx').on(table.companyId),
+    index('user_groups_parent_id_idx').on(table.parentId),
+    foreignKey({
+      name: 'user_groups_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'user_groups_parent_id_fkey',
+      columns: [table.parentId],
+      foreignColumns: [table.id]
+    }).onDelete('restrict')
+  ]
+)
+
+export const userGroupMembers = pgTable(
+  'user_group_members',
+  {
+    id: id(),
+    groupId: text('group_id').notNull(),
+    userId: text('user_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('user_group_members_group_id_user_id_key').on(
+      table.groupId,
+      table.userId
+    ),
+    index('user_group_members_user_id_idx').on(table.userId),
+    foreignKey({
+      name: 'user_group_members_group_id_fkey',
+      columns: [table.groupId],
+      foreignColumns: [userGroups.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'user_group_members_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [users.id]
+    }).onDelete('cascade')
+  ]
+)
+
+export const jobFunctions = pgTable(
+  'job_functions',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    description: text('description'),
+    level: integer('level').notNull(),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    // The payroll position finds its function by name, so a case difference doesn't make a new one
+    uniqueIndex('job_functions_company_id_name_key').on(
+      table.companyId,
+      sql`lower(${table.name})`
+    ),
+    index('job_functions_company_id_idx').on(table.companyId),
+    check('job_functions_level_check', sql`${table.level} >= 1`),
+    foreignKey({
+      name: 'job_functions_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade')
+  ]
+)
+
+export const userJobFunctions = pgTable(
+  'user_job_functions',
+  {
+    id: id(),
+    active: boolean('active').notNull().default(true),
+    jobFunctionId: text('job_function_id').notNull(),
+    userId: text('user_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('user_job_functions_user_id_job_function_id_key').on(
+      table.userId,
+      table.jobFunctionId
+    ),
+    index('user_job_functions_job_function_id_idx').on(table.jobFunctionId),
+    foreignKey({
+      name: 'user_job_functions_job_function_id_fkey',
+      columns: [table.jobFunctionId],
+      foreignColumns: [jobFunctions.id]
+    }).onDelete('restrict'),
+    foreignKey({
+      name: 'user_job_functions_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [users.id]
+    }).onDelete('cascade')
   ]
 )

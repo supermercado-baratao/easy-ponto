@@ -6,10 +6,18 @@ import {
   type TTransaction
 } from '@/infra/database/client'
 import { users } from '@/infra/database/schema'
-import type { TInputData, User } from '@/infra/database/types'
+import type {
+  TInputData,
+  TUserInputData,
+  User,
+  UserJobFunction
+} from '@/infra/database/types'
+
+import { jobFunctionRepository } from './job-function-repository'
+import { userGroupRepository } from './user-group-repository'
 
 export const userRepository = {
-  createMany: async (data: TInputData<User>[]): Promise<void> => {
+  createMany: async (data: TUserInputData[]): Promise<void> => {
     await database.insert(users).values(data)
   },
 
@@ -36,6 +44,8 @@ export const userRepository = {
   update: async ({
     id,
     companyId,
+    groupIds,
+    jobFunctions,
     ...data
   }: Pick<
     User,
@@ -43,17 +53,28 @@ export const userRepository = {
     | 'companyId'
     | 'status'
     | 'position'
+    | 'payrollPositionActive'
     | 'department'
     | 'payrollNumber'
     | 'admissionDate'
-  >): Promise<User | null> => {
-    const [user = null] = await database
-      .update(users)
-      .set(data)
-      .where(and(eq(users.id, id), eq(users.companyId, companyId)))
-      .returning()
-    return user
-  },
+  > & {
+    groupIds: string[]
+    jobFunctions: Pick<UserJobFunction, 'jobFunctionId' | 'active'>[]
+  }): Promise<User | null> =>
+    await database.transaction(async (tx) => {
+      const [user = null] = await tx
+        .update(users)
+        .set(data)
+        .where(and(eq(users.id, id), eq(users.companyId, companyId)))
+        .returning()
+      if (!user) return null
+      await userGroupRepository.replaceUserGroups({ userId: id, groupIds }, tx)
+      await jobFunctionRepository.replaceUserFunctions(
+        { userId: id, links: jobFunctions },
+        tx
+      )
+      return user
+    }),
 
   updateMany: async (
     data: (Partial<TInputData<User>> & { id: string })[],
