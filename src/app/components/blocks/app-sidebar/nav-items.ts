@@ -4,6 +4,7 @@ import {
   CalendarDays,
   CalendarSync,
   ChartColumn,
+  CircleAlert,
   ClipboardCheck,
   Clock,
   Clock12,
@@ -27,6 +28,7 @@ type TNavItem = {
       path: string
       icon: LucideIcon
       editOnly?: boolean
+      showsPendingItemsCount?: boolean
     }[]
   }[]
 }
@@ -42,6 +44,12 @@ export const navItems: TNavItem[] = [
             title: 'Dashboard',
             path: '/dashboard',
             icon: LayoutDashboard
+          },
+          {
+            title: 'Pendências',
+            path: '/pendencias',
+            icon: CircleAlert,
+            showsPendingItemsCount: true
           },
           {
             title: 'Registros de Ponto',

@@ -15,5 +15,7 @@ export const dayjs = _dayjs.utc
 
 // Dates are stored as UTC wall-clock values, so "now" must be the store's local time read as UTC,
 // not the UTC instant, which is already the next day after 21:00 in São Paulo
-export const wallClockNow = (): Dayjs =>
-  dayjs(_dayjs().tz(STORE_TIME_ZONE).format('YYYY-MM-DDTHH:mm:ss.SSS'))
+export const toWallClock = (instant: Date): Dayjs =>
+  dayjs(_dayjs(instant).tz(STORE_TIME_ZONE).format('YYYY-MM-DDTHH:mm:ss.SSS'))
+
+export const wallClockNow = (): Dayjs => toWallClock(new Date())

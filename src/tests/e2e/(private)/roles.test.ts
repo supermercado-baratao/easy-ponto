@@ -49,6 +49,21 @@ test.describe('Viewer', () => {
     )
   })
 
+  test('Sees the pending items without dismissing them', async ({ page }) => {
+    await page.goto('/pendencias')
+    const unscheduled = page.getByRole('region', {
+      name: /^Funcionários sem escala/
+    })
+    await expect(
+      unscheduled.getByRole('link', { name: /^Ver: / }).first()
+    ).toBeVisible()
+
+    await expect(
+      page.getByRole('button', { name: /^Dispensar: / })
+    ).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /^Resolver: / })).toHaveCount(0)
+  })
+
   test('Sees the employees, the holidays and the shift patterns without the editing actions', async ({
     page
   }) => {

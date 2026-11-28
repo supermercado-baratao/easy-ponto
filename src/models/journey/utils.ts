@@ -264,6 +264,9 @@ export const sumDays = (days: TJourneyDay[]): TJourneyTotals => {
   return totals
 }
 
+// The schedule agenda and its pending items look at the same days, from today on
+export const SCHEDULE_AGENDA_DAYS = 7
+
 export const summarizeScheduleDay = (
   pairs: TShiftPair[],
   { maxLunch, maxDailyJourney, maxContinuousWork }: TScheduleAlertLimits

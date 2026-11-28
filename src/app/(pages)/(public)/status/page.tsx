@@ -3,7 +3,7 @@ import './style.css'
 import { Paper } from '@/app/components/ui/custom/paper'
 import { Typography } from '@/app/components/ui/custom/typography'
 import { DottedMap } from '@/app/components/ui/magic-ui/dotted-map'
-import { dayjs } from '@/infra/dayjs'
+import { toWallClock } from '@/infra/dayjs'
 
 import { DatabaseSection } from './_components/database-section'
 import { Wrapper } from './_components/wrapper'
@@ -22,7 +22,7 @@ const Status = async () => {
             </Typography>
             <Typography component="p" variant="body-small" className="mt-4">
               Atualizado em{' '}
-              {dayjs(data.updatedAt).format(
+              {toWallClock(data.updatedAt).format(
                 'DD [de] MMMM [de] YYYY [às] HH:mm:ss'
               )}
             </Typography>

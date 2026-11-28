@@ -4,6 +4,7 @@ import type { JobFunction, UserGroup } from '@/infra/database/types'
 import { dayjs, wallClockNow } from '@/infra/dayjs'
 import { timeSchema, timeToMinutes } from '@/infra/time'
 import type { TScheduleAlertLimits } from '@/models/journey/types'
+import { SCHEDULE_AGENDA_DAYS } from '@/models/journey/utils'
 import { journeyRulesModel } from '@/models/journey-rules/model'
 import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { userModel } from '@/models/user/model'
@@ -18,8 +19,6 @@ import type { TAgendaFilters, TAgendaRow } from './_components/types'
 import { buildAgendaRow, hasEntryOrExitAt } from './_components/utils'
 
 const DATE_FORMAT = 'YYYY-MM-DD'
-
-const AGENDA_DAYS = 7
 
 type TAgendaPageData = {
   rows: TAgendaRow[]
@@ -46,7 +45,7 @@ export const getAgendaPageData = async (searchParameters: {
     canEdit
   } = await requireCompany()
   const today = dayjs(wallClockNow().format(DATE_FORMAT))
-  const dates = Array.from({ length: AGENDA_DAYS }, (_, index) =>
+  const dates = Array.from({ length: SCHEDULE_AGENDA_DAYS }, (_, index) =>
     today.add(index, 'day').format(DATE_FORMAT)
   )
   const [

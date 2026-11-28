@@ -17,6 +17,8 @@ export type JustificationCodeMapping =
   typeof schema.justificationCodeMappings.$inferSelect
 export type Member = typeof schema.members.$inferSelect
 export type OvertimeBand = typeof schema.overtimeBands.$inferSelect
+export type PendingItemDismissal =
+  typeof schema.pendingItemDismissals.$inferSelect
 export type PunchRecord = typeof schema.punchRecords.$inferSelect
 export type ShiftPattern = typeof schema.shiftPatterns.$inferSelect
 export type ShiftPatternVersion =

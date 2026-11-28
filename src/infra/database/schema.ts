@@ -822,3 +822,32 @@ export const userJobFunctions = pgTable(
     }).onDelete('cascade')
   ]
 )
+
+// Only the dismissals are saved: the pending items are computed from the current data, so a fixed
+// case leaves the list by itself (#124)
+export const pendingItemDismissals = pgTable(
+  'pending_item_dismissals',
+  {
+    id: id(),
+    key: text('key').notNull(),
+    companyId: text('company_id').notNull(),
+    dismissedById: text('dismissed_by_id'),
+    ...timestamps()
+  },
+  (table) => [
+    unique('pending_item_dismissals_company_id_key_key').on(
+      table.companyId,
+      table.key
+    ),
+    foreignKey({
+      name: 'pending_item_dismissals_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'pending_item_dismissals_dismissed_by_id_fkey',
+      columns: [table.dismissedById],
+      foreignColumns: [authUsers.id]
+    }).onDelete('set null')
+  ]
+)

@@ -1,0 +1,252 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "1505e564-23ac-41be-8b4c-f07d9b360b9b",
+  "prevIds": [
+    "fe0e44d6-4a14-46eb-bdef-f25bc63a7331"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "pending_item_dismissals"
+      ],
+      "writes": [
+        "s|tbl|public.pending_item_dismissals",
+        "n|tbl|public.pending_item_dismissals",
+        "e|tbl|public.pending_item_dismissals",
+        "n|rel|public.pending_item_dismissals",
+        "n|type|public.pending_item_dismissals",
+        "n|rel|public.pending_item_dismissals_pkey",
+        "n|rel|public.pending_item_dismissals_company_id_key_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "pending_item_dismissals"
+      ],
+      "writes": [
+        "s|fk|public.pending_item_dismissals.pending_item_dismissals_company_id_fkey",
+        "n|fk|public.pending_item_dismissals.pending_item_dismissals_company_id_fkey",
+        "e|fk|public.pending_item_dismissals.pending_item_dismissals_company_id_fkey",
+        "n|con|public.pending_item_dismissals.pending_item_dismissals_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.pending_item_dismissals",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.pending_item_dismissals.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "pending_item_dismissals"
+      ],
+      "writes": [
+        "s|fk|public.pending_item_dismissals.pending_item_dismissals_dismissed_by_id_fkey",
+        "n|fk|public.pending_item_dismissals.pending_item_dismissals_dismissed_by_id_fkey",
+        "e|fk|public.pending_item_dismissals.pending_item_dismissals_dismissed_by_id_fkey",
+        "n|con|public.pending_item_dismissals.pending_item_dismissals_dismissed_by_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.pending_item_dismissals",
+        "n|sch|public",
+        "n|tbl|public.auth_users",
+        "n|sch|public",
+        "n|col|public.pending_item_dismissals.dismissed_by_id",
+        "n|col|public.auth_users.id",
+        "e|uniqueness|public.auth_users.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "pending_item_dismissals",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "key",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "dismissed_by_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "pending_item_dismissals_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "pending_item_dismissals_dismissed_by_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "dismissed_by_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "auth_users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "SET NULL",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "pending_item_dismissals_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "pending_item_dismissals",
+        "name": "pending_item_dismissals_company_id_key_key",
+        "nameExplicit": true,
+        "columns": [
+          "company_id",
+          "key"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    }
+  ]
+}
