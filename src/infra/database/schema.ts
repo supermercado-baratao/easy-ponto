@@ -851,3 +851,86 @@ export const pendingItemDismissals = pgTable(
     }).onDelete('set null')
   ]
 )
+
+// The rules only generate day adjustments (origin `rule`), so the schedule itself never changes (#110)
+export const restRules = pgTable(
+  'rest_rules',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    windowStartDay: integer('window_start_day').notNull(),
+    windowEndDay: integer('window_end_day').notNull(),
+    distances: integer('distances').array().notNull(),
+    blockedWeekdays: integer('blocked_weekdays').array().notNull().default([]),
+    holidayRest: text('holiday_rest').notNull(),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    uniqueIndex('rest_rules_company_id_name_key').on(
+      table.companyId,
+      sql`lower(${table.name})`
+    ),
+    index('rest_rules_company_id_idx').on(table.companyId),
+    check(
+      'rest_rules_window_check',
+      sql`${table.windowStartDay} >= 1 and ${table.windowEndDay} <= 31 and ${table.windowStartDay} <= ${table.windowEndDay}`
+    ),
+    foreignKey({
+      name: 'rest_rules_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade')
+  ]
+)
+
+// A pattern follows one rule only, so two windows never decide the same day off
+export const restRuleShiftPatterns = pgTable(
+  'rest_rule_shift_patterns',
+  {
+    id: id(),
+    restRuleId: text('rest_rule_id').notNull(),
+    shiftPatternId: text('shift_pattern_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('rest_rule_shift_patterns_shift_pattern_id_key').on(
+      table.shiftPatternId
+    ),
+    index('rest_rule_shift_patterns_rest_rule_id_idx').on(table.restRuleId),
+    foreignKey({
+      name: 'rest_rule_shift_patterns_rest_rule_id_fkey',
+      columns: [table.restRuleId],
+      foreignColumns: [restRules.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'rest_rule_shift_patterns_shift_pattern_id_fkey',
+      columns: [table.shiftPatternId],
+      foreignColumns: [shiftPatterns.id]
+    }).onDelete('cascade')
+  ]
+)
+
+// A constraint without a row is off
+export const restRuleConstraints = pgTable(
+  'rest_rule_constraints',
+  {
+    id: id(),
+    restRuleId: text('rest_rule_id').notNull(),
+    constraint: text('constraint').notNull(),
+    level: text('level').notNull(),
+    position: integer('position'),
+    ...timestamps()
+  },
+  (table) => [
+    unique('rest_rule_constraints_rest_rule_id_constraint_key').on(
+      table.restRuleId,
+      table.constraint
+    ),
+    foreignKey({
+      name: 'rest_rule_constraints_rest_rule_id_fkey',
+      columns: [table.restRuleId],
+      foreignColumns: [restRules.id]
+    }).onDelete('cascade')
+  ]
+)

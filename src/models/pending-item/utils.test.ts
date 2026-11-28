@@ -29,6 +29,9 @@ const createContext = (
   users: [],
   shiftDays: [],
   limits: { maxLunch: 120, maxDailyJourney: 600, maxContinuousWork: 360 },
+  restRules: [],
+  restDays: [],
+  isHoliday: () => false,
   ...context
 })
 
@@ -138,10 +141,68 @@ describe('detectPendingItems', () => {
   })
 })
 
+describe('detectUnmovedRests', () => {
+  const assignment = {
+    id: 'assignment',
+    shiftPatternId: 'pattern',
+    startDate: '2026-12-01',
+    endDate: null,
+    cycleStartDay: 1,
+    shiftPattern: { versions: [] }
+  }
+  const restRule = {
+    id: 'rule',
+    name: 'Folga na janela',
+    windowStartDay: 5,
+    windowEndDay: 25,
+    distances: [2],
+    blockedWeekdays: [],
+    holidayRest: 'window',
+    shiftPatternIds: ['pattern'],
+    constraints: []
+  }
+
+  test('Lists the days off a rule moves that have no adjustment, for the active employees only', () => {
+    const items = detectPendingItems(
+      createContext({
+        users: [ana],
+        restRules: [restRule],
+        restDays: [
+          {
+            userId: 'ana',
+            assignments: [assignment],
+            days: [
+              day('2026-12-03', 'off'),
+              day('2026-12-13', 'off'),
+              { ...day('2026-12-27', 'off'), adjusted: true }
+            ]
+          },
+          {
+            userId: 'bruno',
+            assignments: [assignment],
+            days: [day('2026-12-03', 'off')]
+          }
+        ]
+      })
+    ).filter(({ type }) => type === 'unmoved-rest')
+
+    expect(items).toEqual([
+      {
+        key: 'unmoved-rest:ana:2026-12-03',
+        type: 'unmoved-rest',
+        user: ana,
+        date: '2026-12-03',
+        ruleName: 'Folga na janela'
+      }
+    ])
+  })
+})
+
 describe('isDismissible', () => {
   test('Keeps the company setup until it is done', () => {
     expect(isDismissible({ type: 'company-setup' })).toBe(false)
     expect(isDismissible({ type: 'user-without-schedule' })).toBe(true)
     expect(isDismissible({ type: 'schedule-alert' })).toBe(true)
+    expect(isDismissible({ type: 'unmoved-rest' })).toBe(true)
   })
 })

@@ -6,6 +6,7 @@ import type {
   TScheduleAlert,
   TScheduleAlertLimits
 } from '@/models/journey/types'
+import type { TRestRuleInput, TRestUserDays } from '@/models/rest-rule/utils'
 import type { TUserShiftDays } from '@/models/shift-assignment/types'
 
 import { dismissSchema, findManyByCompanyIdSchema, keySchema } from './schema'
@@ -20,6 +21,12 @@ export type TPendingItem = { key: string } & (
       user: TPendingItemUser
       date: string
       alert: TScheduleAlert
+    }
+  | {
+      type: 'unmoved-rest'
+      user: TPendingItemUser
+      date: string
+      ruleName: string
     }
 )
 
@@ -43,6 +50,9 @@ export type TPendingItemContext = {
   users: TPendingItemUser[]
   shiftDays: Pick<TUserShiftDays, 'userId' | 'days'>[]
   limits: TScheduleAlertLimits
+  restRules: TRestRuleInput[]
+  restDays: TRestUserDays[]
+  isHoliday: (date: string) => boolean
 }
 
 export type TPendingItemDetector = (

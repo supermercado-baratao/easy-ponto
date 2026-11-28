@@ -46,6 +46,16 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.shiftPatternVersionDays.versionId
     })
   },
+  restRules: {
+    shiftPatterns: r.many.restRuleShiftPatterns({
+      from: r.restRules.id,
+      to: r.restRuleShiftPatterns.restRuleId
+    }),
+    constraints: r.many.restRuleConstraints({
+      from: r.restRules.id,
+      to: r.restRuleConstraints.restRuleId
+    })
+  },
   shiftAssignments: {
     shiftPattern: r.one.shiftPatterns({
       from: r.shiftAssignments.shiftPatternId,
