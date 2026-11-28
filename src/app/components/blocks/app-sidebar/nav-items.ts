@@ -3,6 +3,7 @@ import {
   Calendar,
   CalendarDays,
   CalendarSync,
+  CalendarX2,
   ChartColumn,
   CircleAlert,
   ClipboardCheck,
@@ -95,6 +96,11 @@ export const navItems: TNavItem[] = [
             title: 'Escalas',
             path: '/escalas',
             icon: CalendarSync
+          },
+          {
+            title: 'Regras de Folga',
+            path: '/regras-de-folga',
+            icon: CalendarX2
           },
           {
             title: 'Expedientes',

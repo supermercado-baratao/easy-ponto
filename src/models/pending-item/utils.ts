@@ -1,5 +1,6 @@
 import { detectCompanySetup } from './_utils/company-setup'
 import { detectScheduleAlerts } from './_utils/schedule-alert'
+import { detectUnmovedRests } from './_utils/unmoved-rest'
 import { detectUsersWithoutSchedule } from './_utils/user-without-schedule'
 import type {
   TPendingItem,
@@ -12,7 +13,8 @@ import type {
 const PENDING_ITEM_DETECTORS: TPendingItemDetector[] = [
   detectCompanySetup,
   detectUsersWithoutSchedule,
-  detectScheduleAlerts
+  detectScheduleAlerts,
+  detectUnmovedRests
 ]
 
 // The setup is what lets the rest work, so it stays until it is done

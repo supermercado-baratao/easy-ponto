@@ -1,9 +1,13 @@
 import { dayjs, wallClockNow } from '@/infra/dayjs'
 import { companyModel } from '@/models/company/model'
+import { findHoliday } from '@/models/holiday/utils'
 import { SCHEDULE_AGENDA_DAYS } from '@/models/journey/utils'
 import { journeyRulesModel } from '@/models/journey-rules/model'
+import { restRuleModel } from '@/models/rest-rule/model'
+import { toRestRuleInput } from '@/models/rest-rule/utils'
 import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { INACTIVE_USER_STATUSES, type TUserStatus } from '@/models/user/utils'
+import { holidayRepository } from '@/repositories/holiday-repository'
 import { pendingItemRepository } from '@/repositories/pending-item-repository'
 import { userRepository } from '@/repositories/user-repository'
 
@@ -24,19 +28,34 @@ const DATE_FORMAT = 'YYYY-MM-DD'
 
 const loadContext = async (companyId: string): Promise<TPendingItemContext> => {
   const today = wallClockNow().format(DATE_FORMAT)
-  const [company, { journeyRules, overtimeBands }, users, shiftDays] =
-    await Promise.all([
-      companyModel.findUniqueById(companyId),
-      journeyRulesModel.findByCompanyId(companyId),
-      userRepository.findManyByCompanyId(companyId),
-      shiftAssignmentModel.findCompanyDays({
-        companyId,
-        initialDate: today,
-        finalDate: dayjs(today)
-          .add(SCHEDULE_AGENDA_DAYS - 1, 'day')
-          .format(DATE_FORMAT)
-      })
-    ])
+  const [
+    company,
+    { journeyRules, overtimeBands },
+    users,
+    shiftDays,
+    restRules,
+    holidays,
+    restDays
+  ] = await Promise.all([
+    companyModel.findUniqueById(companyId),
+    journeyRulesModel.findByCompanyId(companyId),
+    userRepository.findManyByCompanyId(companyId),
+    shiftAssignmentModel.findCompanyDays({
+      companyId,
+      initialDate: today,
+      finalDate: dayjs(today)
+        .add(SCHEDULE_AGENDA_DAYS - 1, 'day')
+        .format(DATE_FORMAT)
+    }),
+    restRuleModel.findManyByCompanyId(companyId),
+    holidayRepository.findManyByCompanyId(companyId),
+    // The rests are generated a month at a time, so the next month is the furthest a user plans
+    shiftAssignmentModel.findCompanyDays({
+      companyId,
+      initialDate: today,
+      finalDate: dayjs(today).add(1, 'month').endOf('month').format(DATE_FORMAT)
+    })
+  ])
   return {
     today,
     company,
@@ -47,7 +66,10 @@ const loadContext = async (companyId: string): Promise<TPendingItemContext> => {
       )
       .map(({ id, name }) => ({ id, name })),
     shiftDays,
-    limits: journeyRules
+    limits: journeyRules,
+    restRules: restRules.map((rule) => toRestRuleInput(rule)),
+    restDays,
+    isHoliday: (date) => !!findHoliday(date, holidays)
   }
 }
 
