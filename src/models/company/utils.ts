@@ -19,16 +19,41 @@ export const toSlug = (name: string): string => {
   return base ? `${base}-${suffix}` : suffix
 }
 
+export const COMPANY_SETUP_STEPS = [
+  'device',
+  'company',
+  'overtime-bands'
+] as const
+
+export type TCompanySetupStep = (typeof COMPANY_SETUP_STEPS)[number]
+
 // A company starts without the device and with only its name (#94): the rest is read from the device,
 // except the overtime percentages of its agreement (#105)
-export const isCompanyConfigured = (
+export const getMissingSetupSteps = (
   {
     deviceCredentialsId,
     cpfCnpj
   }: Pick<Company, 'deviceCredentialsId' | 'cpfCnpj'>,
   overtimeBands: Pick<OvertimeBand, 'dayKind'>[]
-): boolean =>
-  Boolean(deviceCredentialsId && cpfCnpj) && hasOvertimeBands(overtimeBands)
+): TCompanySetupStep[] =>
+  COMPANY_SETUP_STEPS.filter((step) => {
+    switch (step) {
+      case 'device': {
+        return !deviceCredentialsId
+      }
+      case 'company': {
+        return !cpfCnpj
+      }
+      case 'overtime-bands': {
+        return !hasOvertimeBands(overtimeBands)
+      }
+    }
+  })
+
+export const isCompanyConfigured = (
+  company: Pick<Company, 'deviceCredentialsId' | 'cpfCnpj'>,
+  overtimeBands: Pick<OvertimeBand, 'dayKind'>[]
+): boolean => getMissingSetupSteps(company, overtimeBands).length === 0
 
 export const DEVICE_COMPANY_FIELDS = [
   'name',

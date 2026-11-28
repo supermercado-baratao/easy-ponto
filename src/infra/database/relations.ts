@@ -86,6 +86,12 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false
     })
   },
+  pendingItemDismissals: {
+    dismissedBy: r.one.authUsers({
+      from: r.pendingItemDismissals.dismissedById,
+      to: r.authUsers.id
+    })
+  },
   hoursBankBalances: {
     user: r.one.users({
       from: r.hoursBankBalances.userId,

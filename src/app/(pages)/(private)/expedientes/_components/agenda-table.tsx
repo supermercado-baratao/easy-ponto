@@ -9,13 +9,13 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
+import { getAlertLabel } from '@/app/utils/schedule-alert'
 import { dayjs } from '@/infra/dayjs'
 import { minutesToTime } from '@/infra/time'
 import type { TScheduleAlertLimits } from '@/models/journey/types'
 import { formatCycleTime, isPastMidnight } from '@/models/shift-pattern/utils'
 
 import type { TAgendaDay, TAgendaRow } from './types'
-import { getAlertLabel } from './utils'
 
 const CycleTime = ({ minutes }: { minutes: number }) => (
   <>

@@ -7,31 +7,22 @@ import {
   AlertDescription,
   AlertTitle
 } from '@/app/components/ui/shadcn/alert'
+import { COMPANY_SETUP_STEP_LABELS } from '@/app/utils/company-setup'
 import type {
   JourneyRules,
   OvertimeBand,
   TCompanyWithDeviceCredentials
 } from '@/infra/database/types'
-import { isCompanyConfigured } from '@/models/company/utils'
-import { hasOvertimeBands } from '@/models/journey-rules/utils'
+import {
+  getMissingSetupSteps,
+  isCompanyConfigured
+} from '@/models/company/utils'
 
 import { CompanyForm } from './company-form/form'
 import { DeviceForm } from './device-form/device-form'
 import { ImportFileButton } from './import-file-button/import-file-button'
 import { JourneyRulesForm } from './journey-rules-form/journey-rules-form'
 import { OvertimeBandsForm } from './overtime-bands-form/overtime-bands-form'
-
-const getPendingSteps = (
-  company: Pick<TCompanyWithDeviceCredentials, 'cpfCnpj' | 'deviceCredentials'>,
-  overtimeBands: OvertimeBand[]
-): string[] =>
-  [
-    !company.deviceCredentials && 'Cadastre o relógio de ponto.',
-    !company.cpfCnpj &&
-      'Sincronize os dados da empresa com o relógio de ponto.',
-    !hasOvertimeBands(overtimeBands) &&
-      'Informe os adicionais de hora extra de cada tipo de dia.'
-  ].filter((step) => typeof step === 'string')
 
 export const MainContent = ({
   company: { deviceCredentials, ...company },
@@ -54,11 +45,8 @@ export const MainContent = ({
           <AlertTitle>Configure o Easy Ponto para começar</AlertTitle>
           <AlertDescription>
             <ul className="list-inside list-disc">
-              {getPendingSteps(
-                { ...company, deviceCredentials },
-                overtimeBands
-              ).map((step) => (
-                <li key={step}>{step}</li>
+              {getMissingSetupSteps(company, overtimeBands).map((step) => (
+                <li key={step}>{COMPANY_SETUP_STEP_LABELS[step]}</li>
               ))}
             </ul>
           </AlertDescription>

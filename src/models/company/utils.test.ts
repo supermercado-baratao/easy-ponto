@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { diffDeviceCompany, isCompanyConfigured } from './utils'
+import { diffDeviceCompany, getMissingSetupSteps } from './utils'
 
-describe('isCompanyConfigured', () => {
+describe('getMissingSetupSteps', () => {
   const device = { deviceCredentialsId: 'device', cpfCnpj: '12345678000190' }
   const overtimeBands = [
     { dayKind: 'workday' },
@@ -11,21 +11,29 @@ describe('isCompanyConfigured', () => {
   ]
 
   test('Requires the device credentials and the data imported from the device', () => {
-    expect(isCompanyConfigured(device, overtimeBands)).toBe(true)
+    expect(getMissingSetupSteps(device, overtimeBands)).toEqual([])
     expect(
-      isCompanyConfigured(
+      getMissingSetupSteps(
         { ...device, deviceCredentialsId: null },
         overtimeBands
       )
-    ).toBe(false)
+    ).toEqual(['device'])
     expect(
-      isCompanyConfigured({ ...device, cpfCnpj: null }, overtimeBands)
-    ).toBe(false)
+      getMissingSetupSteps({ ...device, cpfCnpj: null }, overtimeBands)
+    ).toEqual(['company'])
   })
 
   test('Requires the overtime percentages of every day kind', () => {
-    expect(isCompanyConfigured(device, [])).toBe(false)
-    expect(isCompanyConfigured(device, overtimeBands.slice(0, 2))).toBe(false)
+    expect(getMissingSetupSteps(device, [])).toEqual(['overtime-bands'])
+    expect(getMissingSetupSteps(device, overtimeBands.slice(0, 2))).toEqual([
+      'overtime-bands'
+    ])
+  })
+
+  test('Lists every missing step of a new company in order', () => {
+    expect(
+      getMissingSetupSteps({ deviceCredentialsId: null, cpfCnpj: null }, [])
+    ).toEqual(['device', 'company', 'overtime-bands'])
   })
 })
 
