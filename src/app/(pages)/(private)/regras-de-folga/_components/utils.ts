@@ -1,13 +1,21 @@
-import { WEEKDAY_LABELS } from '@/app/utils/weekday'
-import { WEEKDAYS } from '@/constants/time'
-import type { TRestRuleWithRelations } from '@/infra/database/types'
+import { getRestRestrictionLabel } from '@/app/utils/rest-restriction'
+import { getWeekdayLabel } from '@/app/utils/weekday'
+import type {
+  TRestRestrictionWithRelations,
+  TRestRuleWithRelations
+} from '@/infra/database/types'
+import type { TRestRestrictionKind } from '@/models/rest-restriction/utils'
 import type {
   THolidayRestPolicy,
   TRestConstraint,
   TRestConstraintLevel
 } from '@/models/rest-rule/utils'
 
+import type { TGroupOption } from './types'
+
 export const CREATE_RULE_BUTTON_ID = 'create-rest-rule'
+
+export const CREATE_RESTRICTION_BUTTON_ID = 'create-rest-restriction'
 
 export const HOLIDAY_REST_LABELS: Record<THolidayRestPolicy, string> = {
   always: 'Sempre conta como folga',
@@ -36,11 +44,6 @@ export const LEVEL_LABELS: Record<TRestConstraintLevel, string> = {
   preferred: 'Preferencial'
 }
 
-export const getWeekdayLabel = (weekday: number): string => {
-  const entry = WEEKDAYS.find((day) => day.weekday === weekday)
-  return entry ? WEEKDAY_LABELS[entry.key] : String(weekday)
-}
-
 export const getConstraintSummary = (
   rule: Pick<TRestRuleWithRelations, 'constraints' | 'blockedWeekdays'>
 ): string[] =>
@@ -62,3 +65,20 @@ export const getConstraintSummary = (
           : LEVEL_LABELS.required
       return `${levelLabel}: ${name}${detail}`
     })
+
+export const getRestrictionLabel = (
+  restriction: TRestRestrictionWithRelations,
+  groups: TGroupOption[]
+): string =>
+  getRestRestrictionLabel({
+    kind: restriction.kind as TRestRestrictionKind,
+    maxOff: restriction.maxOff,
+    weekdays: restriction.weekdays,
+    userNames: restriction.user
+      ? [restriction.user.name]
+      : restriction.users
+          .map(({ user }) => user.name)
+          .toSorted((a, b) => a.localeCompare(b, 'pt-BR')),
+    groupName:
+      groups.find(({ id }) => id === restriction.userGroupId)?.label ?? null
+  })

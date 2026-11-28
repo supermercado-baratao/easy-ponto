@@ -20,6 +20,9 @@ export type OvertimeBand = typeof schema.overtimeBands.$inferSelect
 export type PendingItemDismissal =
   typeof schema.pendingItemDismissals.$inferSelect
 export type PunchRecord = typeof schema.punchRecords.$inferSelect
+export type RestRestriction = typeof schema.restRestrictions.$inferSelect
+export type RestRestrictionUser =
+  typeof schema.restRestrictionUsers.$inferSelect
 export type RestRule = typeof schema.restRules.$inferSelect
 export type RestRuleConstraint = typeof schema.restRuleConstraints.$inferSelect
 export type RestRuleShiftPattern =
@@ -86,4 +89,10 @@ export type THoursBankClosingWithBalances = HoursBankClosing & {
 export type TRestRuleWithRelations = RestRule & {
   shiftPatterns: RestRuleShiftPattern[]
   constraints: RestRuleConstraint[]
+}
+
+export type TRestRestrictionWithRelations = RestRestriction & {
+  users: (RestRestrictionUser & { user: User })[]
+  group: UserGroup | null
+  user: User | null
 }

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
+import type { TRestRestrictionInput } from '@/models/rest-restriction/utils'
 import {
   resolveDays,
   type TShiftAdjustmentInput,
@@ -380,6 +381,183 @@ describe('findRestMoves', () => {
     expect(
       findMoves({ rule: createRule({ shiftPatternIds: ['other'] }) })
     ).toEqual([])
+  })
+})
+
+const createRestriction = (
+  restriction: Partial<TRestRestrictionInput> = {}
+): TRestRestrictionInput => ({
+  id: 'restriction',
+  kind: 'together',
+  level: 'required',
+  maxOff: 1,
+  weekdays: [],
+  userNames: ['Ana', 'Bruno'],
+  groupName: null,
+  userIds: ['user', 'colleague'],
+  ...restriction
+})
+
+// The colleague follows a pattern without a rule, so only their days off count
+const createColleague = (offDates: string[] = []): TRestUserDays => {
+  const user = createUser({
+    adjustments: offDates.map((date) => ({
+      date,
+      kind: 'off',
+      shiftAssignmentId: null,
+      ...OFF
+    }))
+  })
+  return {
+    ...user,
+    userId: 'colleague',
+    assignments: user.assignments.map((assignment) => ({
+      ...assignment,
+      shiftPatternId: 'other'
+    }))
+  }
+}
+
+const findFirstMove = ({
+  rule = createRule({ windowStartDay: 10 }),
+  users,
+  restrictions
+}: {
+  rule?: TRestRuleInput
+  users: TRestUserDays[]
+  restrictions: TRestRestrictionInput[]
+}): Pick<
+  TRestMove,
+  'userId' | 'target' | 'unmetConstraints' | 'brokenRestrictions'
+> => {
+  const [move] = findRestMoves({
+    rules: [rule],
+    users,
+    restrictions,
+    isHoliday: () => false
+  })
+  return {
+    userId: move.userId,
+    target: move.target,
+    unmetConstraints: move.unmetConstraints,
+    brokenRestrictions: move.brokenRestrictions
+  }
+}
+
+describe('findRestMoves with restrictions between employees', () => {
+  test('Skips the days that break a required restriction', () => {
+    expect(
+      findFirstMove({
+        users: [createUser(), createColleague(['2027-03-11'])],
+        restrictions: [createRestriction()]
+      })
+    ).toEqual({
+      userId: 'user',
+      target: '2027-03-13',
+      unmetConstraints: [],
+      brokenRestrictions: []
+    })
+  })
+
+  test('Leaves the day off unmoved when every day breaks a required restriction', () => {
+    const [move] = findRestMoves({
+      rules: [createRule({ windowStartDay: 10, distances: [4] })],
+      users: [createUser(), createColleague(['2027-03-11'])],
+      restrictions: [createRestriction()],
+      isHoliday: () => false
+    })
+
+    expect(move.target).toBeNull()
+  })
+
+  test('Breaks a preferred restriction only when no other day keeps it', () => {
+    const restriction = createRestriction({ level: 'preferred' })
+
+    expect(
+      findFirstMove({
+        users: [createUser(), createColleague(['2027-03-11'])],
+        restrictions: [restriction]
+      }).target
+    ).toBe('2027-03-13')
+    expect(
+      findFirstMove({
+        users: [createUser(), createColleague(['2027-03-11', '2027-03-13'])],
+        restrictions: [restriction]
+      })
+    ).toEqual({
+      userId: 'user',
+      target: '2027-03-11',
+      unmetConstraints: [],
+      brokenRestrictions: [
+        {
+          id: 'restriction',
+          kind: 'together',
+          level: 'preferred',
+          maxOff: 1,
+          weekdays: [],
+          userNames: ['Ana', 'Bruno'],
+          groupName: null
+        }
+      ]
+    })
+  })
+
+  test('Weighs a preferred restriction above the preferred constraints of the rule', () => {
+    const rule = createRule({
+      windowStartDay: 10,
+      blockedWeekdays: [6],
+      constraints: [
+        { constraint: 'blocked-weekdays', level: 'preferred', position: 1 }
+      ]
+    })
+
+    expect(
+      findFirstMove({
+        rule,
+        users: [createUser(), createColleague(['2027-03-11'])],
+        restrictions: [createRestriction({ level: 'preferred' })]
+      })
+    ).toMatchObject({
+      target: '2027-03-13',
+      unmetConstraints: ['blocked-weekdays'],
+      brokenRestrictions: []
+    })
+  })
+
+  test('Keeps the moved day off out of the weekdays forbidden to the employee', () => {
+    expect(
+      findFirstMove({
+        users: [createUser()],
+        restrictions: [
+          createRestriction({
+            kind: 'weekdays',
+            maxOff: null,
+            weekdays: [4],
+            userNames: ['Ana'],
+            userIds: ['user']
+          })
+        ]
+      }).target
+    ).toBe('2027-03-13')
+  })
+
+  test('Counts the days off moved before, across the employees', () => {
+    const colleague = { ...createUser(), userId: 'colleague' }
+    const moves = findRestMoves({
+      rules: [createRule({ windowStartDay: 10 })],
+      users: [createUser(), colleague],
+      restrictions: [createRestriction()],
+      isHoliday: () => false
+    })
+
+    expect(
+      moves.map(({ userId, date, target }) => ({ userId, date, target }))
+    ).toEqual([
+      { userId: 'user', date: '2027-03-07', target: '2027-03-11' },
+      { userId: 'colleague', date: '2027-03-07', target: '2027-03-13' },
+      { userId: 'user', date: '2027-03-28', target: '2027-03-24' },
+      { userId: 'colleague', date: '2027-03-28', target: '2027-03-22' }
+    ])
   })
 })
 

@@ -8,6 +8,8 @@ import type {
   UserGroup
 } from '@/infra/database/types'
 import { wallClockNow } from '@/infra/dayjs'
+import { restRestrictionModel } from '@/models/rest-restriction/model'
+import type { TAssignmentRestBreak } from '@/models/rest-restriction/types'
 import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { shiftPatternModel } from '@/models/shift-pattern/model'
 import { userModel } from '@/models/user/model'
@@ -28,6 +30,7 @@ type TUsersPageData = {
   filters: TUsersFilterValues
   shiftPatterns: TShiftPatternWithVersions[]
   assignments: ShiftAssignment[]
+  restBreaks: Record<string, TAssignmentRestBreak[]>
   today: string
   canEdit: boolean
 }
@@ -43,10 +46,12 @@ export const getUsersPageData = async (searchParameters: {
     company: { id: companyId },
     canEdit
   } = await requireCompany()
-  const [{ users: allUsers, groups, jobFunctions }, shiftPatterns] =
+  // Only the editors open the links, so only they wait for the restrictions
+  const [{ users: allUsers, groups, jobFunctions }, shiftPatterns, restBreaks] =
     await Promise.all([
       userModel.findManyWithOrganization(companyId),
-      shiftPatternModel.findManyByCompanyId(companyId)
+      shiftPatternModel.findManyByCompanyId(companyId),
+      canEdit ? restRestrictionModel.findAssignmentBreaks(companyId) : {}
     ])
   const assignments = await shiftAssignmentModel.findManyByUserIds(
     allUsers.map(({ id }) => id)
@@ -103,6 +108,7 @@ export const getUsersPageData = async (searchParameters: {
         updatedAt
       })
     ),
+    restBreaks,
     today: wallClockNow().format('YYYY-MM-DD'),
     canEdit
   }

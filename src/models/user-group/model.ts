@@ -1,9 +1,14 @@
 import { z } from 'zod'
 
 import type { UserGroup, UserGroupMember } from '@/infra/database/types'
+import { restRestrictionRepository } from '@/repositories/rest-restriction-repository'
 import { userGroupRepository } from '@/repositories/user-group-repository'
 
-import { UserGroupHasChildrenError, UserGroupNotFoundError } from './errors'
+import {
+  UserGroupHasChildrenError,
+  UserGroupInRestrictionError,
+  UserGroupNotFoundError
+} from './errors'
 import {
   createSchema,
   findManyByCompanyIdSchema,
@@ -97,6 +102,9 @@ const remove = async (params: TUserGroupRemoveParams): Promise<UserGroup> => {
   }
   if (groups.some(({ parentId }) => parentId === group.id)) {
     throw new UserGroupHasChildrenError(group.name)
+  }
+  if (await restRestrictionRepository.existsByUserGroupId(group.id)) {
+    throw new UserGroupInRestrictionError(group.name)
   }
   await userGroupRepository.remove(validParams)
   return group

@@ -17,6 +17,7 @@ import type {
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { getUserFunctions } from '@/models/job-function/utils'
+import type { TAssignmentRestBreak } from '@/models/rest-restriction/types'
 import { isInEffect } from '@/models/shift-assignment/utils'
 import type { TUserWithOrganization } from '@/models/user/types'
 import { getGroupLabel } from '@/models/user-group/utils'
@@ -33,6 +34,7 @@ export const UsersTable = ({
   jobFunctions,
   shiftPatterns,
   assignments,
+  restBreaks,
   today,
   canEdit
 }: {
@@ -41,12 +43,21 @@ export const UsersTable = ({
   jobFunctions: JobFunction[]
   shiftPatterns: TShiftPatternWithVersions[]
   assignments: ShiftAssignment[]
+  restBreaks: Record<string, TAssignmentRestBreak[]>
   today: string
   canEdit: boolean
 }) => {
   const namesById = new Map(shiftPatterns.map(({ id, name }) => [id, name]))
   const getAssignments = (userId: string): ShiftAssignment[] =>
     assignments.filter((assignment) => assignment.userId === userId)
+  const getRestBreaks = (
+    userId: string
+  ): Record<string, TAssignmentRestBreak[]> =>
+    Object.fromEntries(
+      getAssignments(userId)
+        .filter(({ id }) => restBreaks[id])
+        .map(({ id }) => [id, restBreaks[id]])
+    )
   const getCurrentShiftPatterns = (userId: string): string =>
     getAssignments(userId)
       .filter((assignment) => isInEffect(assignment, today))
@@ -118,6 +129,7 @@ export const UsersTable = ({
                     userId={user.id}
                     name={user.name}
                     assignments={getAssignments(user.id)}
+                    restBreaks={getRestBreaks(user.id)}
                     shiftPatterns={shiftPatterns}
                     today={today}
                   />

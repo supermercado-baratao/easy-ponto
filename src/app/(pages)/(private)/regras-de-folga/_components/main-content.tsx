@@ -2,6 +2,8 @@ import { Header } from '@/app/components/blocks/header'
 import { MainContent as _MainContent } from '@/app/components/ui/custom/main-content'
 
 import { GenerateRestsDialog } from './generate-rests-dialog/generate-rests-dialog'
+import { RestRestrictionSheet } from './rest-restriction-sheet/rest-restriction-sheet'
+import { RestRestrictionsTable } from './rest-restrictions-table'
 import { RestRuleSheet } from './rest-rule-sheet/rest-rule-sheet'
 import { RestRulesTable } from './rest-rules-table'
 import type { TRestRulesPageData } from './types'
@@ -9,6 +11,9 @@ import type { TRestRulesPageData } from './types'
 export const MainContent = ({
   rules,
   shiftPatterns,
+  restrictions,
+  users,
+  groups,
   nextMonth,
   canEdit
 }: TRestRulesPageData) => (
@@ -45,6 +50,41 @@ export const MainContent = ({
           )}
         </div>
       )}
+      <section
+        aria-labelledby="rest-restrictions-title"
+        className="flex flex-col gap-4"
+      >
+        <div className="flex flex-col gap-1">
+          <h2 id="rest-restrictions-title" className="text-base font-medium">
+            Restrições entre funcionários
+          </h2>
+          <p className="max-w-prose text-sm text-muted-foreground">
+            Quem não pode folgar junto, quantos de um grupo podem folgar no
+            mesmo dia e os dias da semana em que um funcionário não folga. A
+            folga movida respeita as restrições, e a folga da escala que quebra
+            uma delas aparece no vínculo do funcionário e nas Pendências.
+          </p>
+        </div>
+        {canEdit && (
+          <RestRestrictionSheet
+            users={users}
+            groups={groups}
+            defaultValues={{ level: 'required' }}
+          />
+        )}
+        {restrictions.length > 0 ? (
+          <RestRestrictionsTable
+            restrictions={restrictions}
+            users={users}
+            groups={groups}
+            canEdit={canEdit}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nenhuma restrição cadastrada
+          </p>
+        )}
+      </section>
     </_MainContent>
   </>
 )

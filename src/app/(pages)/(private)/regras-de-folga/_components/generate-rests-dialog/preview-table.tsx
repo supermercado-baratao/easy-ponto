@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
+import { getRestRestrictionLabel } from '@/app/utils/rest-restriction'
 import { dayjs } from '@/infra/dayjs'
 import type { TRestPreviewMove } from '@/models/rest-rule/types'
 
@@ -16,11 +17,16 @@ const formatDate = (date: string): string => dayjs(date).format('ddd, DD/MM')
 const getNote = ({
   reason,
   target,
-  unmetConstraints
+  unmetConstraints,
+  brokenRestrictions
 }: TRestPreviewMove): string => {
   if (!target) return 'Nenhum dia cumpre as restrições obrigatórias'
+  // The broken restrictions come before the unmet constraints, since they weigh more
   const notes = [
     ...(reason === 'holiday' ? ['O feriado continua de folga'] : []),
+    ...brokenRestrictions.map(
+      (restriction) => `Quebra: ${getRestRestrictionLabel(restriction)}`
+    ),
     ...unmetConstraints.map(
       (constraint) => `Não cumpre: ${CONSTRAINT_LABELS[constraint]}`
     )
