@@ -16,3 +16,13 @@ export class UserGroupHasChildrenError extends ValidationError {
     this.name = 'UserGroupHasChildrenError'
   }
 }
+
+export class UserGroupInRestrictionError extends ValidationError {
+  constructor(name: string) {
+    super({
+      message: `O grupo ${name} tem um limite de folga.`,
+      action: 'Remova o limite em Regras de Folga antes.'
+    })
+    this.name = 'UserGroupInRestrictionError'
+  }
+}

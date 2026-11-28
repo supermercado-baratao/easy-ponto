@@ -1,4 +1,5 @@
 import { COMPANY_SETUP_STEP_LABELS } from '@/app/utils/company-setup'
+import { getRestRestrictionLabel } from '@/app/utils/rest-restriction'
 import { getAlertLabel } from '@/app/utils/schedule-alert'
 import { dayjs } from '@/infra/dayjs'
 import type { TScheduleAlertLimits } from '@/models/journey/types'
@@ -29,6 +30,11 @@ export const PENDING_ITEM_GROUPS: Record<
     title: 'Folgas não movidas',
     description:
       'Folgas da escala, de hoje até o fim do próximo mês, que as regras de folga mandam mover e ainda não têm um ajuste do dia.'
+  },
+  'rest-restriction-break': {
+    title: 'Restrições entre funcionários quebradas',
+    description:
+      'Dias, de hoje até o fim do próximo mês, em que as folgas quebram uma restrição entre funcionários das regras de folga.'
   }
 }
 
@@ -59,6 +65,12 @@ export const getPendingItemLabel = (
         description: `${dayjs(item.date).format('ddd, DD/MM')} · ${item.ruleName}`
       }
     }
+    case 'rest-restriction-break': {
+      return {
+        title: getRestRestrictionLabel(item.restriction),
+        description: `${dayjs(item.date).format('ddd, DD/MM')} · De folga: ${item.users.map(({ name }) => name).join(', ')}`
+      }
+    }
   }
 }
 
@@ -78,6 +90,9 @@ export const getResolvePath = (item: TPendingItem): string => {
     }
     case 'unmoved-rest': {
       return `/calendario?${new URLSearchParams({ mes: item.date.slice(0, 7), funcionario: item.user.id }).toString()}`
+    }
+    case 'rest-restriction-break': {
+      return `/calendario?${new URLSearchParams({ mes: item.date.slice(0, 7), funcionario: item.users[0].id }).toString()}`
     }
   }
 }

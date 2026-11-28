@@ -3,6 +3,7 @@ import { z } from 'zod'
 import type { RestRule, TRestRuleWithRelations } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { findHoliday } from '@/models/holiday/utils'
+import { restRestrictionModel } from '@/models/rest-restriction/model'
 import { resolveDays } from '@/models/shift-assignment/utils'
 import { INACTIVE_USER_STATUSES, type TUserStatus } from '@/models/user/utils'
 import { holidayRepository } from '@/repositories/holiday-repository'
@@ -141,10 +142,11 @@ const computeMoves = async (
 ): Promise<TRestPreview & { userIds: string[] }> => {
   const { companyId, month } = periodSchema.parse(params)
   const { initialDate, finalDate } = getPeriod(month)
-  const [rules, holidays, users] = await Promise.all([
+  const [rules, holidays, users, restrictions] = await Promise.all([
     restRuleRepository.findManyByCompanyId(companyId),
     holidayRepository.findManyByCompanyId(companyId),
-    userRepository.findManyByCompanyId(companyId)
+    userRepository.findManyByCompanyId(companyId),
+    restRestrictionModel.findInputsByCompanyId(companyId)
   ])
   const userIds = users.map(({ id }) => id)
   const activeUsers = users.filter(
@@ -165,6 +167,7 @@ const computeMoves = async (
   )
   const moves: TRestMove[] = findRestMoves({
     rules: rules.map((rule) => toRestRuleInput(rule)),
+    restrictions,
     isHoliday: (date) => !!findHoliday(date, holidays),
     users: activeIds.map((userId) => {
       const userAssignments = assignments.filter(

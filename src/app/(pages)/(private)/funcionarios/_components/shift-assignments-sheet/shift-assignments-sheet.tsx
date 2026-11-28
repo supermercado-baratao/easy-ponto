@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarRange, Pencil, Trash2 } from 'lucide-react'
+import { CalendarRange, Pencil, Trash2, TriangleAlert } from 'lucide-react'
 import Link from 'next/link'
 import { useActionState, useEffect, useId, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -26,10 +26,13 @@ import {
   SheetTrigger
 } from '@/app/components/ui/shadcn/sheet'
 import { showActionError } from '@/app/utils/action-error'
+import { getRestRestrictionLabel } from '@/app/utils/rest-restriction'
 import type {
   ShiftAssignment,
   TShiftPatternWithVersions
 } from '@/infra/database/types'
+import { dayjs } from '@/infra/dayjs'
+import type { TAssignmentRestBreak } from '@/models/rest-restriction/types'
 
 import { remove } from './actions'
 import { ShiftAssignmentForm } from './shift-assignment-form'
@@ -117,6 +120,22 @@ const RemoveAssignmentButton = ({
   )
 }
 
+const RestBreaks = ({ breaks }: { breaks: TAssignmentRestBreak[] }) => (
+  <div className="flex flex-col gap-1 text-sm">
+    <p className="flex items-center gap-1 font-medium text-destructive">
+      <TriangleAlert aria-hidden="true" className="size-4 shrink-0" />A folga da
+      escala quebra restrições entre funcionários
+    </p>
+    <ul className="flex flex-col gap-0.5 text-muted-foreground">
+      {breaks.map(({ date, restriction }) => (
+        <li key={`${date}-${restriction.id}`}>
+          {`${dayjs(date).format('ddd, DD/MM')} · ${getRestRestrictionLabel(restriction)}`}
+        </li>
+      ))}
+    </ul>
+  </div>
+)
+
 const getTitle = (editing: TShiftAssignmentFormValues | null): string => {
   if (!editing) return 'Escalas do funcionário'
   return editing.id ? 'Editar escala do funcionário' : 'Ligar a uma escala'
@@ -141,12 +160,14 @@ export const ShiftAssignmentsSheet = ({
   userId,
   name,
   assignments,
+  restBreaks,
   shiftPatterns,
   today
 }: {
   userId: string
   name: string
   assignments: ShiftAssignment[]
+  restBreaks: Record<string, TAssignmentRestBreak[]>
   shiftPatterns: TShiftPatternWithVersions[]
   today: string
 }) => {
@@ -236,6 +257,9 @@ export const ShiftAssignmentsSheet = ({
                         <span className="text-sm text-muted-foreground">
                           {`${period}, a partir do dia ${assignment.cycleStartDay} do ciclo`}
                         </span>
+                        {restBreaks[assignment.id] && (
+                          <RestBreaks breaks={restBreaks[assignment.id]} />
+                        )}
                       </div>
                       <div className="flex">
                         <Button

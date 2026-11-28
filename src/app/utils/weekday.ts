@@ -1,4 +1,4 @@
-import type { TWeekdayKey } from '@/constants/time'
+import { type TWeekdayKey, WEEKDAYS } from '@/constants/time'
 
 export const WEEKDAY_LABELS: Record<TWeekdayKey, string> = {
   monday: 'Segunda',
@@ -8,4 +8,9 @@ export const WEEKDAY_LABELS: Record<TWeekdayKey, string> = {
   friday: 'Sexta',
   saturday: 'Sábado',
   sunday: 'Domingo'
+}
+
+export const getWeekdayLabel = (weekday: number): string => {
+  const entry = WEEKDAYS.find((day) => day.weekday === weekday)
+  return entry ? WEEKDAY_LABELS[entry.key] : String(weekday)
 }

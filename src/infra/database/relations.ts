@@ -56,6 +56,27 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.restRuleConstraints.restRuleId
     })
   },
+  restRestrictions: {
+    users: r.many.restRestrictionUsers({
+      from: r.restRestrictions.id,
+      to: r.restRestrictionUsers.restrictionId
+    }),
+    group: r.one.userGroups({
+      from: r.restRestrictions.userGroupId,
+      to: r.userGroups.id
+    }),
+    user: r.one.users({
+      from: r.restRestrictions.userId,
+      to: r.users.id
+    })
+  },
+  restRestrictionUsers: {
+    user: r.one.users({
+      from: r.restRestrictionUsers.userId,
+      to: r.users.id,
+      optional: false
+    })
+  },
   shiftAssignments: {
     shiftPattern: r.one.shiftPatterns({
       from: r.shiftAssignments.shiftPatternId,

@@ -3,8 +3,12 @@ import { companyModel } from '@/models/company/model'
 import { findHoliday } from '@/models/holiday/utils'
 import { SCHEDULE_AGENDA_DAYS } from '@/models/journey/utils'
 import { journeyRulesModel } from '@/models/journey-rules/model'
+import { restRestrictionModel } from '@/models/rest-restriction/model'
 import { restRuleModel } from '@/models/rest-rule/model'
-import { toRestRuleInput } from '@/models/rest-rule/utils'
+import {
+  getRestPlanningFinalDate,
+  toRestRuleInput
+} from '@/models/rest-rule/utils'
 import { shiftAssignmentModel } from '@/models/shift-assignment/model'
 import { INACTIVE_USER_STATUSES, type TUserStatus } from '@/models/user/utils'
 import { holidayRepository } from '@/repositories/holiday-repository'
@@ -35,7 +39,8 @@ const loadContext = async (companyId: string): Promise<TPendingItemContext> => {
     shiftDays,
     restRules,
     holidays,
-    restDays
+    restDays,
+    restRestrictions
   ] = await Promise.all([
     companyModel.findUniqueById(companyId),
     journeyRulesModel.findByCompanyId(companyId),
@@ -49,12 +54,12 @@ const loadContext = async (companyId: string): Promise<TPendingItemContext> => {
     }),
     restRuleModel.findManyByCompanyId(companyId),
     holidayRepository.findManyByCompanyId(companyId),
-    // The rests are generated a month at a time, so the next month is the furthest a user plans
     shiftAssignmentModel.findCompanyDays({
       companyId,
       initialDate: today,
-      finalDate: dayjs(today).add(1, 'month').endOf('month').format(DATE_FORMAT)
-    })
+      finalDate: getRestPlanningFinalDate(today)
+    }),
+    restRestrictionModel.findInputsByCompanyId(companyId)
   ])
   return {
     today,
@@ -69,6 +74,7 @@ const loadContext = async (companyId: string): Promise<TPendingItemContext> => {
     limits: journeyRules,
     restRules: restRules.map((rule) => toRestRuleInput(rule)),
     restDays,
+    restRestrictions,
     isHoliday: (date) => !!findHoliday(date, holidays)
   }
 }

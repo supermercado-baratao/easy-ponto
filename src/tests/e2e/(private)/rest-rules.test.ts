@@ -55,7 +55,7 @@ test.beforeAll(async () => {
 })
 
 test.describe('Rest rules', () => {
-  test('Registers a rule, previews and saves the rests of a month and removes the rule', async ({
+  test('Registers a rule, previews and saves the rests of a month, follows a restriction and removes them', async ({
     page
   }) => {
     await page.goto('/entrar')
@@ -120,6 +120,51 @@ test.describe('Rest rules', () => {
     await dialog.getByRole('button', { name: 'Salvar folgas' }).click()
     await expect(page.getByText('2 folgas movidas com sucesso!')).toBeVisible()
     await expect(dialog).toBeHidden()
+
+    await page
+      .getByRole('button', { name: 'Cadastrar restrição de folga' })
+      .click()
+    const restrictionSheet = page.getByRole('dialog', {
+      name: 'Cadastrar restrição de folga'
+    })
+    await restrictionSheet.getByRole('combobox', { name: 'Tipo' }).click()
+    await page.getByRole('option', { name: 'Dias proibidos' }).click()
+    await restrictionSheet
+      .getByRole('combobox', { name: 'Funcionário' })
+      .click()
+    await page.getByRole('option', { name: employee.name }).click()
+    await restrictionSheet.getByRole('checkbox', { name: 'Quinta' }).check()
+    await restrictionSheet.getByRole('button', { name: 'Salvar' }).click()
+    await expect(restrictionSheet).toBeHidden()
+    const restrictionLabel = `${employee.name} não pode folgar: quinta`
+    await expect(
+      page
+        .getByRole('table', { name: 'Restrições entre funcionários' })
+        .getByRole('row')
+        .filter({ hasText: restrictionLabel })
+        .locator('th, td')
+    ).toHaveText([restrictionLabel, 'Dias proibidos', 'Obrigatória', ''])
+
+    // Thursday is forbidden now, so the rest of March 7 goes to the next workday of the distances
+    await page.getByRole('button', { name: 'Gerar folgas' }).click()
+    await dialog.getByLabel('Mês').fill('2027-03')
+    await dialog.getByRole('button', { name: 'Ver prévia' }).click()
+    await expect(
+      preview.locator('tbody tr').first().locator('th, td')
+    ).toHaveText([employee.name, 'dom, 07/03', 'sáb, 13/03', ''])
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+
+    await page
+      .getByRole('button', {
+        name: `Remover a restrição “${restrictionLabel}”`
+      })
+      .click()
+    await page
+      .getByRole('alertdialog', { name: 'Remover restrição de folga?' })
+      .getByRole('button', { name: 'Remover' })
+      .click()
+    await expect(page.getByText('Nenhuma restrição cadastrada')).toBeVisible()
 
     await page
       .getByRole('button', { name: 'Remover Folga entre os dias 10 e 25' })

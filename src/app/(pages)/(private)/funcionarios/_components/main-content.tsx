@@ -13,6 +13,7 @@ import type {
   TShiftPatternWithVersions,
   UserGroup
 } from '@/infra/database/types'
+import type { TAssignmentRestBreak } from '@/models/rest-restriction/types'
 import type { TUserWithOrganization } from '@/models/user/types'
 
 import { UsersTable } from './users-table'
@@ -26,6 +27,7 @@ export const MainContent = ({
   filters,
   shiftPatterns,
   assignments,
+  restBreaks,
   today,
   canEdit
 }: {
@@ -37,6 +39,7 @@ export const MainContent = ({
   filters: TUsersFilterValues
   shiftPatterns: TShiftPatternWithVersions[]
   assignments: ShiftAssignment[]
+  restBreaks: Record<string, TAssignmentRestBreak[]>
   today: string
   canEdit: boolean
 }) => (
@@ -59,6 +62,7 @@ export const MainContent = ({
               jobFunctions={jobFunctions}
               shiftPatterns={shiftPatterns}
               assignments={assignments}
+              restBreaks={restBreaks}
               today={today}
               canEdit={canEdit}
             />

@@ -31,6 +31,7 @@ const createContext = (
   limits: { maxLunch: 120, maxDailyJourney: 600, maxContinuousWork: 360 },
   restRules: [],
   restDays: [],
+  restRestrictions: [],
   isHoliday: () => false,
   ...context
 })
@@ -198,11 +199,58 @@ describe('detectUnmovedRests', () => {
   })
 })
 
+describe('detectRestRestrictionBreaks', () => {
+  test('Gathers in one item everyone off on a day over a limit, for the active employees only', () => {
+    const carla = { id: 'carla', name: 'Carla' }
+    const items = detectPendingItems(
+      createContext({
+        users: [bruno, ana],
+        restRestrictions: [
+          {
+            id: 'restriction',
+            kind: 'together',
+            level: 'required',
+            maxOff: 1,
+            weekdays: [],
+            userNames: ['Ana', 'Bruno', 'Carla'],
+            groupName: null,
+            userIds: ['ana', 'bruno', carla.id]
+          }
+        ],
+        restDays: [ana, bruno, carla].map(({ id }) => ({
+          userId: id,
+          assignments: [],
+          days: [day('2026-12-03', 'off'), day('2026-12-04', 'work')]
+        }))
+      })
+    ).filter(({ type }) => type === 'rest-restriction-break')
+
+    expect(items).toEqual([
+      {
+        key: 'rest-restriction-break:restriction:2026-12-03',
+        type: 'rest-restriction-break',
+        users: [ana, bruno],
+        date: '2026-12-03',
+        restriction: {
+          id: 'restriction',
+          kind: 'together',
+          level: 'required',
+          maxOff: 1,
+          weekdays: [],
+          userNames: ['Ana', 'Bruno', 'Carla'],
+          groupName: null
+        }
+      }
+    ])
+  })
+})
+
 describe('isDismissible', () => {
   test('Keeps the company setup until it is done', () => {
     expect(isDismissible({ type: 'company-setup' })).toBe(false)
     expect(isDismissible({ type: 'user-without-schedule' })).toBe(true)
     expect(isDismissible({ type: 'schedule-alert' })).toBe(true)
     expect(isDismissible({ type: 'unmoved-rest' })).toBe(true)
+    expect(isDismissible({ type: 'rest-restriction-break' })).toBe(true)
   })
 })

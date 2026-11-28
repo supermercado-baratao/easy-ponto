@@ -934,3 +934,74 @@ export const restRuleConstraints = pgTable(
     }).onDelete('cascade')
   ]
 )
+
+// The restrictions count the days off of every employee, whatever the rest rule, so they live apart from the rules (#118)
+export const restRestrictions = pgTable(
+  'rest_restrictions',
+  {
+    id: id(),
+    kind: text('kind').notNull(),
+    level: text('level').notNull(),
+    maxOff: integer('max_off'),
+    userGroupId: text('user_group_id'),
+    userId: text('user_id'),
+    weekdays: integer('weekdays').array().notNull().default([]),
+    companyId: text('company_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    index('rest_restrictions_company_id_idx').on(table.companyId),
+    unique('rest_restrictions_user_group_id_key').on(table.userGroupId),
+    unique('rest_restrictions_user_id_key').on(table.userId),
+    check(
+      'rest_restrictions_kind_check',
+      sql`(${table.kind} = 'together' and ${table.maxOff} >= 1 and ${table.userGroupId} is null and ${table.userId} is null)
+        or (${table.kind} = 'group' and ${table.maxOff} >= 1 and ${table.userGroupId} is not null and ${table.userId} is null)
+        or (${table.kind} = 'weekdays' and ${table.maxOff} is null and ${table.userGroupId} is null and ${table.userId} is not null and cardinality(${table.weekdays}) between 1 and 6)`
+    ),
+    foreignKey({
+      name: 'rest_restrictions_company_id_fkey',
+      columns: [table.companyId],
+      foreignColumns: [companies.id]
+    }).onDelete('cascade'),
+    // A group limit is a rule the company wrote, so removing the group must not drop it silently. No action
+    // instead of restrict, which is checked at the end of the statement, so removing the company still cascades
+    foreignKey({
+      name: 'rest_restrictions_user_group_id_fkey',
+      columns: [table.userGroupId],
+      foreignColumns: [userGroups.id]
+    }),
+    foreignKey({
+      name: 'rest_restrictions_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [users.id]
+    }).onDelete('cascade')
+  ]
+)
+
+export const restRestrictionUsers = pgTable(
+  'rest_restriction_users',
+  {
+    id: id(),
+    restrictionId: text('restriction_id').notNull(),
+    userId: text('user_id').notNull(),
+    ...timestamps()
+  },
+  (table) => [
+    unique('rest_restriction_users_restriction_id_user_id_key').on(
+      table.restrictionId,
+      table.userId
+    ),
+    index('rest_restriction_users_user_id_idx').on(table.userId),
+    foreignKey({
+      name: 'rest_restriction_users_restriction_id_fkey',
+      columns: [table.restrictionId],
+      foreignColumns: [restRestrictions.id]
+    }).onDelete('cascade'),
+    foreignKey({
+      name: 'rest_restriction_users_user_id_fkey',
+      columns: [table.userId],
+      foreignColumns: [users.id]
+    }).onDelete('cascade')
+  ]
+)

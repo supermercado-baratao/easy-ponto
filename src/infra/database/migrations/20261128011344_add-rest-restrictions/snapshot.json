@@ -1,0 +1,694 @@
+{
+  "type": "diff",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "c9b805ff-4e66-4bdd-a9db-6f038fea99ef",
+  "prevIds": [
+    "b6a7132f-7f74-4043-aa49-460c2a095b8f"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restriction_users"
+      ],
+      "writes": [
+        "s|tbl|public.rest_restriction_users",
+        "n|tbl|public.rest_restriction_users",
+        "e|tbl|public.rest_restriction_users",
+        "n|rel|public.rest_restriction_users",
+        "n|type|public.rest_restriction_users",
+        "n|rel|public.rest_restriction_users_pkey",
+        "n|rel|public.rest_restriction_users_restriction_id_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restrictions"
+      ],
+      "writes": [
+        "s|tbl|public.rest_restrictions",
+        "n|tbl|public.rest_restrictions",
+        "e|tbl|public.rest_restrictions",
+        "n|rel|public.rest_restrictions",
+        "n|type|public.rest_restrictions",
+        "n|rel|public.rest_restrictions_pkey",
+        "n|rel|public.rest_restrictions_user_group_id_key",
+        "n|rel|public.rest_restrictions_user_id_key"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rest_restriction_users",
+        "rest_restriction_users_user_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.rest_restriction_users_user_id_idx",
+        "n|idx|public.rest_restriction_users_user_id_idx",
+        "e|idx|public.rest_restriction_users_user_id_idx",
+        "n|rel|public.rest_restriction_users_user_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restriction_users",
+        "n|sch|public",
+        "n|col|public.rest_restriction_users.user_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rest_restrictions",
+        "rest_restrictions_company_id_idx"
+      ],
+      "writes": [
+        "s|idx|public.rest_restrictions_company_id_idx",
+        "n|idx|public.rest_restrictions_company_id_idx",
+        "e|idx|public.rest_restrictions_company_id_idx",
+        "n|rel|public.rest_restrictions_company_id_idx"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restrictions",
+        "n|sch|public",
+        "n|col|public.rest_restrictions.company_id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restriction_users"
+      ],
+      "writes": [
+        "s|fk|public.rest_restriction_users.rest_restriction_users_restriction_id_fkey",
+        "n|fk|public.rest_restriction_users.rest_restriction_users_restriction_id_fkey",
+        "e|fk|public.rest_restriction_users.rest_restriction_users_restriction_id_fkey",
+        "n|con|public.rest_restriction_users.rest_restriction_users_restriction_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restriction_users",
+        "n|sch|public",
+        "n|tbl|public.rest_restrictions",
+        "n|sch|public",
+        "n|col|public.rest_restriction_users.restriction_id",
+        "n|col|public.rest_restrictions.id",
+        "e|uniqueness|public.rest_restrictions.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restriction_users"
+      ],
+      "writes": [
+        "s|fk|public.rest_restriction_users.rest_restriction_users_user_id_fkey",
+        "n|fk|public.rest_restriction_users.rest_restriction_users_user_id_fkey",
+        "e|fk|public.rest_restriction_users.rest_restriction_users_user_id_fkey",
+        "n|con|public.rest_restriction_users.rest_restriction_users_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restriction_users",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.rest_restriction_users.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restrictions"
+      ],
+      "writes": [
+        "s|fk|public.rest_restrictions.rest_restrictions_company_id_fkey",
+        "n|fk|public.rest_restrictions.rest_restrictions_company_id_fkey",
+        "e|fk|public.rest_restrictions.rest_restrictions_company_id_fkey",
+        "n|con|public.rest_restrictions.rest_restrictions_company_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restrictions",
+        "n|sch|public",
+        "n|tbl|public.companies",
+        "n|sch|public",
+        "n|col|public.rest_restrictions.company_id",
+        "n|col|public.companies.id",
+        "e|uniqueness|public.companies.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restrictions"
+      ],
+      "writes": [
+        "s|fk|public.rest_restrictions.rest_restrictions_user_group_id_fkey",
+        "n|fk|public.rest_restrictions.rest_restrictions_user_group_id_fkey",
+        "e|fk|public.rest_restrictions.rest_restrictions_user_group_id_fkey",
+        "n|con|public.rest_restrictions.rest_restrictions_user_group_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restrictions",
+        "n|sch|public",
+        "n|tbl|public.user_groups",
+        "n|sch|public",
+        "n|col|public.rest_restrictions.user_group_id",
+        "n|col|public.user_groups.id",
+        "e|uniqueness|public.user_groups.id"
+      ]
+    },
+    {
+      "statementType": "create_fk",
+      "statementTarget": [
+        "table",
+        "public",
+        "rest_restrictions"
+      ],
+      "writes": [
+        "s|fk|public.rest_restrictions.rest_restrictions_user_id_fkey",
+        "n|fk|public.rest_restrictions.rest_restrictions_user_id_fkey",
+        "e|fk|public.rest_restrictions.rest_restrictions_user_id_fkey",
+        "n|con|public.rest_restrictions.rest_restrictions_user_id_fkey"
+      ],
+      "reads": [
+        "n|tbl|public.rest_restrictions",
+        "n|sch|public",
+        "n|tbl|public.users",
+        "n|sch|public",
+        "n|col|public.rest_restrictions.user_id",
+        "n|col|public.users.id",
+        "e|uniqueness|public.users.id"
+      ]
+    }
+  ],
+  "deltas": [
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "rest_restriction_users",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "name": "rest_restrictions",
+        "isRlsEnabled": false,
+        "entityType": "tables"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "restriction_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "kind",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "level",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "max_off",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "user_group_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "user_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": false,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "weekdays",
+        "type": "integer",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 1,
+        "default": "'{}'",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "company_id",
+        "type": "text",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "created_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": "now()",
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "updated_at",
+        "type": "timestamp(3) with time zone",
+        "typeSchema": null,
+        "notNull": true,
+        "dimensions": 0,
+        "default": null,
+        "generated": null,
+        "identity": null,
+        "entityType": "columns"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "rest_restriction_users_user_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "user_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_company_id_idx",
+        "nameExplicit": true,
+        "columns": [
+          {
+            "value": "company_id",
+            "isExpression": false,
+            "asc": true,
+            "nullsFirst": false,
+            "opclass": null
+          }
+        ],
+        "isUnique": false,
+        "where": null,
+        "with": "",
+        "method": "btree",
+        "concurrently": false,
+        "entityType": "indexes"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "rest_restriction_users_restriction_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "restriction_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "rest_restrictions",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "rest_restriction_users_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_company_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "company_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "companies",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_user_group_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_group_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "user_groups",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "NO ACTION",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_user_id_fkey",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "schemaTo": "public",
+        "tableTo": "users",
+        "columnsTo": [
+          "id"
+        ],
+        "onUpdate": "NO ACTION",
+        "onDelete": "CASCADE",
+        "entityType": "fks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "rest_restriction_users_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_pkey",
+        "columns": [
+          "id"
+        ],
+        "nameExplicit": false,
+        "entityType": "pks"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restriction_users",
+        "name": "rest_restriction_users_restriction_id_user_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "restriction_id",
+          "user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_user_group_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "user_group_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_user_id_key",
+        "nameExplicit": true,
+        "columns": [
+          "user_id"
+        ],
+        "nullsNotDistinct": false,
+        "entityType": "uniques"
+      }
+    },
+    {
+      "op": "create",
+      "row": {
+        "schema": "public",
+        "table": "rest_restrictions",
+        "name": "rest_restrictions_kind_check",
+        "value": "(\"kind\" = 'together' and \"max_off\" >= 1 and \"user_group_id\" is null and \"user_id\" is null)\n        or (\"kind\" = 'group' and \"max_off\" >= 1 and \"user_group_id\" is not null and \"user_id\" is null)\n        or (\"kind\" = 'weekdays' and \"max_off\" is null and \"user_group_id\" is null and \"user_id\" is not null and cardinality(\"weekdays\") between 1 and 6)",
+        "entityType": "checks"
+      }
+    }
+  ]
+}

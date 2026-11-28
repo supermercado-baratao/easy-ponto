@@ -6,6 +6,10 @@ import type {
   TScheduleAlert,
   TScheduleAlertLimits
 } from '@/models/journey/types'
+import type {
+  TRestRestrictionInput,
+  TRestRestrictionSummary
+} from '@/models/rest-restriction/utils'
 import type { TRestRuleInput, TRestUserDays } from '@/models/rest-rule/utils'
 import type { TUserShiftDays } from '@/models/shift-assignment/types'
 
@@ -27,6 +31,12 @@ export type TPendingItem = { key: string } & (
       user: TPendingItemUser
       date: string
       ruleName: string
+    }
+  | {
+      type: 'rest-restriction-break'
+      users: TPendingItemUser[]
+      date: string
+      restriction: TRestRestrictionSummary
     }
 )
 
@@ -52,6 +62,7 @@ export type TPendingItemContext = {
   limits: TScheduleAlertLimits
   restRules: TRestRuleInput[]
   restDays: TRestUserDays[]
+  restRestrictions: TRestRestrictionInput[]
   isHoliday: (date: string) => boolean
 }
 

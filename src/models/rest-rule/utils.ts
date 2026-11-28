@@ -6,6 +6,14 @@ import type {
 } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import {
+  findRestrictionBreaks,
+  getOffDays,
+  toRestRestrictionSummary,
+  type TRestOffDays,
+  type TRestRestrictionInput,
+  type TRestRestrictionSummary
+} from '@/models/rest-restriction/utils'
+import {
   getUsualWorkday,
   isInEffect,
   toPairs,
@@ -94,6 +102,7 @@ export type TRestMove = {
   reason: TRestMoveReason
   target: string | null
   unmetConstraints: TRestConstraint[]
+  brokenRestrictions: TRestRestrictionSummary[]
 }
 
 export type TRuleAdjustment = {
@@ -104,6 +113,10 @@ export type TRuleAdjustment = {
 }
 
 const DATE_FORMAT = 'YYYY-MM-DD'
+
+// The rests are generated a month at a time, so the next month is the furthest a user plans
+export const getRestPlanningFinalDate = (today: string): string =>
+  dayjs(today).add(1, 'month').endOf('month').format(DATE_FORMAT)
 
 export const isInWindow = (
   {
@@ -220,28 +233,38 @@ const compareSatisfaction = (a: boolean[], b: boolean[]): number => {
 }
 
 const findTarget = ({
+  userId,
   rule,
   date,
   reason,
   assignment,
   daysByDate,
   takenDates,
+  offDays,
+  restrictions,
   isHoliday
 }: {
+  userId: string
   rule: TRestRuleInput
   date: string
   reason: TRestMoveReason
   assignment: TShiftAssignmentInput
   daysByDate: Map<string, TResolvedDay>
   takenDates: Set<string>
+  offDays: TRestOffDays
+  restrictions: TRestRestrictionInput[]
   isHoliday: (date: string) => boolean
-}): Pick<TRestMove, 'target' | 'unmetConstraints'> => {
+}): Pick<TRestMove, 'target' | 'unmetConstraints' | 'brokenRestrictions'> => {
   // On a holiday nothing is worked in place of the day off, so there is no load to keep
   const expectedLoad =
     reason === 'holiday' ? null : getUsualLoad(assignment, date)
   const required = getRequiredConstraints(rule)
   const preferred = getPreferredConstraints(rule)
-  const candidates: { date: string; satisfaction: boolean[] }[] = []
+  const candidates: {
+    date: string
+    broken: TRestRestrictionInput[]
+    satisfaction: boolean[]
+  }[] = []
   for (const candidateDate of getCandidateDates(rule, date)) {
     const candidate = daysByDate.get(candidateDate)
     if (
@@ -255,71 +278,109 @@ const findTarget = ({
     const context = { rule, date, candidate, isHoliday, expectedLoad }
     if (required.some((constraint) => !meetsConstraint(constraint, context)))
       continue
+    const broken = findRestrictionBreaks({
+      restrictions,
+      offDays,
+      userId,
+      date: candidateDate
+    })
+    if (broken.some(({ level }) => level === 'required')) continue
     candidates.push({
       date: candidateDate,
+      broken,
       satisfaction: preferred.map((constraint) =>
         meetsConstraint(constraint, context)
       )
     })
   }
-  const [best] = candidates.toSorted((a, b) =>
-    compareSatisfaction(a.satisfaction, b.satisfaction)
+  // A restriction between employees weighs more than the preferred constraints of the rule, since it
+  // keeps the store staffed (#118)
+  const [best] = candidates.toSorted(
+    (a, b) =>
+      a.broken.length - b.broken.length ||
+      compareSatisfaction(a.satisfaction, b.satisfaction)
   )
-  if (!best) return { target: null, unmetConstraints: [] }
+  if (!best) {
+    return { target: null, unmetConstraints: [], brokenRestrictions: [] }
+  }
   return {
     target: best.date,
     unmetConstraints: preferred.filter(
       (_constraint, index) => best.satisfaction[index] === false
+    ),
+    brokenRestrictions: best.broken.map((restriction) =>
+      toRestRestrictionSummary(restriction)
     )
   }
 }
 
+// The days of every employee go in a single chronological pass, so a day off moved earlier counts in the
+// restrictions of the ones moved after it
 export const findRestMoves = ({
   rules,
   users,
+  restrictions = [],
   isHoliday
 }: {
   rules: TRestRuleInput[]
   users: TRestUserDays[]
+  restrictions?: TRestRestrictionInput[]
   isHoliday: (date: string) => boolean
-}): TRestMove[] =>
-  users
-    .flatMap(({ userId, assignments, days }) => {
-      const daysByDate = new Map(days.map((day) => [day.date, day]))
-      const takenDates = new Set<string>()
-      const moves: TRestMove[] = []
-      const chronologicalDays = days.toSorted((a, b) =>
-        a.date.localeCompare(b.date)
-      )
-      for (const day of chronologicalDays) {
-        const match = findRuleOfDay(rules, assignments, day.date)
-        if (!match) continue
-        const { rule, assignment } = match
-        const reason = getRestMoveReason(day, rule, isHoliday(day.date))
-        if (!reason) continue
-        const result = findTarget({
-          rule,
-          date: day.date,
-          reason,
-          assignment,
-          daysByDate,
-          takenDates,
-          isHoliday
-        })
-        if (result.target) takenDates.add(result.target)
-        moves.push({
-          userId,
-          ruleId: rule.id,
-          ruleName: rule.name,
-          shiftAssignmentId: assignment.id,
-          date: day.date,
-          reason,
-          ...result
-        })
-      }
-      return moves
+}): TRestMove[] => {
+  const offDays = getOffDays(users)
+  const states = users.map((user) => ({
+    user,
+    daysByDate: new Map(user.days.map((day) => [day.date, day])),
+    takenDates: new Set<string>()
+  }))
+  const entries = states
+    .flatMap((state, order) =>
+      state.user.days.map((day) => ({ state, day, order }))
+    )
+    .toSorted(
+      (a, b) => a.day.date.localeCompare(b.day.date) || a.order - b.order
+    )
+  const moves: TRestMove[] = []
+  for (const {
+    state: { user, daysByDate, takenDates },
+    day
+  } of entries) {
+    const match = findRuleOfDay(rules, user.assignments, day.date)
+    if (!match) continue
+    const { rule, assignment } = match
+    const reason = getRestMoveReason(day, rule, isHoliday(day.date))
+    if (!reason) continue
+    const result = findTarget({
+      userId: user.userId,
+      rule,
+      date: day.date,
+      reason,
+      assignment,
+      daysByDate,
+      takenDates,
+      offDays,
+      restrictions,
+      isHoliday
     })
-    .toSorted((a, b) => a.date.localeCompare(b.date))
+    if (result.target) {
+      takenDates.add(result.target)
+      if (reason !== 'holiday') offDays.get(day.date)?.delete(user.userId)
+      const off = offDays.get(result.target) ?? new Set<string>()
+      off.add(user.userId)
+      offDays.set(result.target, off)
+    }
+    moves.push({
+      userId: user.userId,
+      ruleId: rule.id,
+      ruleName: rule.name,
+      shiftAssignmentId: assignment.id,
+      date: day.date,
+      reason,
+      ...result
+    })
+  }
+  return moves
+}
 
 // The day off left on a holiday is also saved, so it counts as handled and leaves the pending items
 export const toRuleAdjustments = (moves: TRestMove[]): TRuleAdjustment[] =>
