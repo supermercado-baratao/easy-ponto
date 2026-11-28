@@ -4,7 +4,6 @@ import type { RestRule, TRestRuleWithRelations } from '@/infra/database/types'
 import { dayjs } from '@/infra/dayjs'
 import { findHoliday } from '@/models/holiday/utils'
 import { restRestrictionModel } from '@/models/rest-restriction/model'
-import { resolveDays } from '@/models/shift-assignment/utils'
 import { INACTIVE_USER_STATUSES, type TUserStatus } from '@/models/user/utils'
 import { holidayRepository } from '@/repositories/holiday-repository'
 import { restRuleRepository } from '@/repositories/rest-rule-repository'
@@ -17,23 +16,25 @@ import {
   companyIdSchema,
   createSchema,
   periodSchema,
+  planMonthsSchema,
   removeSchema,
   updateSchema
 } from './schema'
 import type {
   TRestGenerateResult,
+  TRestPlan,
   TRestPreview,
   TRestRuleCreateData,
   TRestRulePeriodParams,
+  TRestRulePlanMonthsParams,
   TRestRuleRemoveParams,
   TRestRuleUpdateData
 } from './types'
 import {
-  findRestMoves,
   isSameRestRuleName,
+  planRestMonth,
   toRestRuleInput,
-  toRuleAdjustments,
-  type TRestMove
+  type TRuleAdjustment
 } from './utils'
 
 const DATE_FORMAT = 'YYYY-MM-DD'
@@ -137,18 +138,17 @@ const getPeriod = (
   }
 }
 
-const computeMoves = async (
-  params: TRestRulePeriodParams
-): Promise<TRestPreview & { userIds: string[] }> => {
-  const { companyId, month } = periodSchema.parse(params)
-  const { initialDate, finalDate } = getPeriod(month)
+const planMonths = async (
+  params: TRestRulePlanMonthsParams
+): Promise<TRestPlan> => {
+  const { companyId, months } = planMonthsSchema.parse(params)
+  const periods = months.map((month) => ({ month, ...getPeriod(month) }))
   const [rules, holidays, users, restrictions] = await Promise.all([
     restRuleRepository.findManyByCompanyId(companyId),
     holidayRepository.findManyByCompanyId(companyId),
     userRepository.findManyByCompanyId(companyId),
     restRestrictionModel.findInputsByCompanyId(companyId)
   ])
-  const userIds = users.map(({ id }) => id)
   const activeUsers = users.filter(
     ({ status }) => !INACTIVE_USER_STATUSES.includes(status as TUserStatus)
   )
@@ -157,41 +157,62 @@ const computeMoves = async (
     shiftAssignmentRepository.findManyByUserIds(activeIds),
     shiftAssignmentRepository.findAdjustmentsByUserIds({
       userIds: activeIds,
-      initialDate,
-      finalDate
+      initialDate: periods[0].initialDate,
+      finalDate: periods.at(-1)!.finalDate
     })
   ])
-  // The adjustments of a rule are generated again, so only the manual ones shape the days
-  const manualAdjustments = adjustments.filter(
-    ({ origin }) => origin !== 'rule'
-  )
-  const moves: TRestMove[] = findRestMoves({
-    rules: rules.map((rule) => toRestRuleInput(rule)),
+  const ruleInputs = rules.map((rule) => toRestRuleInput(rule))
+  const isHoliday = (date: string): boolean => !!findHoliday(date, holidays)
+  return {
+    users,
+    activeUsers,
+    rules,
     restrictions,
-    isHoliday: (date) => !!findHoliday(date, holidays),
-    users: activeIds.map((userId) => {
-      const userAssignments = assignments.filter(
-        (assignment) => assignment.userId === userId
-      )
-      return {
-        userId,
-        assignments: userAssignments,
-        days: resolveDays({
-          initialDate,
-          finalDate,
-          assignments: userAssignments,
-          adjustments: manualAdjustments.filter(
-            (adjustment) => adjustment.userId === userId
+    holidays,
+    months: periods.map(({ month, initialDate, finalDate }) => ({
+      month,
+      initialDate,
+      finalDate,
+      ...planRestMonth({
+        rules: ruleInputs,
+        restrictions,
+        isHoliday,
+        initialDate,
+        finalDate,
+        users: activeIds.map((userId) => ({
+          userId,
+          assignments: assignments.filter(
+            (assignment) => assignment.userId === userId
+          ),
+          adjustments: adjustments.filter(
+            (adjustment) =>
+              adjustment.userId === userId &&
+              adjustment.date >= initialDate &&
+              adjustment.date <= finalDate
           )
-        })
-      }
-    })
+        }))
+      })
+    }))
+  }
+}
+
+const computeMoves = async (
+  params: TRestRulePeriodParams
+): Promise<
+  TRestPreview & { userIds: string[]; adjustments: TRuleAdjustment[] }
+> => {
+  const { companyId, month } = periodSchema.parse(params)
+  const { users, activeUsers, months } = await planMonths({
+    companyId,
+    months: [month]
   })
+  const [{ initialDate, finalDate, moves, adjustments }] = months
   const names = new Map(activeUsers.map(({ id, name }) => [id, name]))
   return {
     initialDate,
     finalDate,
-    userIds,
+    userIds: users.map(({ id }) => id),
+    adjustments,
     moves: moves.map((move) => ({
       ...move,
       userName: names.get(move.userId) ?? ''
@@ -209,12 +230,13 @@ const preview = async (
 const generate = async (
   params: TRestRulePeriodParams
 ): Promise<TRestGenerateResult> => {
-  const { initialDate, finalDate, userIds, moves } = await computeMoves(params)
+  const { initialDate, finalDate, userIds, moves, adjustments } =
+    await computeMoves(params)
   await restRuleRepository.replaceRuleAdjustments({
     userIds,
     initialDate,
     finalDate,
-    adjustments: toRuleAdjustments(moves)
+    adjustments
   })
   return {
     moved: moves.filter(({ target }) => target !== null).length,
@@ -228,5 +250,6 @@ export const restRuleModel = {
   update,
   remove,
   preview,
-  generate
+  generate,
+  planMonths
 }

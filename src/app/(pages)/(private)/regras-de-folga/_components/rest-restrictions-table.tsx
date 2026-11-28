@@ -7,6 +7,7 @@ import {
   TableRow
 } from '@/app/components/ui/shadcn/table'
 import { REST_RESTRICTION_KIND_LABELS } from '@/app/utils/rest-restriction'
+import { LEVEL_LABELS } from '@/app/utils/rest-rule'
 import type { TRestRestrictionWithRelations } from '@/infra/database/types'
 import type { TRestRestrictionKind } from '@/models/rest-restriction/utils'
 import type { TRestConstraintLevel } from '@/models/rest-rule/utils'
@@ -15,7 +16,7 @@ import { RemoveRestRestrictionButton } from './remove-rest-restriction-button/re
 import { RestRestrictionSheet } from './rest-restriction-sheet/rest-restriction-sheet'
 import type { TRestRestrictionFormValues } from './rest-restriction-sheet/types'
 import type { TGroupOption, TUserOption } from './types'
-import { getRestrictionLabel, LEVEL_LABELS } from './utils'
+import { getRestrictionLabel } from './utils'
 
 const toFormValues = (
   restriction: TRestRestrictionWithRelations

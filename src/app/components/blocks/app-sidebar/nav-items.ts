@@ -5,6 +5,7 @@ import {
   CalendarSync,
   CalendarX2,
   ChartColumn,
+  ChartGantt,
   CircleAlert,
   ClipboardCheck,
   Clock,
@@ -61,6 +62,11 @@ export const navItems: TNavItem[] = [
             title: 'Relatório de Horas',
             path: '/relatorio-de-horas',
             icon: ChartColumn
+          },
+          {
+            title: 'Relatório da Escala',
+            path: '/relatorio-da-escala',
+            icon: ChartGantt
           },
           {
             title: 'Calendário',

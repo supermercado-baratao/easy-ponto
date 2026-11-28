@@ -7,10 +7,9 @@ import {
   TableRow
 } from '@/app/components/ui/shadcn/table'
 import { getRestRestrictionLabel } from '@/app/utils/rest-restriction'
+import { CONSTRAINT_LABELS } from '@/app/utils/rest-rule'
 import { dayjs } from '@/infra/dayjs'
 import type { TRestPreviewMove } from '@/models/rest-rule/types'
-
-import { CONSTRAINT_LABELS } from '../utils'
 
 const formatDate = (date: string): string => dayjs(date).format('ddd, DD/MM')
 
