@@ -6,6 +6,10 @@ import {
   TableHeader,
   TableRow
 } from '@/app/components/ui/shadcn/table'
+import {
+  getConstraintSummary,
+  HOLIDAY_REST_LABELS
+} from '@/app/utils/rest-rule'
 import type { TRestRuleWithRelations } from '@/infra/database/types'
 import {
   REST_CONSTRAINT_FIELD_NAMES,
@@ -17,7 +21,6 @@ import { RemoveRestRuleButton } from './remove-rest-rule-button/remove-rest-rule
 import { RestRuleSheet } from './rest-rule-sheet/rest-rule-sheet'
 import type { TRestRuleFormValues } from './rest-rule-sheet/types'
 import type { TShiftPatternOption } from './types'
-import { getConstraintSummary, HOLIDAY_REST_LABELS } from './utils'
 
 const toFormValues = (rule: TRestRuleWithRelations): TRestRuleFormValues => ({
   id: rule.id,

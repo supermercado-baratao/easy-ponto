@@ -16,6 +16,11 @@ import {
 import { Label } from '@/app/components/ui/shadcn/label'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
 import { showActionError } from '@/app/utils/action-error'
+import {
+  CONSTRAINT_LABELS,
+  HOLIDAY_REST_LABELS,
+  LEVEL_LABELS
+} from '@/app/utils/rest-rule'
 import { getWeekdayLabel } from '@/app/utils/weekday'
 import { WEEKDAYS } from '@/constants/time'
 import type { TRestRuleWithRelations } from '@/infra/database/types'
@@ -30,12 +35,7 @@ import {
 } from '@/models/rest-rule/utils'
 
 import type { TShiftPatternOption } from '../types'
-import {
-  CONSTRAINT_DESCRIPTIONS,
-  CONSTRAINT_LABELS,
-  HOLIDAY_REST_LABELS,
-  LEVEL_LABELS
-} from '../utils'
+import { CONSTRAINT_DESCRIPTIONS } from '../utils'
 import { save } from './actions'
 import type { TRestRuleFormState, TRestRuleFormValues } from './types'
 

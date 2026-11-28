@@ -17,6 +17,7 @@ import { Label } from '@/app/components/ui/shadcn/label'
 import { SheetClose, SheetFooter } from '@/app/components/ui/shadcn/sheet'
 import { showActionError } from '@/app/utils/action-error'
 import { REST_RESTRICTION_KIND_LABELS } from '@/app/utils/rest-restriction'
+import { LEVEL_LABELS } from '@/app/utils/rest-rule'
 import { getWeekdayLabel } from '@/app/utils/weekday'
 import { WEEKDAYS } from '@/constants/time'
 import {
@@ -26,7 +27,6 @@ import {
 import { REST_CONSTRAINT_LEVELS } from '@/models/rest-rule/utils'
 
 import type { TGroupOption, TUserOption } from '../types'
-import { LEVEL_LABELS } from '../utils'
 import { save } from './actions'
 import type {
   TRestRestrictionFormState,

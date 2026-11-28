@@ -12,6 +12,7 @@ import {
   findRestMoves,
   findUnmovedRests,
   isInWindow,
+  planRestMonth,
   toRuleAdjustments,
   type TRestMove,
   type TRestRuleInput,
@@ -630,5 +631,79 @@ describe('findUnmovedRests', () => {
     ).toEqual([
       { userId: 'user', date: '2027-03-07', ruleName: 'Folga na janela' }
     ])
+  })
+})
+
+const plan = (
+  adjustments: Parameters<
+    typeof planRestMonth
+  >[0]['users'][number]['adjustments'] = []
+): ReturnType<typeof planRestMonth> =>
+  planRestMonth({
+    rules: [createRule()],
+    restrictions: [],
+    isHoliday: () => false,
+    initialDate: '2027-03-01',
+    finalDate: '2027-03-31',
+    users: [
+      {
+        userId: 'user',
+        assignments: [createAssignment(SIX_BY_ONE)],
+        adjustments
+      }
+    ]
+  })
+
+const kindOf = (
+  days: { date: string; kind: string }[],
+  date: string
+): string | undefined => days.find((day) => day.date === date)?.kind
+
+describe('planRestMonth', () => {
+  test('Applies the moves to the days and keeps the schedule in the base days', () => {
+    const [user] = plan().users
+
+    expect(kindOf(user.baseDays, '2027-03-28')).toBe('off')
+    expect(kindOf(user.baseDays, '2027-03-24')).toBe('work')
+    expect(kindOf(user.days, '2027-03-28')).toBe('work')
+    expect(kindOf(user.days, '2027-03-24')).toBe('off')
+  })
+
+  test('Ignores the saved rule adjustments, which generating the month replaces', () => {
+    const [user] = plan([
+      {
+        date: '2027-03-10',
+        kind: 'off',
+        shiftAssignmentId: null,
+        origin: 'rule',
+        ...OFF
+      }
+    ]).users
+
+    expect(kindOf(user.baseDays, '2027-03-10')).toBe('work')
+    expect(kindOf(user.days, '2027-03-10')).toBe('work')
+  })
+
+  test('Is up to date only when the saved rule adjustments are the ones it generates', () => {
+    const generated = [
+      {
+        date: '2027-03-28',
+        kind: 'work' as const,
+        shiftAssignmentId: 'assignment',
+        origin: 'rule',
+        ...OFF
+      },
+      {
+        date: '2027-03-24',
+        kind: 'off' as const,
+        shiftAssignmentId: null,
+        origin: 'rule',
+        ...OFF
+      }
+    ]
+
+    expect(plan().upToDate).toBe(false)
+    expect(plan(generated).upToDate).toBe(true)
+    expect(plan(generated.slice(0, 1)).upToDate).toBe(false)
   })
 })

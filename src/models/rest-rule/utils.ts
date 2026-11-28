@@ -1,6 +1,7 @@
 import type {
   RestRule,
   RestRuleConstraint,
+  ShiftAdjustment,
   ShiftAssignment,
   TRestRuleWithRelations
 } from '@/infra/database/types'
@@ -16,8 +17,10 @@ import {
 import {
   getUsualWorkday,
   isInEffect,
+  resolveDays,
   toPairs,
   type TResolvedDay,
+  type TShiftAdjustmentInput,
   type TShiftAssignmentInput,
   type TShiftPair
 } from '@/models/shift-assignment/utils'
@@ -399,6 +402,141 @@ export const toRuleAdjustments = (moves: TRestMove[]): TRuleAdjustment[] =>
         ]
       : []
   )
+
+type TRestAssignment = TRestUserDays['assignments'][number]
+
+export type TRestPlanUserInput<T extends TRestAssignment = TRestAssignment> = {
+  userId: string
+  assignments: T[]
+  adjustments: (TShiftAdjustmentInput & Pick<ShiftAdjustment, 'origin'>)[]
+}
+
+export type TRestPlanUser<T extends TRestAssignment = TRestAssignment> = {
+  userId: string
+  assignments: T[]
+  baseDays: TResolvedDay[]
+  days: TResolvedDay[]
+}
+
+export type TRestMonthPlan<T extends TRestAssignment = TRestAssignment> = {
+  users: TRestPlanUser<T>[]
+  moves: TRestMove[]
+  adjustments: TRuleAdjustment[]
+  upToDate: boolean
+}
+
+const toAdjustmentInput = ({
+  date,
+  kind,
+  shiftAssignmentId
+}: TRuleAdjustment): TShiftAdjustmentInput => ({
+  date,
+  kind,
+  shiftAssignmentId,
+  entry1: null,
+  exit1: null,
+  entry2: null,
+  exit2: null,
+  entry3: null,
+  exit3: null
+})
+
+const getAdjustmentKey = ({
+  date,
+  kind,
+  shiftAssignmentId
+}: Pick<
+  TShiftAdjustmentInput,
+  'date' | 'kind' | 'shiftAssignmentId'
+>): string => `${date}|${kind}|${String(shiftAssignmentId)}`
+
+const isSameAdjustments = (
+  a: Pick<TShiftAdjustmentInput, 'date' | 'kind' | 'shiftAssignmentId'>[],
+  b: Pick<TShiftAdjustmentInput, 'date' | 'kind' | 'shiftAssignmentId'>[]
+): boolean => {
+  const keys = new Set(a.map((adjustment) => getAdjustmentKey(adjustment)))
+  return (
+    a.length === b.length &&
+    b.every((adjustment) => keys.has(getAdjustmentKey(adjustment)))
+  )
+}
+
+// The base days hold only the manual adjustments, the ones `generate` keeps, and the days add the
+// adjustments it saves, so the plan is the one generating the month leaves
+export const planRestMonth = <T extends TRestAssignment>({
+  rules,
+  restrictions,
+  isHoliday,
+  initialDate,
+  finalDate,
+  users
+}: {
+  rules: TRestRuleInput[]
+  restrictions: TRestRestrictionInput[]
+  isHoliday: (date: string) => boolean
+  initialDate: string
+  finalDate: string
+  users: TRestPlanUserInput<T>[]
+}): TRestMonthPlan<T> => {
+  const prepared = users.map(({ userId, assignments, adjustments }) => {
+    const manual = adjustments.filter(({ origin }) => origin !== 'rule')
+    return {
+      userId,
+      assignments,
+      manual,
+      saved: adjustments.filter(({ origin }) => origin === 'rule'),
+      baseDays: resolveDays({
+        initialDate,
+        finalDate,
+        assignments,
+        adjustments: manual
+      })
+    }
+  })
+  const moves = findRestMoves({
+    rules,
+    restrictions,
+    isHoliday,
+    users: prepared.map(({ userId, assignments, baseDays }) => ({
+      userId,
+      assignments,
+      days: baseDays
+    }))
+  })
+  const adjustments = toRuleAdjustments(moves)
+  const planned = prepared.map(
+    ({ userId, assignments, manual, saved, baseDays }) => {
+      const manualDates = new Set(manual.map(({ date }) => date))
+      const own = adjustments.filter(
+        (adjustment) =>
+          adjustment.userId === userId && !manualDates.has(adjustment.date)
+      )
+      return {
+        upToDate: isSameAdjustments(own, saved),
+        user: {
+          userId,
+          assignments,
+          baseDays,
+          days: resolveDays({
+            initialDate,
+            finalDate,
+            assignments,
+            adjustments: [
+              ...manual,
+              ...own.map((adjustment) => toAdjustmentInput(adjustment))
+            ]
+          })
+        }
+      }
+    }
+  )
+  return {
+    users: planned.map(({ user }) => user),
+    moves,
+    adjustments,
+    upToDate: planned.every(({ upToDate }) => upToDate)
+  }
+}
 
 export const findUnmovedRests = ({
   rules,
